@@ -728,7 +728,7 @@
         <a data-nav="presskit">Press Kit</a>
         <a data-nav="devlog-0">Devlog</a>
         <a data-nav="blog-0">Blog</a>
-        <div class="menu-version">v0.1.1</div>
+        <div class="menu-version">v0.1.3</div>
     </div>
     <div class="overlay" id="overlay"></div>
 
@@ -750,6 +750,12 @@
             const SNAP_MAX_DURATION = 0.72;
             const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
             const DRAG_THRESHOLD = 4;
+            // ────────────────────────────────────────────────────────
+
+            // ── snapping sensitivity ───────────────────────────────
+            const DEADZONE_X_FACTOR = 0.15;
+            const DEADZONE_Y_FACTOR = 0.15;
+            const CURRENT_CARD_WEIGHT = 1.5;
             // ────────────────────────────────────────────────────────
 
             const mainCardData = [
@@ -790,20 +796,28 @@
                     meta: 'Design notes' },
             ];
 
-            const blogPostData = [
-                { title: 'Blog Page 1', label: 'Intro',
-                    content: 'This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.',
-                    meta: 'Pinned entry' },
-                { title: 'Blog Page 2', label: 'Dev log',
-                    content: 'A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.',
-                    meta: 'Recent update' },
-                { title: 'Blog Page 3', label: 'Notes',
-                    content: 'Another post card in the blog feed. Add as many as you want without mixing them into the main feed.',
-                    meta: 'Independent blog section' },
-                { title: 'Blog Page 4', label: 'Update',
-                    content: 'Extra post only visible on the full blog page. The main feed only shows the preview card.',
-                    meta: 'Exclusive to blog page' },
-            ];
+            // ── NEW: Fetch blog posts from blog-highlights folder ──
+            async function loadBlogCards() {
+                const folder = 'blog-highlights';
+                try {
+                    const manifestResp = await fetch(`${folder}/manifest.json`);
+                    if (!manifestResp.ok) throw new Error('manifest not found');
+                    const files = await manifestResp.json(); // array of filenames
+
+                    const blogDataArray = [];
+                    for (const file of files) {
+                        const postResp = await fetch(`${folder}/${file}`);
+                        if (!postResp.ok) continue;
+                        const post = await postResp.json();
+                        blogDataArray.push(post);
+                    }
+                    return blogDataArray;
+                } catch (err) {
+                    console.warn('Could not load blog posts, using empty array.', err);
+                    return [];
+                }
+            }
+            // ─────────────────────────────────────────────────────────
 
             let allCardEls = [];
             let currentCardIndex = 0;
@@ -890,7 +904,8 @@
                     </div>`;
             }
 
-            function buildAllCards() {
+            // ── buildAllCards is now async ──────────────────────────
+            async function buildAllCards() {
                 tableSurface.innerHTML = '';
                 allCardEls = [];
                 const cardW = getCardWidth();
@@ -904,7 +919,7 @@
                 const mainCenterX = padX + cardW + colGap + cardW / 2;
                 const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
 
-                // Devlog cards (left column)
+                // Devlog cards (left column) – still hardcoded
                 devlogPostData.forEach((data, i) => {
                     const el = document.createElement('article');
                     el.className = 'devlog-card';
@@ -936,7 +951,8 @@
                     allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
                 });
 
-                // Blog cards (right column)
+                // Blog cards (right column) – now loaded from folder
+                const blogPostData = await loadBlogCards();
                 blogPostData.forEach((data, i) => {
                     const el = document.createElement('article');
                     el.className = 'blog-card';
@@ -960,6 +976,9 @@
                 tableSurface.style.width = totalWidth + 'px';
                 tableSurface.style.height = totalHeight + 'px';
             }
+            // ────────────────────────────────────────────────────────
+
+            /* ... (rest of the script: snapping, drag handling, etc. – unchanged) ... */
 
             function findClosestCardIndex(dragDx = null, dragDy = null) {
                 const vpW = viewport.clientWidth;
@@ -975,8 +994,8 @@
                 const colGap = getColumnGap();
                 const rowGap = getRowGap();
 
-                const deadzoneX = colGap * 0.25;
-                const deadzoneY = rowGap * 0.25;
+                const deadzoneX = colGap * DEADZONE_X_FACTOR;
+                const deadzoneY = rowGap * DEADZONE_Y_FACTOR;
                 const dxCurr = Math.abs(currentCard.centerX - targetX);
                 const dyCurr = Math.abs(currentCard.centerY - targetY);
                 if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) {
@@ -993,8 +1012,8 @@
                         if (c.centerY > maxY) maxY = c.centerY;
                     });
 
-                    const marginX = cardW * 0.4;
-                    const marginY = cardH * 0.4;
+                    const marginX = cardW * 0.3;
+                    const marginY = cardH * 0.3;
 
                     if (dragDx < -DRAG_THRESHOLD && targetX > maxX + marginX) return currentCardIndex;
                     if (dragDx > DRAG_THRESHOLD && targetX < minX - marginX) return currentCardIndex;
@@ -1004,7 +1023,6 @@
 
                 const normX = colGap + cardW;
                 const normY = rowGap + cardH;
-                const CURRENT_CARD_WEIGHT = 4;
 
                 let bestIdx = 0;
                 let bestDist = Infinity;
@@ -1175,7 +1193,6 @@
                 viewport.releasePointerCapture(e.pointerId);
 
                 if (!pointerMoved) {
-                    // Click/tap without drag: find card under pointer
                     const pos = getEventPos(e);
                     const clickedIndex = findCardAtPoint(pos.x, pos.y);
                     if (clickedIndex !== -1) {
@@ -1220,13 +1237,11 @@
                 e.preventDefault();
             }, { passive: false });
 
-            // Wheel / trackpad scroll → vertical navigation
             viewport.addEventListener('wheel', function(e) {
                 if (menu.classList.contains('active')) return;
                 e.preventDefault();
 
                 if (isDragging) {
-                    // Cancel any active drag
                     isDragging = false;
                     viewport.classList.remove('grabbing');
                     tableSurface.classList.remove('dragging');
@@ -1235,7 +1250,6 @@
                 clearSnapTransition();
                 isSnapping = false;
 
-                // Apply vertical movement (natural scrolling feel)
                 const dy = e.deltaY;
                 tableTy -= dy * 0.9;
                 setTableTransform(tableTx, tableTy);
@@ -1356,7 +1370,8 @@
                 const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
                 const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) *
                     rowGap;
-                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
+                const blogColHeight = padY * 2 + allCardEls.filter(c => c.column === 'blog').length * cardH + 
+                    (allCardEls.filter(c => c.column === 'blog').length - 1) * rowGap;
                 const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
                 tableSurface.style.width = totalWidth + 'px';
                 tableSurface.style.height = totalHeight + 'px';
@@ -1376,8 +1391,9 @@
                 };
             }
 
-            function init() {
-                buildAllCards();
+            // ── init is now async ──────────────────────────────────
+            async function init() {
+                await buildAllCards();
                 const homeIndex = allCardEls.findIndex(c => c.id === 'home');
                 const startIndex = homeIndex >= 0 ? homeIndex : 0;
                 updateCurrentCard(startIndex);
@@ -1412,7 +1428,7 @@
                 },
             };
 
-            console.log('🃏 Life Snake Studio – v0.1.1 | Click cards to snap, scroll to navigate.');
+            console.log('🃏 Life Snake Studio – v0.1.2 | Blog now loaded from blog-highlights folder.');
         })();
     </script>
 </body>
