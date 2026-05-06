@@ -1,820 +1,834 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Life Snake Studio</title>
-  <style>
-    :root {
-      --bg: #000000;
-      --line: #3d2e0a;
-      --text: #f5f0e6;
-      --muted: #c4b896;
-      --bronze: #b8860b;
-      --bronze-light: #d4a017;
-      --tag-bg: rgba(184, 134, 11, 0.22);
-      --tag-border: rgba(212, 160, 23, 0.6);
-      --tag-text: #e8d5a3;
-      --card-name-text: #0a0a0a;
-      --card-art-bg: #111108;
-      --card-desc-bg: #050505;
-      --card-border-color: #3d2e0a;
-      --card-inner-frame: rgba(184, 134, 11, 0.5);
-      --card-width: 400px;
-      --card-height: 576px;
-      --column-gap: 120px;
-      --row-gap: 40px;
-      --table-padding-x: 300px;
-      --table-padding-y: 200px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      touch-action: none;
-    }
-
-    .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 0 16px;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--line);
-      z-index: 1000;
-    }
-
-    .menu-btn {
-      font-size: 28px;
-      line-height: 1;
-      cursor: pointer;
-      user-select: none;
-      color: var(--bronze-light);
-      transition: color 0.2s ease;
-      z-index: 1001;
-    }
-
-    .menu-btn:hover {
-      color: #e8c547;
-    }
-
-    .title {
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 0.95rem;
-      color: var(--bronze-light);
-    }
-
-    .side-menu {
-      position: fixed;
-      top: 0;
-      left: -280px;
-      width: 280px;
-      height: 100%;
-      background: #080808;
-      border-right: 1px solid var(--line);
-      transition: left 0.28s ease;
-      z-index: 1100;
-      padding-top: 60px;
-    }
-
-    .side-menu.active {
-      left: 0;
-    }
-
-    .side-menu a {
-      display: block;
-      padding: 16px 18px;
-      color: var(--text);
-      text-decoration: none;
-      border-bottom: 1px solid #1a1a0d;
-      transition: background 0.15s ease, color 0.15s ease;
-      cursor: pointer;
-      font-size: 0.9rem;
-      letter-spacing: 0.03em;
-    }
-
-    .side-menu a:active,
-    .side-menu a:hover {
-      background: #1a1a0f;
-      color: var(--bronze-light);
-    }
-
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      z-index: 1050;
-    }
-
-    .overlay.active {
-      display: block;
-    }
-
-    .viewport {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      cursor: grab;
-      z-index: 1;
-    }
-
-    .viewport:active {
-      cursor: grabbing;
-    }
-
-    .viewport.grabbing {
-      cursor: grabbing;
-    }
-
-    .viewport.menu-open {
-      pointer-events: none;
-    }
-
-    .table-surface {
-      position: absolute;
-      will-change: transform;
-      background:
-        radial-gradient(ellipse at 30% 15%, rgba(60, 40, 10, 0.35) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 30%, rgba(50, 35, 8, 0.25) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 60%, rgba(40, 28, 6, 0.3) 0%, transparent 50%),
-        #080804;
-      background-image:
-        radial-gradient(ellipse at 30% 15%, rgba(60, 40, 10, 0.35) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 30%, rgba(50, 35, 8, 0.25) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 60%, rgba(40, 28, 6, 0.3) 0%, transparent 50%),
-        repeating-linear-gradient(0deg,
-          transparent,
-          transparent 3px,
-          rgba(60, 40, 10, 0.04) 3px,
-          rgba(60, 40, 10, 0.04) 4px),
-        repeating-linear-gradient(90deg,
-          transparent,
-          transparent 3px,
-          rgba(60, 40, 10, 0.04) 3px,
-          rgba(60, 40, 10, 0.04) 4px);
-      background-color: #0a0a06;
-    }
-
-    .card,
-    .blog-card,
-    .devlog-card {
-      position: absolute;
-      width: var(--card-width);
-      aspect-ratio: 5 / 7.2;
-      background: #020202;
-      border: 4px solid var(--card-border-color);
-      border-radius: 10px;
-      padding: 7px;
-      box-shadow:
-        inset 0 0 0 2px var(--card-inner-frame),
-        0 0 0 1px rgba(184, 134, 11, 0.18),
-        0 14px 40px rgba(0, 0, 0, 0.75);
-      display: flex;
-      flex-direction: column;
-      transition: opacity 0.35s ease, box-shadow 0.45s ease;
-      opacity: 0.28;
-      pointer-events: none;
-      will-change: opacity, box-shadow;
-    }
-
-    .card.current,
-    .blog-card.current,
-    .devlog-card.current {
-      opacity: 1;
-      box-shadow:
-        inset 0 0 0 2px var(--card-inner-frame),
-        0 0 0 1px rgba(184, 134, 11, 0.35),
-        0 0 30px rgba(200, 150, 20, 0.3),
-        0 0 80px rgba(180, 130, 10, 0.18),
-        0 14px 40px rgba(0, 0, 0, 0.75);
-      z-index: 5;
-    }
-
-    .table-surface.dragging .card,
-    .table-surface.dragging .blog-card,
-    .table-surface.dragging .devlog-card {
-      opacity: 0.9 !important;
-      transition: opacity 0.2s ease;
-    }
-
-    .table-surface.dragging .card.current,
-    .table-surface.dragging .blog-card.current,
-    .table-surface.dragging .devlog-card.current {
-      opacity: 1 !important;
-    }
-
-    .card::before,
-    .blog-card::before,
-    .devlog-card::before {
-      content: '';
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 12px;
-      height: 12px;
-      border-left: 2px solid var(--bronze-light);
-      border-top: 2px solid var(--bronze-light);
-      opacity: 0.5;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .card::after,
-    .blog-card::after,
-    .devlog-card::after {
-      content: '';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 12px;
-      height: 12px;
-      border-right: 2px solid var(--bronze-light);
-      border-top: 2px solid var(--bronze-light);
-      opacity: 0.5;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .card-name {
-      background: linear-gradient(180deg, #c4940c 0%, #9a7208 100%);
-      color: var(--card-name-text);
-      padding: 10px 14px;
-      text-align: center;
-      font-weight: 750;
-      font-size: 0.95rem;
-      letter-spacing: 0.05em;
-      border-radius: 3px 3px 0 0;
-      border: 1px solid rgba(0, 0, 0, 0.25);
-      border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
-      flex-shrink: 0;
-      z-index: 1;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      flex-direction: column;
-    }
-
-    .card-name small {
-      font-weight: 400;
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      text-transform: none;
-      opacity: 0.75;
-      display: block;
-      margin-top: 1px;
-    }
-
-    .card-art {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background-color: var(--card-art-bg);
-      border-left: 2px solid rgba(184, 134, 11, 0.25);
-      border-right: 2px solid rgba(184, 134, 11, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-      overflow: hidden;
-      background-image:
-        linear-gradient(rgba(184, 134, 11, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(184, 134, 11, 0.06) 1px, transparent 1px);
-      background-size: 22px 22px;
-    }
-
-    .card-art::before {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(184, 134, 11, 0.3);
-      border-radius: 2px;
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    .art-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .art-placeholder .play-circle {
-      width: 52px;
-      height: 52px;
-      border: 2px solid rgba(212, 160, 23, 0.7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .art-placeholder .play-circle::after {
-      content: '';
-      width: 0;
-      height: 0;
-      border-left: 15px solid rgba(212, 160, 23, 0.8);
-      border-top: 9px solid transparent;
-      border-bottom: 9px solid transparent;
-      margin-left: 4px;
-    }
-
-    .art-placeholder .placeholder-text {
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
-      color: rgba(196, 184, 150, 0.55);
-      text-transform: uppercase;
-      font-weight: 500;
-    }
-
-    .art-title {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      padding: 8px 14px;
-      text-align: center;
-      z-index: 4;
-      border-top: 1px solid rgba(184, 134, 11, 0.4);
-    }
-
-    .art-title h2 {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--bronze-light);
-      letter-spacing: 0.04em;
-      font-weight: 700;
-    }
-
-    .card-desc {
-      background-color: var(--card-desc-bg);
-      color: var(--text);
-      padding: 14px 14px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      border-radius: 0 0 3px 3px;
-      border: 1px solid rgba(184, 134, 11, 0.12);
-      border-top: 2px solid rgba(184, 134, 11, 0.3);
-      z-index: 1;
-      gap: 8px;
-    }
-
-    .card-desc p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 0.82rem;
-      max-width: 90%;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--tag-bg);
-      border: 1px solid var(--tag-border);
-      color: var(--tag-text);
-      font-size: 0.7rem;
-      letter-spacing: 0.05em;
-      font-weight: 500;
-    }
-
-    .blog-name {
-      background: linear-gradient(180deg, #9a7208 0%, #7a5a06 100%);
-      color: var(--card-name-text);
-      padding: 10px 14px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      letter-spacing: 0.04em;
-      border-radius: 3px 3px 0 0;
-      border: 1px solid rgba(0, 0, 0, 0.25);
-      border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      min-height: 44px;
-      text-transform: uppercase;
-      z-index: 1;
-    }
-
-    .blog-name h3 {
-      margin: 0;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: inherit;
-    }
-
-    .blog-name span {
-      color: #2a1e04;
-      font-size: 0.65rem;
-      font-weight: 600;
-      background: rgba(0, 0, 0, 0.1);
-      padding: 3px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
-      text-transform: none;
-    }
-
-    .blog-art {
-      width: 100%;
-      aspect-ratio: 1/1;
-      background: #0e0e0a;
-      border-left: 2px solid rgba(184, 134, 11, 0.2);
-      border-right: 2px solid rgba(184, 134, 11, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-      background-image: linear-gradient(rgba(184, 134, 11, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(184, 134, 11, 0.05) 1px, transparent 1px);
-      background-size: 22px 22px;
-      z-index: 1;
-    }
-
-    .blog-art::before {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(184, 134, 11, 0.25);
-      border-radius: 2px;
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    .blog-art .art-placeholder .play-circle {
-      width: 44px;
-      height: 44px;
-      border-color: rgba(180, 140, 20, 0.55);
-    }
-
-    .blog-art .art-placeholder .play-circle::after {
-      border-left: 12px solid rgba(180, 140, 20, 0.65);
-      border-top: 7px solid transparent;
-      border-bottom: 7px solid transparent;
-    }
-
-    .blog-desc {
-      background: #050505;
-      color: var(--muted);
-      padding: 14px 14px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      border-radius: 0 0 3px 3px;
-      border: 1px solid rgba(184, 134, 11, 0.1);
-      border-top: 2px solid rgba(184, 134, 11, 0.25);
-      z-index: 1;
-    }
-
-    .blog-desc p {
-      margin: 0;
-      font-size: 0.8rem;
-      line-height: 1.5;
-      max-width: 90%;
-    }
-
-    .blog-desc .meta {
-      margin-top: auto;
-      color: #9a8b65;
-      font-size: 0.7rem;
-      letter-spacing: 0.05em;
-      font-style: italic;
-      font-weight: 500;
-    }
-
-    .devlog-name {
-      background: linear-gradient(180deg, #8a5c08 0%, #6b4406 100%);
-      color: var(--card-name-text);
-      padding: 10px 14px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      letter-spacing: 0.04em;
-      border-radius: 3px 3px 0 0;
-      border: 1px solid rgba(0, 0, 0, 0.25);
-      border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      min-height: 44px;
-      text-transform: uppercase;
-      z-index: 1;
-    }
-
-    .devlog-name h3 {
-      margin: 0;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: inherit;
-    }
-
-    .devlog-name span {
-      color: #2a1e04;
-      font-size: 0.65rem;
-      font-weight: 600;
-      background: rgba(0, 0, 0, 0.1);
-      padding: 3px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
-      text-transform: none;
-    }
-
-    .devlog-art {
-      width: 100%;
-      aspect-ratio: 1/1;
-      background: #0e0e0a;
-      border-left: 2px solid rgba(184, 134, 11, 0.2);
-      border-right: 2px solid rgba(184, 134, 11, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-      background-image: linear-gradient(rgba(184, 134, 11, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(184, 134, 11, 0.05) 1px, transparent 1px);
-      background-size: 22px 22px;
-      z-index: 1;
-    }
-
-    .devlog-art::before {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(184, 134, 11, 0.25);
-      border-radius: 2px;
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    .devlog-art .art-placeholder .play-circle {
-      width: 44px;
-      height: 44px;
-      border-color: rgba(180, 140, 20, 0.55);
-    }
-
-    .devlog-art .art-placeholder .play-circle::after {
-      border-left: 12px solid rgba(180, 140, 20, 0.65);
-      border-top: 7px solid transparent;
-      border-bottom: 7px solid transparent;
-    }
-
-    .devlog-desc {
-      background: #050505;
-      color: var(--muted);
-      padding: 14px 14px 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      border-radius: 0 0 3px 3px;
-      border: 1px solid rgba(184, 134, 11, 0.1);
-      border-top: 2px solid rgba(184, 134, 11, 0.25);
-      z-index: 1;
-    }
-
-    .devlog-desc p {
-      margin: 0;
-      font-size: 0.8rem;
-      line-height: 1.5;
-      max-width: 90%;
-    }
-
-    .devlog-desc .meta {
-      margin-top: auto;
-      color: #9a8b65;
-      font-size: 0.7rem;
-      letter-spacing: 0.05em;
-      font-style: italic;
-      font-weight: 500;
-    }
-
-    @media (max-width: 500px) {
-      :root {
-        --card-width: 310px;
-        --column-gap: 40px;
-        --table-padding-x: 60px;
-        --table-padding-y: 100px;
-      }
-
-      .card-name {
-        font-size: 0.8rem;
-        padding: 8px 10px;
-        min-height: 36px;
-      }
-
-      .card-name small {
-        font-size: 0.6rem;
-      }
-
-      .card-desc p {
-        font-size: 0.72rem;
-      }
-
-      .blog-name h3,
-      .devlog-name h3 {
-        font-size: 0.75rem;
-      }
-
-      .art-title h2 {
-        font-size: 0.85rem;
-      }
-
-      .art-placeholder .play-circle {
-        width: 38px;
-        height: 38px;
-      }
-
-      .art-placeholder .play-circle::after {
-        border-left-width: 11px;
-        border-top-width: 7px;
-        border-bottom-width: 7px;
-      }
-
-      .blog-art .art-placeholder .play-circle,
-      .devlog-art .art-placeholder .play-circle {
-        width: 34px;
-        height: 34px;
-      }
-
-      .blog-art .art-placeholder .play-circle::after,
-      .devlog-art .art-placeholder .play-circle::after {
-        border-left-width: 9px;
-        border-top-width: 5px;
-        border-bottom-width: 5px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Life Snake Studio</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --line: #3d2e0a;
+            --text: #f5f0e6;
+            --muted: #c4b896;
+            --bronze: #b8860b;
+            --bronze-light: #d4a017;
+            --tag-bg: rgba(184, 134, 11, 0.22);
+            --tag-border: rgba(212, 160, 23, 0.6);
+            --tag-text: #e8d5a3;
+            --card-name-text: #0a0a0a;
+            --card-art-bg: #111108;
+            --card-desc-bg: #050505;
+            --card-border-color: #3d2e0a;
+            --card-inner-frame: rgba(184, 134, 11, 0.5);
+            --card-width: 400px;
+            --card-height: 576px;
+            --column-gap: 120px;
+            --row-gap: 40px;
+            --table-padding-x: 300px;
+            --table-padding-y: 200px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 16px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            z-index: 1000;
+        }
+
+        .menu-btn {
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            color: var(--bronze-light);
+            transition: color 0.2s ease;
+            z-index: 1001;
+        }
+
+        .menu-btn:hover {
+            color: #e8c547;
+        }
+
+        .title {
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            font-size: 0.95rem;
+            color: var(--bronze-light);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: #080808;
+            border-right: 1px solid var(--line);
+            transition: left 0.28s ease;
+            z-index: 1100;
+            padding-top: 60px;
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .side-menu a {
+            display: block;
+            padding: 16px 18px;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 1px solid #1a1a0d;
+            transition: background 0.15s ease, color 0.15s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+        }
+
+        .side-menu a:active,
+        .side-menu a:hover {
+            background: #1a1a0f;
+            color: var(--bronze-light);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 1050;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            cursor: grab;
+            z-index: 1;
+        }
+
+        .viewport:active {
+            cursor: grabbing;
+        }
+
+        .viewport.grabbing {
+            cursor: grabbing;
+        }
+
+        .viewport.menu-open {
+            pointer-events: none;
+        }
+
+        .table-surface {
+            position: absolute;
+            will-change: transform;
+            background:
+                radial-gradient(ellipse at 30% 15%, rgba(60, 40, 10, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 30%, rgba(50, 35, 8, 0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 60%, rgba(40, 28, 6, 0.3) 0%, transparent 50%),
+                #080804;
+            background-image:
+                radial-gradient(ellipse at 30% 15%, rgba(60, 40, 10, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 30%, rgba(50, 35, 8, 0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 60%, rgba(40, 28, 6, 0.3) 0%, transparent 50%),
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(60, 40, 10, 0.04) 3px,
+                    rgba(60, 40, 10, 0.04) 4px),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(60, 40, 10, 0.04) 3px,
+                    rgba(60, 40, 10, 0.04) 4px);
+            background-color: #0a0a06;
+        }
+
+        .card,
+        .blog-card,
+        .devlog-card {
+            position: absolute;
+            width: var(--card-width);
+            aspect-ratio: 5 / 7.2;
+            background: #020202;
+            border: 4px solid var(--card-border-color);
+            border-radius: 10px;
+            padding: 7px;
+            box-shadow:
+                inset 0 0 0 2px var(--card-inner-frame),
+                0 0 0 1px rgba(184, 134, 11, 0.18),
+                0 14px 40px rgba(0, 0, 0, 0.75);
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.35s ease, box-shadow 0.45s ease;
+            opacity: 0.28;
+            pointer-events: none;
+            will-change: opacity, box-shadow;
+        }
+
+        .card.current,
+        .blog-card.current,
+        .devlog-card.current {
+            opacity: 1;
+            box-shadow:
+                inset 0 0 0 2px var(--card-inner-frame),
+                0 0 0 1px rgba(184, 134, 11, 0.35),
+                0 0 30px rgba(200, 150, 20, 0.3),
+                0 0 80px rgba(180, 130, 10, 0.18),
+                0 14px 40px rgba(0, 0, 0, 0.75);
+            z-index: 5;
+        }
+
+        .table-surface.dragging .card,
+        .table-surface.dragging .blog-card,
+        .table-surface.dragging .devlog-card {
+            opacity: 0.9 !important;
+            transition: opacity 0.2s ease;
+        }
+
+        .table-surface.dragging .card.current,
+        .table-surface.dragging .blog-card.current,
+        .table-surface.dragging .devlog-card.current {
+            opacity: 1 !important;
+        }
+
+        .card::before,
+        .blog-card::before,
+        .devlog-card::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 12px;
+            height: 12px;
+            border-left: 2px solid var(--bronze-light);
+            border-top: 2px solid var(--bronze-light);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .card::after,
+        .blog-card::after,
+        .devlog-card::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-right: 2px solid var(--bronze-light);
+            border-top: 2px solid var(--bronze-light);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .card-name {
+            background: linear-gradient(180deg, #c4940c 0%, #9a7208 100%);
+            color: var(--card-name-text);
+            padding: 10px 14px;
+            text-align: center;
+            font-weight: 750;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            border-radius: 3px 3px 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.35);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+            z-index: 1;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            flex-direction: column;
+        }
+
+        .card-name small {
+            font-weight: 400;
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            text-transform: none;
+            opacity: 0.75;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .card-art {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: var(--card-art-bg);
+            border-left: 2px solid rgba(184, 134, 11, 0.25);
+            border-right: 2px solid rgba(184, 134, 11, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            background-image:
+                linear-gradient(rgba(184, 134, 11, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 134, 11, 0.06) 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+
+        .card-art::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .art-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .art-placeholder .play-circle {
+            width: 52px;
+            height: 52px;
+            border: 2px solid rgba(212, 160, 23, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .art-placeholder .play-circle::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 15px solid rgba(212, 160, 23, 0.8);
+            border-top: 9px solid transparent;
+            border-bottom: 9px solid transparent;
+            margin-left: 4px;
+        }
+
+        .art-placeholder .placeholder-text {
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            color: rgba(196, 184, 150, 0.55);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .art-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 8px 14px;
+            text-align: center;
+            z-index: 4;
+            border-top: 1px solid rgba(184, 134, 11, 0.4);
+        }
+
+        .art-title h2 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--bronze-light);
+            letter-spacing: 0.04em;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            background-color: var(--card-desc-bg);
+            color: var(--text);
+            padding: 14px 14px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 0 0 3px 3px;
+            border: 1px solid rgba(184, 134, 11, 0.12);
+            border-top: 2px solid rgba(184, 134, 11, 0.3);
+            z-index: 1;
+            gap: 8px;
+        }
+
+        .card-desc p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 0.82rem;
+            max-width: 90%;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--tag-text);
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .blog-name {
+            background: linear-gradient(180deg, #9a7208 0%, #7a5a06 100%);
+            color: var(--card-name-text);
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 0.04em;
+            border-radius: 3px 3px 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.35);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+
+        .blog-name h3 {
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: inherit;
+        }
+
+        .blog-name span {
+            color: #2a1e04;
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 3px 9px;
+            border-radius: 999px;
+            white-space: nowrap;
+            text-transform: none;
+        }
+
+        .blog-art {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #0e0e0a;
+            border-left: 2px solid rgba(184, 134, 11, 0.2);
+            border-right: 2px solid rgba(184, 134, 11, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(rgba(184, 134, 11, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 134, 11, 0.05) 1px, transparent 1px);
+            background-size: 22px 22px;
+            z-index: 1;
+        }
+
+        .blog-art::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 1px solid rgba(184, 134, 11, 0.25);
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .blog-art .art-placeholder .play-circle {
+            width: 44px;
+            height: 44px;
+            border-color: rgba(180, 140, 20, 0.55);
+        }
+
+        .blog-art .art-placeholder .play-circle::after {
+            border-left: 12px solid rgba(180, 140, 20, 0.65);
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+        }
+
+        .blog-desc {
+            background: #050505;
+            color: var(--muted);
+            padding: 14px 14px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 0 0 3px 3px;
+            border: 1px solid rgba(184, 134, 11, 0.1);
+            border-top: 2px solid rgba(184, 134, 11, 0.25);
+            z-index: 1;
+        }
+
+        .blog-desc p {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .blog-desc .meta {
+            margin-top: auto;
+            color: #9a8b65;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .devlog-name {
+            background: linear-gradient(180deg, #8a5c08 0%, #6b4406 100%);
+            color: var(--card-name-text);
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 0.04em;
+            border-radius: 3px 3px 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.35);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+
+        .devlog-name h3 {
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: inherit;
+        }
+
+        .devlog-name span {
+            color: #2a1e04;
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 3px 9px;
+            border-radius: 999px;
+            white-space: nowrap;
+            text-transform: none;
+        }
+
+        .devlog-art {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #0e0e0a;
+            border-left: 2px solid rgba(184, 134, 11, 0.2);
+            border-right: 2px solid rgba(184, 134, 11, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(rgba(184, 134, 11, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 134, 11, 0.05) 1px, transparent 1px);
+            background-size: 22px 22px;
+            z-index: 1;
+        }
+
+        .devlog-art::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 1px solid rgba(184, 134, 11, 0.25);
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .devlog-art .art-placeholder .play-circle {
+            width: 44px;
+            height: 44px;
+            border-color: rgba(180, 140, 20, 0.55);
+        }
+
+        .devlog-art .art-placeholder .play-circle::after {
+            border-left: 12px solid rgba(180, 140, 20, 0.65);
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+        }
+
+        .devlog-desc {
+            background: #050505;
+            color: var(--muted);
+            padding: 14px 14px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 0 0 3px 3px;
+            border: 1px solid rgba(184, 134, 11, 0.1);
+            border-top: 2px solid rgba(184, 134, 11, 0.25);
+            z-index: 1;
+        }
+
+        .devlog-desc p {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .devlog-desc .meta {
+            margin-top: auto;
+            color: #9a8b65;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
+            :root {
+                --card-width: 310px;
+                --column-gap: 40px;
+                --table-padding-x: 60px;
+                --table-padding-y: 100px;
+            }
+
+            .card-name {
+                font-size: 0.8rem;
+                padding: 8px 10px;
+                min-height: 36px;
+            }
+
+            .card-name small {
+                font-size: 0.6rem;
+            }
+
+            .card-desc p {
+                font-size: 0.72rem;
+            }
+
+            .blog-name h3,
+            .devlog-name h3 {
+                font-size: 0.75rem;
+            }
+
+            .art-title h2 {
+                font-size: 0.85rem;
+            }
+
+            .art-placeholder .play-circle {
+                width: 38px;
+                height: 38px;
+            }
+
+            .art-placeholder .play-circle::after {
+                border-left-width: 11px;
+                border-top-width: 7px;
+                border-bottom-width: 7px;
+            }
+
+            .blog-art .art-placeholder .play-circle,
+            .devlog-art .art-placeholder .play-circle {
+                width: 34px;
+                height: 34px;
+            }
+
+            .blog-art .art-placeholder .play-circle::after,
+            .devlog-art .art-placeholder .play-circle::after {
+                border-left-width: 9px;
+                border-top-width: 5px;
+                border-bottom-width: 5px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="menu-btn" id="menuBtn">☰</div>
-    <div class="title">LIFE SNAKE STUDIO</div>
-  </div>
+    <div class="topbar">
+        <div class="menu-btn" id="menuBtn">☰</div>
+        <div class="title">LIFE SNAKE STUDIO</div>
+    </div>
 
-  <div class="side-menu" id="menu">
-    <a data-nav="home">Home</a>
-    <a data-nav="world">World</a>
-    <a data-nav="tcg">TCG</a>
-    <a data-nav="engine">Engine &amp; Devkit</a>
-    <a data-nav="licensing">Licensing</a>
-    <a data-nav="community">Community</a>
-    <a data-nav="contact">Contact</a>
-    <a data-nav="presskit">Press Kit</a>
-    <a data-nav="devlog-0">Devlog</a>
-    <a data-nav="blog-0">Blog</a>
-  </div>
-  <div class="overlay" id="overlay"></div>
+    <div class="side-menu" id="menu">
+        <a data-nav="home">Home</a>
+        <a data-nav="world">World</a>
+        <a data-nav="tcg">TCG</a>
+        <a data-nav="engine">Engine &amp; Devkit</a>
+        <a data-nav="licensing">Licensing</a>
+        <a data-nav="community">Community</a>
+        <a data-nav="contact">Contact</a>
+        <a data-nav="presskit">Press Kit</a>
+        <a data-nav="devlog-0">Devlog</a>
+        <a data-nav="blog-0">Blog</a>
+    </div>
+    <div class="overlay" id="overlay"></div>
 
-  <div class="viewport" id="viewport">
-    <div class="table-surface" id="tableSurface"></div>
-  </div>
+    <div class="viewport" id="viewport">
+        <div class="table-surface" id="tableSurface"></div>
+    </div>
 
-  <script>
-    (function() {
-      const viewport = document.getElementById('viewport');
-      const tableSurface = document.getElementById('tableSurface');
-      const menu = document.getElementById('menu');
-      const overlay = document.getElementById('overlay');
-      const menuBtn = document.getElementById('menuBtn');
+    <script>
+        (function() {
+            const viewport = document.getElementById('viewport');
+            const tableSurface = document.getElementById('tableSurface');
+            const menu = document.getElementById('menu');
+            const overlay = document.getElementById('overlay');
+            const menuBtn = document.getElementById('menuBtn');
 
-      // ── snap animation tuning ──────────────────────────────
-      const SNAP_SPEED_FACTOR = 0.028;
-      const SNAP_MIN_DURATION = 0.18;
-      const SNAP_MAX_DURATION = 0.72;
-      const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
-      // ────────────────────────────────────────────────────────
+            // ── snap animation tuning ──────────────────────────────
+            const SNAP_SPEED_FACTOR = 0.028;
+            const SNAP_MIN_DURATION = 0.18;
+            const SNAP_MAX_DURATION = 0.72;
+            const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
+            const DRAG_THRESHOLD = 4;
+            // ────────────────────────────────────────────────────────
 
-      const mainCardData = [
-        { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
-          desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
-          tag: 'Lore & Regions' },
-        { id: 'home', name: 'Home', sub: 'Universe entry point', title: 'Yugimon Universe',
-          desc: 'Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.',
-          tag: 'Start Here' },
-        { id: 'tcg', name: 'TCG', sub: 'how to play · database · builder', title: 'Trading Card Game',
-          desc: 'Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.',
-          tag: 'Card Game Hub' },
-        { id: 'engine', name: 'Engine & Devkit', sub: 'YugiCore SDK', title: 'Engine & Devkit',
-          desc: 'The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.',
-          tag: 'Custom Toolset' },
-        { id: 'licensing', name: 'Licensing', sub: 'for indies · assets · pricing', title: 'Licensing',
-          desc: 'License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.',
-          tag: 'For Indies' },
-        { id: 'community', name: 'Community', sub: 'discord · forums · showcases', title: 'Community',
-          desc: 'Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.',
-          tag: 'Join Us' },
-        { id: 'contact', name: 'Contact', sub: 'inquiries · press', title: 'Contact',
-          desc: 'General questions, press inquiries, or direct links to the licensing application. We\'d love to hear from you.',
-          tag: 'Get in Touch' },
-        { id: 'presskit', name: 'Press Kit', sub: 'logos · art · fact sheet', title: 'Press Kit',
-          desc: 'Download official logos, key art, fact sheet, and media assets for press, creators, and partners.',
-          tag: 'Media Downloads' },
-      ];
+            const mainCardData = [
+                { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
+                    desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
+                    tag: 'Lore & Regions' },
+                { id: 'home', name: 'Home', sub: 'Universe entry point', title: 'Yugimon Universe',
+                    desc: 'Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.',
+                    tag: 'Start Here' },
+                { id: 'tcg', name: 'TCG', sub: 'how to play · database · builder', title: 'Trading Card Game',
+                    desc: 'Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.',
+                    tag: 'Card Game Hub' },
+                { id: 'engine', name: 'Engine & Devkit', sub: 'YugiCore SDK', title: 'Engine & Devkit',
+                    desc: 'The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.',
+                    tag: 'Custom Toolset' },
+                { id: 'licensing', name: 'Licensing', sub: 'for indies · assets · pricing', title: 'Licensing',
+                    desc: 'License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.',
+                    tag: 'For Indies' },
+                { id: 'community', name: 'Community', sub: 'discord · forums · showcases', title: 'Community',
+                    desc: 'Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.',
+                    tag: 'Join Us' },
+                { id: 'contact', name: 'Contact', sub: 'inquiries · press', title: 'Contact',
+                    desc: 'General questions, press inquiries, or direct links to the licensing application. We\'d love to hear from you.',
+                    tag: 'Get in Touch' },
+                { id: 'presskit', name: 'Press Kit', sub: 'logos · art · fact sheet', title: 'Press Kit',
+                    desc: 'Download official logos, key art, fact sheet, and media assets for press, creators, and partners.',
+                    tag: 'Media Downloads' },
+            ];
 
-      const devlogPostData = [
-        { title: 'Devlog One', label: 'Update', content: 'First devlog. Behind the scenes of building the engine and tools.', meta: 'Latest' },
-        { title: 'Devlog Two', label: 'Progress', content: 'Second entry. Challenges with the card game engine and how I overcame them.', meta: 'Ongoing' },
-        { title: 'Devlog Three', label: 'Design', content: 'Thoughts on world design, creature balancing, and community feedback.', meta: 'Design notes' },
-      ];
+            const devlogPostData = [
+                { title: 'Devlog One', label: 'Update',
+                    content: 'First devlog. Behind the scenes of building the engine and tools.', meta: 'Latest' },
+                { title: 'Devlog Two', label: 'Progress',
+                    content: 'Second entry. Challenges with the card game engine and how I overcame them.',
+                meta: 'Ongoing' },
+                { title: 'Devlog Three', label: 'Design',
+                    content: 'Thoughts on world design, creature balancing, and community feedback.',
+                meta: 'Design notes' },
+            ];
 
-      const blogPostData = [
-        { title: 'Blog Page 1', label: 'Intro', content: 'This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.', meta: 'Pinned entry' },
-        { title: 'Blog Page 2', label: 'Dev log', content: 'A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.', meta: 'Recent update' },
-        { title: 'Blog Page 3', label: 'Notes', content: 'Another post card in the blog feed. Add as many as you want without mixing them into the main feed.', meta: 'Independent blog section' },
-        { title: 'Blog Page 4', label: 'Update', content: 'Extra post only visible on the full blog page. The main feed only shows the preview card.', meta: 'Exclusive to blog page' },
-      ];
+            const blogPostData = [
+                { title: 'Blog Page 1', label: 'Intro',
+                    content: 'This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.',
+                    meta: 'Pinned entry' },
+                { title: 'Blog Page 2', label: 'Dev log',
+                    content: 'A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.',
+                    meta: 'Recent update' },
+                { title: 'Blog Page 3', label: 'Notes',
+                    content: 'Another post card in the blog feed. Add as many as you want without mixing them into the main feed.',
+                    meta: 'Independent blog section' },
+                { title: 'Blog Page 4', label: 'Update',
+                    content: 'Extra post only visible on the full blog page. The main feed only shows the preview card.',
+                    meta: 'Exclusive to blog page' },
+            ];
 
-      let allCardEls = [];
-      let currentCardIndex = 0;
-      let tableTx = 0;
-      let tableTy = 0;
-      let isDragging = false;
-      let isSnapping = false;
-      let pointerStartX = 0;
-      let pointerStartY = 0;
-      let tableStartTx = 0;
-      let tableStartTy = 0;
-      let pointerMoved = false;
-      let currentSnapOnEnd = null;
-      const DRAG_THRESHOLD = 4;
+            let allCardEls = [];
+            let currentCardIndex = 0;
+            let tableTx = 0;
+            let tableTy = 0;
+            let isDragging = false;
+            let isSnapping = false;
+            let pointerStartX = 0;
+            let pointerStartY = 0;
+            let tableStartTx = 0;
+            let tableStartTy = 0;
+            let pointerMoved = false;
+            let currentSnapOnEnd = null;
 
-      function getCardWidth() {
-        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
-      }
+            function getCardWidth() {
+                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
+            }
 
-      function getCardHeight() {
-        const w = getCardWidth();
-        return w * 7.2 / 5;
-      }
+            function getCardHeight() {
+                const w = getCardWidth();
+                return w * 7.2 / 5;
+            }
 
-      function getColumnGap() {
-        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-gap').trim());
-      }
+            function getColumnGap() {
+                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-gap').trim());
+            }
 
-      function getRowGap() {
-        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-gap').trim());
-      }
+            function getRowGap() {
+                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-gap').trim());
+            }
 
-      function getTablePaddingX() {
-        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-x').trim());
-      }
+            function getTablePaddingX() {
+                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(
+                '--table-padding-x').trim());
+            }
 
-      function getTablePaddingY() {
-        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-y').trim());
-      }
+            function getTablePaddingY() {
+                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(
+                '--table-padding-y').trim());
+            }
 
-      function createMainCardHTML(data) {
-        return `
+            function createMainCardHTML(data) {
+                return `
           <div class="card-name">${data.name}<small>${data.sub}</small></div>
           <div class="card-art">
             <div class="art-placeholder">
@@ -827,10 +841,10 @@
             <p>${data.desc}</p>
             <div class="tag">${data.tag}</div>
           </div>`;
-      }
+            }
 
-      function createBlogCardHTML(data) {
-        return `
+            function createBlogCardHTML(data) {
+                return `
           <div class="blog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
           <div class="blog-art">
             <div class="art-placeholder">
@@ -842,10 +856,10 @@
             <p>${data.content}</p>
             <div class="meta">${data.meta}</div>
           </div>`;
-      }
+            }
 
-      function createDevlogCardHTML(data) {
-        return `
+            function createDevlogCardHTML(data) {
+                return `
           <div class="devlog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
           <div class="devlog-art">
             <div class="art-placeholder">
@@ -857,445 +871,473 @@
             <p>${data.content}</p>
             <div class="meta">${data.meta}</div>
           </div>`;
-      }
-
-      function buildAllCards() {
-        tableSurface.innerHTML = '';
-        allCardEls = [];
-        const cardW = getCardWidth();
-        const cardH = getCardHeight();
-        const colGap = getColumnGap();
-        const rowGap = getRowGap();
-        const padX = getTablePaddingX();
-        const padY = getTablePaddingY();
-
-        const devCenterX = padX + cardW / 2;
-        const mainCenterX = padX + cardW + colGap + cardW / 2;
-        const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
-
-        // Devlog cards (left column)
-        devlogPostData.forEach((data, i) => {
-          const el = document.createElement('article');
-          el.className = 'devlog-card';
-          el.innerHTML = createDevlogCardHTML(data);
-          el.setAttribute('data-card-id', 'devlog-' + i);
-          el.setAttribute('data-column', 'devlog');
-          el.setAttribute('data-index', i);
-          const cx = devCenterX;
-          const cy = padY + cardH / 2 + i * (cardH + rowGap);
-          el.style.left = (cx - cardW / 2) + 'px';
-          el.style.top = (cy - cardH / 2) + 'px';
-          tableSurface.appendChild(el);
-          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: 'devlog-' + i });
-        });
-
-        // Main cards (center column)
-        mainCardData.forEach((data, i) => {
-          const el = document.createElement('article');
-          el.className = 'card';
-          el.innerHTML = createMainCardHTML(data);
-          el.setAttribute('data-card-id', data.id);
-          el.setAttribute('data-column', 'main');
-          el.setAttribute('data-index', i);
-          const cx = mainCenterX;
-          const cy = padY + cardH / 2 + i * (cardH + rowGap);
-          el.style.left = (cx - cardW / 2) + 'px';
-          el.style.top = (cy - cardH / 2) + 'px';
-          tableSurface.appendChild(el);
-          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
-        });
-
-        // Blog cards (right column)
-        blogPostData.forEach((data, i) => {
-          const el = document.createElement('article');
-          el.className = 'blog-card';
-          el.innerHTML = createBlogCardHTML(data);
-          el.setAttribute('data-card-id', 'blog-' + i);
-          el.setAttribute('data-column', 'blog');
-          el.setAttribute('data-index', i);
-          const cx = blogCenterX;
-          const cy = padY + cardH / 2 + i * (cardH + rowGap);
-          el.style.left = (cx - cardW / 2) + 'px';
-          el.style.top = (cy - cardH / 2) + 'px';
-          tableSurface.appendChild(el);
-          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: 'blog-' + i });
-        });
-
-        const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
-        const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-        const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
-        const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
-        const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
-        tableSurface.style.width = totalWidth + 'px';
-        tableSurface.style.height = totalHeight + 'px';
-      }
-
-      // ── Deadzone + halved distance for current card (mixed approach) ──
-      function findClosestCardIndex() {
-        const vpW = viewport.clientWidth;
-        const vpH = viewport.clientHeight;
-        const targetX = vpW / 2 - tableTx;
-        const targetY = vpH / 2 - tableTy;
-
-        const currentCard = allCardEls[currentCardIndex];
-        if (!currentCard) return 0;
-
-        // Deadzone: if very close to current card's center, stay
-        const dxCurr = currentCard.centerX - targetX;
-        const dyCurr = currentCard.centerY - targetY;
-        const distToCurrent = Math.sqrt(dxCurr * dxCurr + dyCurr * dyCurr);
-        const deadzoneRadius = Math.min(getCardWidth(), getCardHeight()) * 0.2; // 3% – small
-        if (distToCurrent <= deadzoneRadius) {
-          return currentCardIndex;
-        }
-
-        // Outside deadzone: find nearest card, but weight current card's distance by factor
-        const WEIGHT_CURRENT = 0.1; // current card's distance is divided by 2 (makes it "half" as far)
-        let bestIdx = 0;
-        let bestDist = Infinity;
-        for (let i = 0; i < allCardEls.length; i++) {
-          const card = allCardEls[i];
-          const dx = card.centerX - targetX;
-          const dy = card.centerY - targetY;
-          let dist = dx * dx + dy * dy;
-          if (i === currentCardIndex) {
-            dist /= WEIGHT_CURRENT; // current card appears closer
-          }
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestIdx = i;
-          }
-        }
-        return bestIdx;
-      }
-      // ─────────────────────────────────────────────────────────
-
-      function updateCurrentCard(index) {
-        allCardEls.forEach(c => c.el.classList.remove('current'));
-        if (index >= 0 && index < allCardEls.length) {
-          currentCardIndex = index;
-          allCardEls[index].el.classList.add('current');
-        }
-        updateCardOpacities();
-      }
-
-      function updateCardOpacities() {
-        allCardEls.forEach((card, i) => {
-          if (i === currentCardIndex) {
-            card.el.style.opacity = '1';
-          } else {
-            card.el.style.opacity = '0.28';
-          }
-        });
-      }
-
-      function setTableTransform(tx, ty) {
-        tableTx = tx;
-        tableTy = ty;
-        tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
-      }
-
-      function clearSnapTransition() {
-        tableSurface.classList.remove('snapping');
-        tableSurface.style.transition = 'none';
-        if (currentSnapOnEnd) {
-          tableSurface.removeEventListener('transitionend', currentSnapOnEnd);
-          currentSnapOnEnd = null;
-        }
-      }
-
-      function snapToCard(index, animate = true) {
-        if (index < 0 || index >= allCardEls.length) return;
-        const card = allCardEls[index];
-        const vpW = viewport.clientWidth;
-        const vpH = viewport.clientHeight;
-        const targetTx = vpW / 2 - card.centerX;
-        const targetTy = vpH / 2 - card.centerY;
-
-        if (animate) {
-          clearSnapTransition();
-
-          // Make vertical movement feel as snappy as horizontal
-          const cardW = getCardWidth();
-          const cardH = getCardHeight();
-          const scaleY = cardW / cardH;
-          const dx = targetTx - tableTx;
-          const dy = (targetTy - tableTy) * scaleY;
-          const dist = Math.hypot(dx, dy);
-
-          const duration = Math.min(
-            Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
-            SNAP_MAX_DURATION
-          );
-          isSnapping = true;
-          tableSurface.style.transition = `transform ${duration}s ${SNAP_EASING}`;
-          tableSurface.classList.add('snapping');
-          setTableTransform(targetTx, targetTy);
-          updateCurrentCard(index);
-
-          const cleanupTimeout = duration * 1000 + 120;
-          const onTransitionEnd = () => {
-            clearSnapTransition();
-            isSnapping = false;
-            currentSnapOnEnd = null;
-          };
-          currentSnapOnEnd = onTransitionEnd;
-          tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
-
-          setTimeout(() => {
-            if (isSnapping && currentSnapOnEnd === onTransitionEnd) {
-              clearSnapTransition();
-              isSnapping = false;
             }
-          }, cleanupTimeout);
-        } else {
-          clearSnapTransition();
-          isSnapping = true;
-          tableSurface.style.transition = 'none';
-          setTableTransform(targetTx, targetTy);
-          updateCurrentCard(index);
-          isSnapping = false;
-          tableSurface.style.transition = 'none';
-        }
-      }
 
-      function getEventPos(e) {
-        return { x: e.clientX, y: e.clientY };
-      }
+            function buildAllCards() {
+                tableSurface.innerHTML = '';
+                allCardEls = [];
+                const cardW = getCardWidth();
+                const cardH = getCardHeight();
+                const colGap = getColumnGap();
+                const rowGap = getRowGap();
+                const padX = getTablePaddingX();
+                const padY = getTablePaddingY();
 
-      function onPointerDown(e) {
-        if (menu.classList.contains('active')) return;
-        if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
+                const devCenterX = padX + cardW / 2;
+                const mainCenterX = padX + cardW + colGap + cardW / 2;
+                const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
 
-        e.preventDefault();
-        viewport.setPointerCapture(e.pointerId);
-        const pos = getEventPos(e);
-        pointerStartX = pos.x;
-        pointerStartY = pos.y;
-        tableStartTx = tableTx;
-        tableStartTy = tableTy;
-        pointerMoved = false;
-        isDragging = true;
-        isSnapping = false;
-        clearSnapTransition();
-        tableSurface.style.transition = 'none';
-        viewport.classList.add('grabbing');
-        tableSurface.classList.add('dragging');
-      }
+                // Devlog cards (left column)
+                devlogPostData.forEach((data, i) => {
+                    const el = document.createElement('article');
+                    el.className = 'devlog-card';
+                    el.innerHTML = createDevlogCardHTML(data);
+                    el.setAttribute('data-card-id', 'devlog-' + i);
+                    el.setAttribute('data-column', 'devlog');
+                    el.setAttribute('data-index', i);
+                    const cx = devCenterX;
+                    const cy = padY + cardH / 2 + i * (cardH + rowGap);
+                    el.style.left = (cx - cardW / 2) + 'px';
+                    el.style.top = (cy - cardH / 2) + 'px';
+                    tableSurface.appendChild(el);
+                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: 'devlog-' + i });
+                });
 
-      function onPointerMove(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const pos = getEventPos(e);
-        const dx = pos.x - pointerStartX;
-        const dy = pos.y - pointerStartY;
-        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-          pointerMoved = true;
-        }
-        const newTx = tableStartTx + dx;
-        const newTy = tableStartTy + dy;
-        setTableTransform(newTx, newTy);
-      }
+                // Main cards (center column)
+                mainCardData.forEach((data, i) => {
+                    const el = document.createElement('article');
+                    el.className = 'card';
+                    el.innerHTML = createMainCardHTML(data);
+                    el.setAttribute('data-card-id', data.id);
+                    el.setAttribute('data-column', 'main');
+                    el.setAttribute('data-index', i);
+                    const cx = mainCenterX;
+                    const cy = padY + cardH / 2 + i * (cardH + rowGap);
+                    el.style.left = (cx - cardW / 2) + 'px';
+                    el.style.top = (cy - cardH / 2) + 'px';
+                    tableSurface.appendChild(el);
+                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
+                });
 
-      function onPointerUp(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        viewport.classList.remove('grabbing');
-        tableSurface.classList.remove('dragging');
-        viewport.releasePointerCapture(e.pointerId);
-        const closestIdx = findClosestCardIndex();
-        snapToCard(closestIdx, true);
-      }
+                // Blog cards (right column)
+                blogPostData.forEach((data, i) => {
+                    const el = document.createElement('article');
+                    el.className = 'blog-card';
+                    el.innerHTML = createBlogCardHTML(data);
+                    el.setAttribute('data-card-id', 'blog-' + i);
+                    el.setAttribute('data-column', 'blog');
+                    el.setAttribute('data-index', i);
+                    const cx = blogCenterX;
+                    const cy = padY + cardH / 2 + i * (cardH + rowGap);
+                    el.style.left = (cx - cardW / 2) + 'px';
+                    el.style.top = (cy - cardH / 2) + 'px';
+                    tableSurface.appendChild(el);
+                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: 'blog-' + i });
+                });
 
-      function onPointerCancel(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        viewport.classList.remove('grabbing');
-        tableSurface.classList.remove('dragging');
-        const closestIdx = findClosestCardIndex();
-        snapToCard(closestIdx, true);
-      }
-
-      viewport.addEventListener('pointerdown', onPointerDown);
-      viewport.addEventListener('pointermove', onPointerMove);
-      viewport.addEventListener('pointerup', onPointerUp);
-      viewport.addEventListener('pointercancel', onPointerCancel);
-      viewport.addEventListener('lostpointercapture', () => {
-        if (isDragging) {
-          isDragging = false;
-          viewport.classList.remove('grabbing');
-          tableSurface.classList.remove('dragging');
-          const closestIdx = findClosestCardIndex();
-          snapToCard(closestIdx, true);
-        }
-      });
-
-      viewport.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
-        if (menu.classList.contains('active')) return;
-        e.preventDefault();
-      }, { passive: false });
-
-      function toggleMenu() {
-        const isActive = menu.classList.contains('active');
-        if (isActive) {
-          menu.classList.remove('active');
-          overlay.classList.remove('active');
-          viewport.classList.remove('menu-open');
-        } else {
-          menu.classList.add('active');
-          overlay.classList.add('active');
-          viewport.classList.add('menu-open');
-        }
-      }
-
-      menuBtn.addEventListener('click', toggleMenu);
-      overlay.addEventListener('click', toggleMenu);
-
-      menu.querySelectorAll('a[data-nav]').forEach(link => {
-        link.addEventListener('click', () => {
-          const navId = link.getAttribute('data-nav');
-          toggleMenu();
-          let foundIndex = -1;
-          if (navId.startsWith('devlog-')) {
-            const devlogIdx = parseInt(navId.split('-')[1]);
-            foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIdx);
-          } else if (navId.startsWith('blog-')) {
-            const blogIdx = parseInt(navId.split('-')[1]);
-            foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
-          } else {
-            foundIndex = allCardEls.findIndex(c => c.id === navId);
-          }
-          if (foundIndex >= 0) {
-            snapToCard(foundIndex, true);
-          }
-        });
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (menu.classList.contains('active')) return;
-        if (isDragging || isSnapping) return;
-        const key = e.key;
-        if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
-          e.preventDefault();
-          const currentCard = allCardEls[currentCardIndex];
-          if (!currentCard) return;
-          let bestIdx = currentCardIndex;
-          let bestDist = Infinity;
-          const cx = currentCard.centerX;
-          const cy = currentCard.centerY;
-
-          allCardEls.forEach((card, i) => {
-            if (i === currentCardIndex) return;
-            const dx = card.centerX - cx;
-            const dy = card.centerY - cy;
-            let score = Infinity;
-            if (key === 'ArrowUp' && dy < -20) score = Math.abs(dx) + Math.abs(dy);
-            if (key === 'ArrowDown' && dy > 20) score = Math.abs(dx) + Math.abs(dy);
-            if (key === 'ArrowLeft' && dx < -20) score = Math.abs(dx) + Math.abs(dy);
-            if (key === 'ArrowRight' && dx > 20) score = Math.abs(dx) + Math.abs(dy);
-            if (score < bestDist) {
-              bestDist = score;
-              bestIdx = i;
+                const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
+                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
+                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
+                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
+                const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+                tableSurface.style.width = totalWidth + 'px';
+                tableSurface.style.height = totalHeight + 'px';
             }
-          });
-          if (bestIdx !== currentCardIndex && bestDist < Infinity) {
-            snapToCard(bestIdx, true);
-          }
-        }
-      });
 
-      function onResize() {
-        const cardW = getCardWidth();
-        const cardH = getCardHeight();
-        const colGap = getColumnGap();
-        const rowGap = getRowGap();
-        const padX = getTablePaddingX();
-        const padY = getTablePaddingY();
-        const devCenterX = padX + cardW / 2;
-        const mainCenterX = padX + cardW + colGap + cardW / 2;
-        const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
+            /**
+             * Find the index of the card closest to the viewport center.
+             *
+             * Key fixes for the "wrong axis" snapping bug:
+             *  1. Rectangular deadzone — separate horizontal / vertical thresholds
+             *     so a purely horizontal drag doesn't accidentally trigger a vertical
+             *     snap (and vice versa).
+             *  2. Axis-normalised distance — the horizontal "step" (column gap + card
+             *     width) and vertical "step" (row gap + card height) are used to
+             *     normalise dx and dy. This makes one column-shift feel equivalent to
+             *     one row-shift in the distance metric, matching the user's intent.
+             *  3. Current-card bonus — the current card's normalised distance is
+             *     halved so that small drifts don't immediately jump to a neighbour.
+             */
+            function findClosestCardIndex() {
+                const vpW = viewport.clientWidth;
+                const vpH = viewport.clientHeight;
+                const targetX = vpW / 2 - tableTx;
+                const targetY = vpH / 2 - tableTy;
 
-        allCardEls.forEach(card => {
-          let cx, cy;
-          if (card.column === 'devlog') {
-            cx = devCenterX;
-          } else if (card.column === 'main') {
-            cx = mainCenterX;
-          } else {
-            cx = blogCenterX;
-          }
-          cy = padY + cardH / 2 + card.index * (cardH + rowGap);
-          card.centerX = cx;
-          card.centerY = cy;
-          card.el.style.left = (cx - cardW / 2) + 'px';
-          card.el.style.top = (cy - cardH / 2) + 'px';
-        });
+                const currentCard = allCardEls[currentCardIndex];
+                if (!currentCard) return 0;
 
-        const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
-        const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-        const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
-        const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
-        const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
-        tableSurface.style.width = totalWidth + 'px';
-        tableSurface.style.height = totalHeight + 'px';
+                const cardW = getCardWidth();
+                const cardH = getCardHeight();
+                const colGap = getColumnGap();
+                const rowGap = getRowGap();
 
-        if (currentCardIndex >= 0 && currentCardIndex < allCardEls.length) {
-          snapToCard(currentCardIndex, false);
-        }
-      }
+                // ── rectangular deadzone ──────────────────────────
+                // Use a fraction of the gap between cards so the deadzone
+                // naturally scales with the layout density.
+                const deadzoneX = colGap * 0.35;
+                const deadzoneY = rowGap * 0.35;
 
-      window.addEventListener('resize', debounce(onResize, 200));
+                const dxCurr = Math.abs(currentCard.centerX - targetX);
+                const dyCurr = Math.abs(currentCard.centerY - targetY);
 
-      function debounce(fn, delay) {
-        let timer;
-        return function(...args) {
-          clearTimeout(timer);
-          timer = setTimeout(() => fn.apply(this, args), delay);
-        };
-      }
+                if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) {
+                    return currentCardIndex;
+                }
+                // ──────────────────────────────────────────────────
 
-      function init() {
-        buildAllCards();
-        const homeIndex = allCardEls.findIndex(c => c.id === 'home');
-        const startIndex = homeIndex >= 0 ? homeIndex : 0;
-        updateCurrentCard(startIndex);
-        snapToCard(startIndex, false);
-        updateCardOpacities();
-      }
+                // Normalisation factors: one column step ≈ one row step
+                const normX = colGap + cardW;
+                const normY = rowGap + cardH;
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
+                // Slight bonus for the currently-selected card
+                const CURRENT_CARD_WEIGHT = 0.5;
 
-      window.lifeSnakeStudio = {
-        navigateTo: function(cardId) {
-          const idx = allCardEls.findIndex(c => c.id === cardId);
-          if (idx >= 0) snapToCard(idx, true);
-        },
-        navigateToBlog: function(blogIndex) {
-          const idx = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIndex);
-          if (idx >= 0) snapToCard(idx, true);
-        },
-        navigateToDevlog: function(devlogIndex) {
-          const idx = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIndex);
-          if (idx >= 0) snapToCard(idx, true);
-        },
-        getCurrentCard: function() {
-          return allCardEls[currentCardIndex] || null;
-        },
-        getAllCards: function() {
-          return allCardEls;
-        },
-      };
+                let bestIdx = 0;
+                let bestDist = Infinity;
 
-      console.log('🃏 Life Snake Studio – Mixed approach: tiny deadzone + current card weighted at ½ distance.');
-    })();
-  </script>
+                for (let i = 0; i < allCardEls.length; i++) {
+                    const card = allCardEls[i];
+                    const dx = (card.centerX - targetX) / normX;
+                    const dy = (card.centerY - targetY) / normY;
+                    let dist = dx * dx + dy * dy;
+
+                    if (i === currentCardIndex) {
+                        dist *= CURRENT_CARD_WEIGHT;
+                    }
+
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestIdx = i;
+                    }
+                }
+                return bestIdx;
+            }
+
+            function updateCurrentCard(index) {
+                allCardEls.forEach(c => c.el.classList.remove('current'));
+                if (index >= 0 && index < allCardEls.length) {
+                    currentCardIndex = index;
+                    allCardEls[index].el.classList.add('current');
+                }
+                updateCardOpacities();
+            }
+
+            function updateCardOpacities() {
+                allCardEls.forEach((card, i) => {
+                    card.el.style.opacity = (i === currentCardIndex) ? '1' : '0.28';
+                });
+            }
+
+            function setTableTransform(tx, ty) {
+                tableTx = tx;
+                tableTy = ty;
+                tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
+            }
+
+            function clearSnapTransition() {
+                tableSurface.classList.remove('snapping');
+                tableSurface.style.transition = 'none';
+                if (currentSnapOnEnd) {
+                    tableSurface.removeEventListener('transitionend', currentSnapOnEnd);
+                    currentSnapOnEnd = null;
+                }
+            }
+
+            function snapToCard(index, animate = true) {
+                if (index < 0 || index >= allCardEls.length) return;
+                const card = allCardEls[index];
+                const vpW = viewport.clientWidth;
+                const vpH = viewport.clientHeight;
+                const targetTx = vpW / 2 - card.centerX;
+                const targetTy = vpH / 2 - card.centerY;
+
+                if (animate) {
+                    clearSnapTransition();
+
+                    const cardW = getCardWidth();
+                    const cardH = getCardHeight();
+                    const scaleY = cardW / cardH;
+                    const dx = targetTx - tableTx;
+                    const dy = (targetTy - tableTy) * scaleY;
+                    const dist = Math.hypot(dx, dy);
+
+                    const duration = Math.min(
+                        Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
+                        SNAP_MAX_DURATION
+                    );
+                    isSnapping = true;
+                    tableSurface.style.transition = `transform ${duration}s ${SNAP_EASING}`;
+                    tableSurface.classList.add('snapping');
+                    setTableTransform(targetTx, targetTy);
+                    updateCurrentCard(index);
+
+                    const cleanupTimeout = duration * 1000 + 120;
+                    const onTransitionEnd = () => {
+                        clearSnapTransition();
+                        isSnapping = false;
+                        currentSnapOnEnd = null;
+                    };
+                    currentSnapOnEnd = onTransitionEnd;
+                    tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
+
+                    setTimeout(() => {
+                        if (isSnapping && currentSnapOnEnd === onTransitionEnd) {
+                            clearSnapTransition();
+                            isSnapping = false;
+                        }
+                    }, cleanupTimeout);
+                } else {
+                    clearSnapTransition();
+                    isSnapping = true;
+                    tableSurface.style.transition = 'none';
+                    setTableTransform(targetTx, targetTy);
+                    updateCurrentCard(index);
+                    isSnapping = false;
+                    tableSurface.style.transition = 'none';
+                }
+            }
+
+            function getEventPos(e) {
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function onPointerDown(e) {
+                if (menu.classList.contains('active')) return;
+                if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+                e.preventDefault();
+                viewport.setPointerCapture(e.pointerId);
+                const pos = getEventPos(e);
+                pointerStartX = pos.x;
+                pointerStartY = pos.y;
+                tableStartTx = tableTx;
+                tableStartTy = tableTy;
+                pointerMoved = false;
+                isDragging = true;
+                isSnapping = false;
+                clearSnapTransition();
+                tableSurface.style.transition = 'none';
+                viewport.classList.add('grabbing');
+                tableSurface.classList.add('dragging');
+            }
+
+            function onPointerMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const pos = getEventPos(e);
+                const dx = pos.x - pointerStartX;
+                const dy = pos.y - pointerStartY;
+                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+                    pointerMoved = true;
+                }
+                setTableTransform(tableStartTx + dx, tableStartTy + dy);
+            }
+
+            function onPointerUp(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                viewport.classList.remove('grabbing');
+                tableSurface.classList.remove('dragging');
+                viewport.releasePointerCapture(e.pointerId);
+                snapToCard(findClosestCardIndex(), true);
+            }
+
+            function onPointerCancel(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                viewport.classList.remove('grabbing');
+                tableSurface.classList.remove('dragging');
+                snapToCard(findClosestCardIndex(), true);
+            }
+
+            viewport.addEventListener('pointerdown', onPointerDown);
+            viewport.addEventListener('pointermove', onPointerMove);
+            viewport.addEventListener('pointerup', onPointerUp);
+            viewport.addEventListener('pointercancel', onPointerCancel);
+            viewport.addEventListener('lostpointercapture', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    viewport.classList.remove('grabbing');
+                    tableSurface.classList.remove('dragging');
+                    snapToCard(findClosestCardIndex(), true);
+                }
+            });
+
+            viewport.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
+                if (menu.classList.contains('active')) return;
+                e.preventDefault();
+            }, { passive: false });
+
+            function toggleMenu() {
+                const isActive = menu.classList.contains('active');
+                if (isActive) {
+                    menu.classList.remove('active');
+                    overlay.classList.remove('active');
+                    viewport.classList.remove('menu-open');
+                } else {
+                    menu.classList.add('active');
+                    overlay.classList.add('active');
+                    viewport.classList.add('menu-open');
+                }
+            }
+
+            menuBtn.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            menu.querySelectorAll('a[data-nav]').forEach(link => {
+                link.addEventListener('click', () => {
+                    const navId = link.getAttribute('data-nav');
+                    toggleMenu();
+                    let foundIndex = -1;
+                    if (navId.startsWith('devlog-')) {
+                        const devlogIdx = parseInt(navId.split('-')[1]);
+                        foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index ===
+                            devlogIdx);
+                    } else if (navId.startsWith('blog-')) {
+                        const blogIdx = parseInt(navId.split('-')[1]);
+                        foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
+                    } else {
+                        foundIndex = allCardEls.findIndex(c => c.id === navId);
+                    }
+                    if (foundIndex >= 0) {
+                        snapToCard(foundIndex, true);
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (menu.classList.contains('active')) return;
+                if (isDragging || isSnapping) return;
+                const key = e.key;
+                if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+                    e.preventDefault();
+                    const currentCard = allCardEls[currentCardIndex];
+                    if (!currentCard) return;
+                    let bestIdx = currentCardIndex;
+                    let bestDist = Infinity;
+                    const cx = currentCard.centerX;
+                    const cy = currentCard.centerY;
+
+                    const cardW = getCardWidth();
+                    const cardH = getCardHeight();
+                    const colGap = getColumnGap();
+                    const rowGap = getRowGap();
+                    const normX = colGap + cardW;
+                    const normY = rowGap + cardH;
+
+                    allCardEls.forEach((card, i) => {
+                        if (i === currentCardIndex) return;
+                        const dx = (card.centerX - cx) / normX;
+                        const dy = (card.centerY - cy) / normY;
+                        let score = Infinity;
+                        if (key === 'ArrowUp' && dy < -0.25) score = Math.abs(dx) + Math.abs(dy);
+                        if (key === 'ArrowDown' && dy > 0.25) score = Math.abs(dx) + Math.abs(dy);
+                        if (key === 'ArrowLeft' && dx < -0.25) score = Math.abs(dx) + Math.abs(dy);
+                        if (key === 'ArrowRight' && dx > 0.25) score = Math.abs(dx) + Math.abs(dy);
+                        if (score < bestDist) {
+                            bestDist = score;
+                            bestIdx = i;
+                        }
+                    });
+                    if (bestIdx !== currentCardIndex && bestDist < Infinity) {
+                        snapToCard(bestIdx, true);
+                    }
+                }
+            });
+
+            function onResize() {
+                const cardW = getCardWidth();
+                const cardH = getCardHeight();
+                const colGap = getColumnGap();
+                const rowGap = getRowGap();
+                const padX = getTablePaddingX();
+                const padY = getTablePaddingY();
+                const devCenterX = padX + cardW / 2;
+                const mainCenterX = padX + cardW + colGap + cardW / 2;
+                const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
+
+                allCardEls.forEach(card => {
+                    let cx, cy;
+                    if (card.column === 'devlog') {
+                        cx = devCenterX;
+                    } else if (card.column === 'main') {
+                        cx = mainCenterX;
+                    } else {
+                        cx = blogCenterX;
+                    }
+                    cy = padY + cardH / 2 + card.index * (cardH + rowGap);
+                    card.centerX = cx;
+                    card.centerY = cy;
+                    card.el.style.left = (cx - cardW / 2) + 'px';
+                    card.el.style.top = (cy - cardH / 2) + 'px';
+                });
+
+                const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
+                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
+                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) *
+                    rowGap;
+                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
+                const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+                tableSurface.style.width = totalWidth + 'px';
+                tableSurface.style.height = totalHeight + 'px';
+
+                if (currentCardIndex >= 0 && currentCardIndex < allCardEls.length) {
+                    snapToCard(currentCardIndex, false);
+                }
+            }
+
+            window.addEventListener('resize', debounce(onResize, 200));
+
+            function debounce(fn, delay) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            function init() {
+                buildAllCards();
+                const homeIndex = allCardEls.findIndex(c => c.id === 'home');
+                const startIndex = homeIndex >= 0 ? homeIndex : 0;
+                updateCurrentCard(startIndex);
+                snapToCard(startIndex, false);
+                updateCardOpacities();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            window.lifeSnakeStudio = {
+                navigateTo: function(cardId) {
+                    const idx = allCardEls.findIndex(c => c.id === cardId);
+                    if (idx >= 0) snapToCard(idx, true);
+                },
+                navigateToBlog: function(blogIndex) {
+                    const idx = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIndex);
+                    if (idx >= 0) snapToCard(idx, true);
+                },
+                navigateToDevlog: function(devlogIndex) {
+                    const idx = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIndex);
+                    if (idx >= 0) snapToCard(idx, true);
+                },
+                getCurrentCard: function() {
+                    return allCardEls[currentCardIndex] || null;
+                },
+                getAllCards: function() {
+                    return allCardEls;
+                },
+            };
+
+            console.log('🃏 Life Snake Studio – Snapping fixed: rectangular deadzone + axis‑normalised distances.');
+        })();
+    </script>
 </body>
 
 </html>
- 
