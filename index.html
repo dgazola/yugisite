@@ -1,8 +1,3 @@
-Here's the updated HTML file with the column layout from before, but now **Home** is the second card in the middle
-column (so you can navigate up to **World**, down to **TCG**, left to the devlog, or right to the blog).
-Just copy and paste it over your existing file.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1001,7 +996,18 @@ Just copy and paste it over your existing file.
 
         if (animate) {
           clearSnapTransition();
-          const dist = Math.hypot(targetTx - tableTx, targetTy - tableTy);
+
+          // ── make vertical movement feel as snappy as horizontal ──
+          // by scaling the vertical delta with the ratio width/height.
+          // This way a move of one card height feels comparable to one card width.
+          const cardW = getCardWidth();
+          const cardH = getCardHeight();
+          const scaleY = cardW / cardH;   // width is the minor dimension
+          const dx = targetTx - tableTx;
+          const dy = (targetTy - tableTy) * scaleY;
+          const dist = Math.hypot(dx, dy);
+          // ──────────────────────────────────────────────────────────
+
           const duration = Math.min(
             Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
             SNAP_MAX_DURATION
@@ -1277,5 +1283,4 @@ Just copy and paste it over your existing file.
   </script>
 </body>
 
-</html>
-```
+</html> 
