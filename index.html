@@ -97,6 +97,8 @@
             transition: left 0.28s ease;
             z-index: 1100;
             padding-top: 60px;
+            display: flex;
+            flex-direction: column;
         }
 
         .side-menu.active {
@@ -113,12 +115,27 @@
             cursor: pointer;
             font-size: 0.9rem;
             letter-spacing: 0.03em;
+            flex-shrink: 0;
         }
 
         .side-menu a:active,
         .side-menu a:hover {
             background: #1a1a0f;
             color: var(--bronze-light);
+        }
+
+        .side-menu .menu-version {
+            margin-top: auto;
+            padding: 14px 18px;
+            border-top: 1px solid #1a1a0d;
+            color: #5c5430;
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+            text-align: right;
+            flex-shrink: 0;
+            user-select: none;
+            pointer-events: none;
         }
 
         .overlay {
@@ -711,6 +728,7 @@
         <a data-nav="presskit">Press Kit</a>
         <a data-nav="devlog-0">Devlog</a>
         <a data-nav="blog-0">Blog</a>
+        <div class="menu-version">v0.02</div>
     </div>
     <div class="overlay" id="overlay"></div>
 
@@ -1228,7 +1246,8 @@
                     let foundIndex = -1;
                     if (navId.startsWith('devlog-')) {
                         const devlogIdx = parseInt(navId.split('-')[1]);
-                        foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIdx);
+                        foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index ===
+                            devlogIdx);
                     } else if (navId.startsWith('blog-')) {
                         const blogIdx = parseInt(navId.split('-')[1]);
                         foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
@@ -1310,7 +1329,8 @@
 
                 const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
                 const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
+                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) *
+                    rowGap;
                 const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
                 const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
                 tableSurface.style.width = totalWidth + 'px';
@@ -1367,7 +1387,7 @@
                 },
             };
 
-            console.log('🃏 Life Snake Studio – Edge bouncing fixed. Directional boundary guard active.');
+            console.log('🃏 Life Snake Studio – Edge bouncing fixed. Directional boundary guard active. v0.02');
         })();
     </script>
 </body>
