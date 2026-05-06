@@ -771,7 +771,7 @@
             let mainCards = [];
             let devlogCards = [];
             let blogCards = [];
-            let landingCardId = "home"; // default fallback
+            let landingCardId = "home"; // fallback
 
             // ── Load JSON with settings support ─────────────────
             async function loadAllCards() {
@@ -781,12 +781,10 @@
                     const json = await resp.json();
 
                     let cardsArray = [];
-                    // Support both new { settings:..., cards: [...] } and plain array
                     if (Array.isArray(json)) {
                         cardsArray = json;
                     } else if (json && Array.isArray(json.cards)) {
                         cardsArray = json.cards;
-                        // Load landing card setting if present
                         if (json.settings && json.settings.landingCardId) {
                             landingCardId = json.settings.landingCardId;
                         }
@@ -836,8 +834,6 @@
                 return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-y').trim());
             }
 
-            // ... (card HTML builders unchanged)
-
             function createMainCardHTML(data) {
                 return `
                     <div class="card-name">${data.name}<small>${data.sub}</small></div>
@@ -884,10 +880,6 @@
                     </div>`;
             }
 
-            // ... (build, snapping, dragging, keyboard, resize functions are **exactly** as before,
-            //      except the init part that chooses the start card)
-
-            // ── Build cards (unchanged) ─────────────────────────
             async function buildAllCards() {
                 tableSurface.innerHTML = '';
                 allCardEls = [];
@@ -959,8 +951,55 @@
                 tableSurface.style.height = Math.max(mainColHeight, devlogColHeight, blogColHeight) + 'px';
             }
 
-            /* ── Snapping, dragging, keyboard, resize (unchanged) ── */
-            function findClosestCardIndex(dragDx = null, dragDy = null) { /* ... same as original ... */ }
+            /* ── Snapping and dragging logic ───────────────────── */
+            function findClosestCardIndex(dragDx = null, dragDy = null) {
+                const vpW = viewport.clientWidth;
+                const vpH = viewport.clientHeight;
+                const targetX = vpW / 2 - tableTx;
+                const targetY = vpH / 2 - tableTy;
+
+                const currentCard = allCardEls[currentCardIndex];
+                if (!currentCard) return 0;
+                const cardW = getCardWidth();
+                const cardH = getCardHeight();
+                const colGap = getColumnGap();
+                const rowGap = getRowGap();
+                const deadzoneX = colGap * DEADZONE_X_FACTOR;
+                const deadzoneY = rowGap * DEADZONE_Y_FACTOR;
+                const dxCurr = Math.abs(currentCard.centerX - targetX);
+                const dyCurr = Math.abs(currentCard.centerY - targetY);
+                if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) return currentCardIndex;
+                if (dragDx !== null && dragDy !== null) {
+                    let minX = Infinity, maxX = -Infinity;
+                    let minY = Infinity, maxY = -Infinity;
+                    allCardEls.forEach(c => {
+                        if (c.centerX < minX) minX = c.centerX;
+                        if (c.centerX > maxX) maxX = c.centerX;
+                        if (c.centerY < minY) minY = c.centerY;
+                        if (c.centerY > maxY) maxY = c.centerY;
+                    });
+                    const marginX = cardW * 0.3;
+                    const marginY = cardH * 0.3;
+                    if (dragDx < -DRAG_THRESHOLD && targetX > maxX + marginX) return currentCardIndex;
+                    if (dragDx > DRAG_THRESHOLD && targetX < minX - marginX) return currentCardIndex;
+                    if (dragDy < -DRAG_THRESHOLD && targetY > maxY + marginY) return currentCardIndex;
+                    if (dragDy > DRAG_THRESHOLD && targetY < minY - marginY) return currentCardIndex;
+                }
+                const normX = colGap + cardW;
+                const normY = rowGap + cardH;
+                let bestIdx = 0;
+                let bestDist = Infinity;
+                for (let i = 0; i < allCardEls.length; i++) {
+                    const card = allCardEls[i];
+                    const dx = (card.centerX - targetX) / normX;
+                    const dy = (card.centerY - targetY) / normY;
+                    let dist = dx * dx + dy * dy;
+                    if (i === currentCardIndex) dist *= CURRENT_CARD_WEIGHT;
+                    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+                }
+                return bestIdx;
+            }
+
             function updateCurrentCard(index) {
                 allCardEls.forEach(c => c.el.classList.remove('current'));
                 if (index >= 0 && index < allCardEls.length) {
@@ -969,18 +1008,103 @@
                 }
                 updateCardOpacities();
             }
+
             function updateCardOpacities() {
                 allCardEls.forEach((card, i) => {
                     card.el.style.opacity = (i === currentCardIndex) ? '1' : '0.28';
                 });
             }
-            function setTableTransform(tx, ty) { tableTx = tx; tableTy = ty; tableSurface.style.transform = `translate(${tx}px, ${ty}px)`; }
-            function clearSnapTransition() { /* ... same ... */ }
-            function snapToCard(index, animate = true) { /* ... same ... */ }
+
+            function setTableTransform(tx, ty) {
+                tableTx = tx; tableTy = ty;
+                tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
+            }
+
+            function clearSnapTransition() {
+                tableSurface.classList.remove('snapping');
+                tableSurface.style.transition = 'none';
+                if (currentSnapOnEnd) {
+                    tableSurface.removeEventListener('transitionend', currentSnapOnEnd);
+                    currentSnapOnEnd = null;
+                }
+            }
+
+            function snapToCard(index, animate = true) {
+                if (index < 0 || index >= allCardEls.length) return;
+                const card = allCardEls[index];
+                const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+                const targetTx = vpW / 2 - card.centerX;
+                const targetTy = vpH / 2 - card.centerY;
+                if (animate) {
+                    clearSnapTransition();
+                    const cardW = getCardWidth(), cardH = getCardHeight();
+                    const scaleY = cardW / cardH;
+                    const dx = targetTx - tableTx, dy = (targetTy - tableTy) * scaleY;
+                    const dist = Math.hypot(dx, dy);
+                    const duration = Math.min(Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION), SNAP_MAX_DURATION);
+                    isSnapping = true;
+                    tableSurface.style.transition = `transform ${duration}s ${SNAP_EASING}`;
+                    tableSurface.classList.add('snapping');
+                    setTableTransform(targetTx, targetTy);
+                    updateCurrentCard(index);
+                    const cleanupTimeout = duration * 1000 + 120;
+                    const onTransitionEnd = () => { clearSnapTransition(); isSnapping = false; currentSnapOnEnd = null; };
+                    currentSnapOnEnd = onTransitionEnd;
+                    tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
+                    setTimeout(() => { if (isSnapping && currentSnapOnEnd === onTransitionEnd) { clearSnapTransition(); isSnapping = false; } }, cleanupTimeout);
+                } else {
+                    clearSnapTransition();
+                    isSnapping = true;
+                    tableSurface.style.transition = 'none';
+                    setTableTransform(targetTx, targetTy);
+                    updateCurrentCard(index);
+                    isSnapping = false;
+                    tableSurface.style.transition = 'none';
+                }
+            }
+
             function getEventPos(e) { return { x: e.clientX, y: e.clientY }; }
-            function findCardAtPoint(clientX, clientY) { /* ... same ... */ }
-            function onPointerDown(e) { /* ... same ... */ }
-            function onPointerMove(e) { /* ... same ... */ }
+
+            function findCardAtPoint(clientX, clientY) {
+                const vpRect = viewport.getBoundingClientRect();
+                const tableX = clientX - vpRect.left - tableTx;
+                const tableY = clientY - vpRect.top - tableTy;
+                const cardW = getCardWidth(), cardH = getCardHeight();
+                for (let i = 0; i < allCardEls.length; i++) {
+                    const card = allCardEls[i];
+                    const left = parseFloat(card.el.style.left);
+                    const top = parseFloat(card.el.style.top);
+                    if (tableX >= left && tableX <= left + cardW && tableY >= top && tableY <= top + cardH) return i;
+                }
+                return -1;
+            }
+
+            function onPointerDown(e) {
+                if (menu.classList.contains('active')) return;
+                if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                e.preventDefault();
+                viewport.setPointerCapture(e.pointerId);
+                const pos = getEventPos(e);
+                pointerStartX = pos.x; pointerStartY = pos.y;
+                tableStartTx = tableTx; tableStartTy = tableTy;
+                pointerMoved = false; isDragging = true; isSnapping = false;
+                clearSnapTransition();
+                tableSurface.style.transition = 'none';
+                viewport.classList.add('grabbing');
+                tableSurface.classList.add('dragging');
+                if (wheelSnapTimeout) { clearTimeout(wheelSnapTimeout); wheelSnapTimeout = null; }
+            }
+
+            function onPointerMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const pos = getEventPos(e);
+                const dx = pos.x - pointerStartX, dy = pos.y - pointerStartY;
+                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) pointerMoved = true;
+                setTableTransform(tableStartTx + dx, tableStartTy + dy);
+            }
+
             function onPointerUp(e) {
                 if (!isDragging) return;
                 isDragging = false;
@@ -996,7 +1120,14 @@
                 const dragDx = pos.x - pointerStartX, dragDy = pos.y - pointerStartY;
                 snapToCard(findClosestCardIndex(dragDx, dragDy), true);
             }
-            function onPointerCancel(e) { /* ... same ... */ }
+
+            function onPointerCancel(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                viewport.classList.remove('grabbing');
+                tableSurface.classList.remove('dragging');
+                snapToCard(findClosestCardIndex(null, null), true);
+            }
 
             viewport.addEventListener('pointerdown', onPointerDown);
             viewport.addEventListener('pointermove', onPointerMove);
@@ -1129,11 +1260,10 @@
                 };
             }
 
-            // ── Init ────────────────────────────────────────────────
+            // ── Init ────────────────────────────────────────────
             async function init() {
                 await loadAllCards();
                 await buildAllCards();
-                // Determine start index using landing card ID, fallback to "home" or first card
                 let startIndex = allCardEls.findIndex(c => c.id === landingCardId);
                 if (startIndex < 0) {
                     startIndex = allCardEls.findIndex(c => c.id === 'home');
