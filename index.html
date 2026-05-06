@@ -1,3 +1,8 @@
+Here's the updated HTML file with the column layout from before, but now **Home** is the second card in the middle
+column (so you can navigate up to **World**, down to **TCG**, left to the devlog, or right to the blog).
+Just copy and paste it over your existing file.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -156,7 +161,6 @@
     .table-surface {
       position: absolute;
       will-change: transform;
-      transition: none;
       background:
         radial-gradient(ellipse at 30% 15%, rgba(60, 40, 10, 0.35) 0%, transparent 60%),
         radial-gradient(ellipse at 70% 30%, rgba(50, 35, 8, 0.25) 0%, transparent 55%),
@@ -179,12 +183,9 @@
       background-color: #0a0a06;
     }
 
-    .table-surface.snapping {
-      transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-
     .card,
-    .blog-card {
+    .blog-card,
+    .devlog-card {
       position: absolute;
       width: var(--card-width);
       aspect-ratio: 5 / 7.2;
@@ -205,7 +206,8 @@
     }
 
     .card.current,
-    .blog-card.current {
+    .blog-card.current,
+    .devlog-card.current {
       opacity: 1;
       box-shadow:
         inset 0 0 0 2px var(--card-inner-frame),
@@ -217,18 +219,21 @@
     }
 
     .table-surface.dragging .card,
-    .table-surface.dragging .blog-card {
+    .table-surface.dragging .blog-card,
+    .table-surface.dragging .devlog-card {
       opacity: 0.9 !important;
       transition: opacity 0.2s ease;
     }
 
     .table-surface.dragging .card.current,
-    .table-surface.dragging .blog-card.current {
+    .table-surface.dragging .blog-card.current,
+    .table-surface.dragging .devlog-card.current {
       opacity: 1 !important;
     }
 
     .card::before,
-    .blog-card::before {
+    .blog-card::before,
+    .devlog-card::before {
       content: '';
       position: absolute;
       top: 10px;
@@ -243,7 +248,8 @@
     }
 
     .card::after,
-    .blog-card::after {
+    .blog-card::after,
+    .devlog-card::after {
       content: '';
       position: absolute;
       top: 10px;
@@ -524,6 +530,117 @@
       font-weight: 500;
     }
 
+    .devlog-name {
+      background: linear-gradient(180deg, #8a5c08 0%, #6b4406 100%);
+      color: var(--card-name-text);
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      border-radius: 3px 3px 0 0;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-bottom: 2px solid rgba(0, 0, 0, 0.35);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      text-transform: uppercase;
+      z-index: 1;
+    }
+
+    .devlog-name h3 {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .devlog-name span {
+      color: #2a1e04;
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.1);
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      text-transform: none;
+    }
+
+    .devlog-art {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: #0e0e0a;
+      border-left: 2px solid rgba(184, 134, 11, 0.2);
+      border-right: 2px solid rgba(184, 134, 11, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background-image: linear-gradient(rgba(184, 134, 11, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184, 134, 11, 0.05) 1px, transparent 1px);
+      background-size: 22px 22px;
+      z-index: 1;
+    }
+
+    .devlog-art::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(184, 134, 11, 0.25);
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .devlog-art .art-placeholder .play-circle {
+      width: 44px;
+      height: 44px;
+      border-color: rgba(180, 140, 20, 0.55);
+    }
+
+    .devlog-art .art-placeholder .play-circle::after {
+      border-left: 12px solid rgba(180, 140, 20, 0.65);
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+    }
+
+    .devlog-desc {
+      background: #050505;
+      color: var(--muted);
+      padding: 14px 14px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border-radius: 0 0 3px 3px;
+      border: 1px solid rgba(184, 134, 11, 0.1);
+      border-top: 2px solid rgba(184, 134, 11, 0.25);
+      z-index: 1;
+    }
+
+    .devlog-desc p {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      max-width: 90%;
+    }
+
+    .devlog-desc .meta {
+      margin-top: auto;
+      color: #9a8b65;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      font-style: italic;
+      font-weight: 500;
+    }
+
     @media (max-width: 500px) {
       :root {
         --card-width: 310px;
@@ -546,7 +663,8 @@
         font-size: 0.72rem;
       }
 
-      .blog-name h3 {
+      .blog-name h3,
+      .devlog-name h3 {
         font-size: 0.75rem;
       }
 
@@ -565,12 +683,14 @@
         border-bottom-width: 7px;
       }
 
-      .blog-art .art-placeholder .play-circle {
+      .blog-art .art-placeholder .play-circle,
+      .devlog-art .art-placeholder .play-circle {
         width: 34px;
         height: 34px;
       }
 
-      .blog-art .art-placeholder .play-circle::after {
+      .blog-art .art-placeholder .play-circle::after,
+      .devlog-art .art-placeholder .play-circle::after {
         border-left-width: 9px;
         border-top-width: 5px;
         border-bottom-width: 5px;
@@ -594,6 +714,7 @@
     <a data-nav="community">Community</a>
     <a data-nav="contact">Contact</a>
     <a data-nav="presskit">Press Kit</a>
+    <a data-nav="devlog-0">Devlog</a>
     <a data-nav="blog-0">Blog</a>
   </div>
   <div class="overlay" id="overlay"></div>
@@ -604,488 +725,557 @@
 
   <script>
     (function() {
-            const viewport = document.getElementById('viewport');
-            const tableSurface = document.getElementById('tableSurface');
-            const menu = document.getElementById('menu');
-            const overlay = document.getElementById('overlay');
-            const menuBtn = document.getElementById('menuBtn');
+      const viewport = document.getElementById('viewport');
+      const tableSurface = document.getElementById('tableSurface');
+      const menu = document.getElementById('menu');
+      const overlay = document.getElementById('overlay');
+      const menuBtn = document.getElementById('menuBtn');
 
-            const mainCardData = [
-                { id: 'home', name: 'Home', sub: 'Universe entry point', title: 'Yugimon Universe',
-                    desc: 'Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.',
-                    tag: 'Start Here' },
-                { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
-                    desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
-                    tag: 'Lore & Regions' },
-                { id: 'tcg', name: 'TCG', sub: 'how to play · database · builder', title: 'Trading Card Game',
-                    desc: 'Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.',
-                    tag: 'Card Game Hub' },
-                { id: 'engine', name: 'Engine & Devkit', sub: 'YugiCore SDK', title: 'Engine & Devkit',
-                    desc: 'The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.',
-                    tag: 'Custom Toolset' },
-                { id: 'licensing', name: 'Licensing', sub: 'for indies · assets · pricing', title: 'Licensing',
-                    desc: 'License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.',
-                    tag: 'For Indies' },
-                { id: 'community', name: 'Community', sub: 'discord · forums · showcases', title: 'Community',
-                    desc: 'Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.',
-                    tag: 'Join Us' },
-                { id: 'contact', name: 'Contact', sub: 'inquiries · press', title: 'Contact',
-                    desc: 'General questions, press inquiries, or direct links to the licensing application. We\'d love to hear from you.',
-                    tag: 'Get in Touch' },
-                { id: 'presskit', name: 'Press Kit', sub: 'logos · art · fact sheet', title: 'Press Kit',
-                    desc: 'Download official logos, key art, fact sheet, and media assets for press, creators, and partners.',
-                    tag: 'Media Downloads' },
-            ];
+      // ── snap animation tuning ──────────────────────────────
+      const SNAP_SPEED_FACTOR = 0.028;
+      const SNAP_MIN_DURATION = 0.18;
+      const SNAP_MAX_DURATION = 0.72;
+      const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
+      // ────────────────────────────────────────────────────────
 
-            const blogPostData = [
-                { title: 'Blog Page 1', label: 'Intro',
-                    content: 'This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.',
-                    meta: 'Pinned entry' },
-                { title: 'Blog Page 2', label: 'Dev log',
-                    content: 'A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.',
-                    meta: 'Recent update' },
-                { title: 'Blog Page 3', label: 'Notes',
-                    content: 'Another post card in the blog feed. Add as many as you want without mixing them into the main feed.',
-                    meta: 'Independent blog section' },
-                { title: 'Blog Page 4', label: 'Update',
-                    content: 'Extra post only visible on the full blog page. The main feed only shows the preview card.',
-                    meta: 'Exclusive to blog page' },
-            ];
+      // Main cards – World first, Home second (so Home is the landing card with room to navigate in all directions)
+      const mainCardData = [
+        { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
+          desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
+          tag: 'Lore & Regions' },
+        { id: 'home', name: 'Home', sub: 'Universe entry point', title: 'Yugimon Universe',
+          desc: 'Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.',
+          tag: 'Start Here' },
+        { id: 'tcg', name: 'TCG', sub: 'how to play · database · builder', title: 'Trading Card Game',
+          desc: 'Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.',
+          tag: 'Card Game Hub' },
+        { id: 'engine', name: 'Engine & Devkit', sub: 'YugiCore SDK', title: 'Engine & Devkit',
+          desc: 'The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.',
+          tag: 'Custom Toolset' },
+        { id: 'licensing', name: 'Licensing', sub: 'for indies · assets · pricing', title: 'Licensing',
+          desc: 'License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.',
+          tag: 'For Indies' },
+        { id: 'community', name: 'Community', sub: 'discord · forums · showcases', title: 'Community',
+          desc: 'Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.',
+          tag: 'Join Us' },
+        { id: 'contact', name: 'Contact', sub: 'inquiries · press', title: 'Contact',
+          desc: 'General questions, press inquiries, or direct links to the licensing application. We\'d love to hear from you.',
+          tag: 'Get in Touch' },
+        { id: 'presskit', name: 'Press Kit', sub: 'logos · art · fact sheet', title: 'Press Kit',
+          desc: 'Download official logos, key art, fact sheet, and media assets for press, creators, and partners.',
+          tag: 'Media Downloads' },
+      ];
 
-            let allCardEls = [];
-            let currentCardIndex = 0;
-            let tableTx = 0;
-            let tableTy = 0;
-            let isDragging = false;
-            let isSnapping = false;
-            let pointerStartX = 0;
-            let pointerStartY = 0;
-            let tableStartTx = 0;
-            let tableStartTy = 0;
-            let pointerMoved = false;
-            const DRAG_THRESHOLD = 4;
+      const devlogPostData = [
+        { title: 'Devlog One', label: 'Update', content: 'First devlog. Behind the scenes of building the engine and tools.', meta: 'Latest' },
+        { title: 'Devlog Two', label: 'Progress', content: 'Second entry. Challenges with the card game engine and how I overcame them.', meta: 'Ongoing' },
+        { title: 'Devlog Three', label: 'Design', content: 'Thoughts on world design, creature balancing, and community feedback.', meta: 'Design notes' },
+      ];
 
-            function getCardWidth() {
-                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
+      const blogPostData = [
+        { title: 'Blog Page 1', label: 'Intro', content: 'This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.', meta: 'Pinned entry' },
+        { title: 'Blog Page 2', label: 'Dev log', content: 'A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.', meta: 'Recent update' },
+        { title: 'Blog Page 3', label: 'Notes', content: 'Another post card in the blog feed. Add as many as you want without mixing them into the main feed.', meta: 'Independent blog section' },
+        { title: 'Blog Page 4', label: 'Update', content: 'Extra post only visible on the full blog page. The main feed only shows the preview card.', meta: 'Exclusive to blog page' },
+      ];
+
+      let allCardEls = [];
+      let currentCardIndex = 0;
+      let tableTx = 0;
+      let tableTy = 0;
+      let isDragging = false;
+      let isSnapping = false;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let tableStartTx = 0;
+      let tableStartTy = 0;
+      let pointerMoved = false;
+      let currentSnapOnEnd = null;
+      const DRAG_THRESHOLD = 4;
+
+      function getCardWidth() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
+      }
+
+      function getCardHeight() {
+        const w = getCardWidth();
+        return w * 7.2 / 5;
+      }
+
+      function getColumnGap() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-gap').trim());
+      }
+
+      function getRowGap() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-gap').trim());
+      }
+
+      function getTablePaddingX() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-x').trim());
+      }
+
+      function getTablePaddingY() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-y').trim());
+      }
+
+      function createMainCardHTML(data) {
+        return `
+          <div class="card-name">${data.name}<small>${data.sub}</small></div>
+          <div class="card-art">
+            <div class="art-placeholder">
+              <div class="play-circle"></div>
+              <span class="placeholder-text">Image / Video</span>
+            </div>
+            <div class="art-title"><h2>${data.title}</h2></div>
+          </div>
+          <div class="card-desc">
+            <p>${data.desc}</p>
+            <div class="tag">${data.tag}</div>
+          </div>`;
+      }
+
+      function createBlogCardHTML(data) {
+        return `
+          <div class="blog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
+          <div class="blog-art">
+            <div class="art-placeholder">
+              <div class="play-circle"></div>
+              <span class="placeholder-text">Blog Image</span>
+            </div>
+          </div>
+          <div class="blog-desc">
+            <p>${data.content}</p>
+            <div class="meta">${data.meta}</div>
+          </div>`;
+      }
+
+      function createDevlogCardHTML(data) {
+        return `
+          <div class="devlog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
+          <div class="devlog-art">
+            <div class="art-placeholder">
+              <div class="play-circle"></div>
+              <span class="placeholder-text">Devlog Image</span>
+            </div>
+          </div>
+          <div class="devlog-desc">
+            <p>${data.content}</p>
+            <div class="meta">${data.meta}</div>
+          </div>`;
+      }
+
+      function buildAllCards() {
+        tableSurface.innerHTML = '';
+        allCardEls = [];
+        const cardW = getCardWidth();
+        const cardH = getCardHeight();
+        const colGap = getColumnGap();
+        const rowGap = getRowGap();
+        const padX = getTablePaddingX();
+        const padY = getTablePaddingY();
+
+        const devCenterX = padX + cardW / 2;
+        const mainCenterX = padX + cardW + colGap + cardW / 2;
+        const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
+
+        // Devlog cards (left column)
+        devlogPostData.forEach((data, i) => {
+          const el = document.createElement('article');
+          el.className = 'devlog-card';
+          el.innerHTML = createDevlogCardHTML(data);
+          el.setAttribute('data-card-id', 'devlog-' + i);
+          el.setAttribute('data-column', 'devlog');
+          el.setAttribute('data-index', i);
+          const cx = devCenterX;
+          const cy = padY + cardH / 2 + i * (cardH + rowGap);
+          el.style.left = (cx - cardW / 2) + 'px';
+          el.style.top = (cy - cardH / 2) + 'px';
+          tableSurface.appendChild(el);
+          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: 'devlog-' + i });
+        });
+
+        // Main cards (center column) – World first, Home second
+        mainCardData.forEach((data, i) => {
+          const el = document.createElement('article');
+          el.className = 'card';
+          el.innerHTML = createMainCardHTML(data);
+          el.setAttribute('data-card-id', data.id);
+          el.setAttribute('data-column', 'main');
+          el.setAttribute('data-index', i);
+          const cx = mainCenterX;
+          const cy = padY + cardH / 2 + i * (cardH + rowGap);
+          el.style.left = (cx - cardW / 2) + 'px';
+          el.style.top = (cy - cardH / 2) + 'px';
+          tableSurface.appendChild(el);
+          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
+        });
+
+        // Blog cards (right column)
+        blogPostData.forEach((data, i) => {
+          const el = document.createElement('article');
+          el.className = 'blog-card';
+          el.innerHTML = createBlogCardHTML(data);
+          el.setAttribute('data-card-id', 'blog-' + i);
+          el.setAttribute('data-column', 'blog');
+          el.setAttribute('data-index', i);
+          const cx = blogCenterX;
+          const cy = padY + cardH / 2 + i * (cardH + rowGap);
+          el.style.left = (cx - cardW / 2) + 'px';
+          el.style.top = (cy - cardH / 2) + 'px';
+          tableSurface.appendChild(el);
+          allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: 'blog-' + i });
+        });
+
+        const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
+        const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
+        const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
+        const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
+        const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+        tableSurface.style.width = totalWidth + 'px';
+        tableSurface.style.height = totalHeight + 'px';
+      }
+
+      function findClosestCardIndex() {
+        const vpW = viewport.clientWidth;
+        const vpH = viewport.clientHeight;
+        const targetX = vpW / 2 - tableTx;
+        const targetY = vpH / 2 - tableTy;
+        let bestIdx = 0;
+        let bestDist = Infinity;
+        allCardEls.forEach((card, i) => {
+          const dx = card.centerX - targetX;
+          const dy = card.centerY - targetY;
+          let dist = dx * dx + dy * dy;
+          if (i === currentCardIndex) {
+            dist *= 4.0;
+          }
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestIdx = i;
+          }
+        });
+        return bestIdx;
+      }
+
+      function updateCurrentCard(index) {
+        allCardEls.forEach(c => c.el.classList.remove('current'));
+        if (index >= 0 && index < allCardEls.length) {
+          currentCardIndex = index;
+          allCardEls[index].el.classList.add('current');
+        }
+        updateCardOpacities();
+      }
+
+      function updateCardOpacities() {
+        allCardEls.forEach((card, i) => {
+          if (i === currentCardIndex) {
+            card.el.style.opacity = '1';
+          } else {
+            card.el.style.opacity = '0.28';
+          }
+        });
+      }
+
+      function setTableTransform(tx, ty) {
+        tableTx = tx;
+        tableTy = ty;
+        tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
+      }
+
+      function clearSnapTransition() {
+        tableSurface.classList.remove('snapping');
+        tableSurface.style.transition = 'none';
+        if (currentSnapOnEnd) {
+          tableSurface.removeEventListener('transitionend', currentSnapOnEnd);
+          currentSnapOnEnd = null;
+        }
+      }
+
+      function snapToCard(index, animate = true) {
+        if (index < 0 || index >= allCardEls.length) return;
+        const card = allCardEls[index];
+        const vpW = viewport.clientWidth;
+        const vpH = viewport.clientHeight;
+        const targetTx = vpW / 2 - card.centerX;
+        const targetTy = vpH / 2 - card.centerY;
+
+        if (animate) {
+          clearSnapTransition();
+          const dist = Math.hypot(targetTx - tableTx, targetTy - tableTy);
+          const duration = Math.min(
+            Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
+            SNAP_MAX_DURATION
+          );
+          isSnapping = true;
+          tableSurface.style.transition = `transform ${duration}s ${SNAP_EASING}`;
+          tableSurface.classList.add('snapping');
+          setTableTransform(targetTx, targetTy);
+          updateCurrentCard(index);
+
+          const cleanupTimeout = duration * 1000 + 120;
+          const onTransitionEnd = () => {
+            clearSnapTransition();
+            isSnapping = false;
+            currentSnapOnEnd = null;
+          };
+          currentSnapOnEnd = onTransitionEnd;
+          tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
+
+          setTimeout(() => {
+            if (isSnapping && currentSnapOnEnd === onTransitionEnd) {
+              clearSnapTransition();
+              isSnapping = false;
             }
+          }, cleanupTimeout);
+        } else {
+          clearSnapTransition();
+          isSnapping = true;
+          tableSurface.style.transition = 'none';
+          setTableTransform(targetTx, targetTy);
+          updateCurrentCard(index);
+          isSnapping = false;
+          tableSurface.style.transition = 'none';
+        }
+      }
 
-            function getCardHeight() {
-                const w = getCardWidth();
-                return w * 7.2 / 5;
+      function getEventPos(e) {
+        return { x: e.clientX, y: e.clientY };
+      }
+
+      function onPointerDown(e) {
+        if (menu.classList.contains('active')) return;
+        if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+        e.preventDefault();
+        viewport.setPointerCapture(e.pointerId);
+        const pos = getEventPos(e);
+        pointerStartX = pos.x;
+        pointerStartY = pos.y;
+        tableStartTx = tableTx;
+        tableStartTy = tableTy;
+        pointerMoved = false;
+        isDragging = true;
+        isSnapping = false;
+        clearSnapTransition();
+        tableSurface.style.transition = 'none';
+        viewport.classList.add('grabbing');
+        tableSurface.classList.add('dragging');
+      }
+
+      function onPointerMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const pos = getEventPos(e);
+        const dx = pos.x - pointerStartX;
+        const dy = pos.y - pointerStartY;
+        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+          pointerMoved = true;
+        }
+        const newTx = tableStartTx + dx;
+        const newTy = tableStartTy + dy;
+        setTableTransform(newTx, newTy);
+      }
+
+      function onPointerUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        viewport.classList.remove('grabbing');
+        tableSurface.classList.remove('dragging');
+        viewport.releasePointerCapture(e.pointerId);
+        const closestIdx = findClosestCardIndex();
+        snapToCard(closestIdx, true);
+      }
+
+      function onPointerCancel(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        viewport.classList.remove('grabbing');
+        tableSurface.classList.remove('dragging');
+        const closestIdx = findClosestCardIndex();
+        snapToCard(closestIdx, true);
+      }
+
+      viewport.addEventListener('pointerdown', onPointerDown);
+      viewport.addEventListener('pointermove', onPointerMove);
+      viewport.addEventListener('pointerup', onPointerUp);
+      viewport.addEventListener('pointercancel', onPointerCancel);
+      viewport.addEventListener('lostpointercapture', () => {
+        if (isDragging) {
+          isDragging = false;
+          viewport.classList.remove('grabbing');
+          tableSurface.classList.remove('dragging');
+          const closestIdx = findClosestCardIndex();
+          snapToCard(closestIdx, true);
+        }
+      });
+
+      viewport.addEventListener('touchstart', function(e) {
+        if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
+        if (menu.classList.contains('active')) return;
+        e.preventDefault();
+      }, { passive: false });
+
+      function toggleMenu() {
+        const isActive = menu.classList.contains('active');
+        if (isActive) {
+          menu.classList.remove('active');
+          overlay.classList.remove('active');
+          viewport.classList.remove('menu-open');
+        } else {
+          menu.classList.add('active');
+          overlay.classList.add('active');
+          viewport.classList.add('menu-open');
+        }
+      }
+
+      menuBtn.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', toggleMenu);
+
+      menu.querySelectorAll('a[data-nav]').forEach(link => {
+        link.addEventListener('click', () => {
+          const navId = link.getAttribute('data-nav');
+          toggleMenu();
+          let foundIndex = -1;
+          if (navId.startsWith('devlog-')) {
+            const devlogIdx = parseInt(navId.split('-')[1]);
+            foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIdx);
+          } else if (navId.startsWith('blog-')) {
+            const blogIdx = parseInt(navId.split('-')[1]);
+            foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
+          } else {
+            foundIndex = allCardEls.findIndex(c => c.id === navId);
+          }
+          if (foundIndex >= 0) {
+            snapToCard(foundIndex, true);
+          }
+        });
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (menu.classList.contains('active')) return;
+        if (isDragging || isSnapping) return;
+        const key = e.key;
+        if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+          e.preventDefault();
+          const currentCard = allCardEls[currentCardIndex];
+          if (!currentCard) return;
+          let bestIdx = currentCardIndex;
+          let bestDist = Infinity;
+          const cx = currentCard.centerX;
+          const cy = currentCard.centerY;
+
+          allCardEls.forEach((card, i) => {
+            if (i === currentCardIndex) return;
+            const dx = card.centerX - cx;
+            const dy = card.centerY - cy;
+            let score = Infinity;
+            if (key === 'ArrowUp' && dy < -20) score = Math.abs(dx) + Math.abs(dy);
+            if (key === 'ArrowDown' && dy > 20) score = Math.abs(dx) + Math.abs(dy);
+            if (key === 'ArrowLeft' && dx < -20) score = Math.abs(dx) + Math.abs(dy);
+            if (key === 'ArrowRight' && dx > 20) score = Math.abs(dx) + Math.abs(dy);
+            if (score < bestDist) {
+              bestDist = score;
+              bestIdx = i;
             }
+          });
+          if (bestIdx !== currentCardIndex && bestDist < Infinity) {
+            snapToCard(bestIdx, true);
+          }
+        }
+      });
 
-            function getColumnGap() {
-                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-gap').trim());
-            }
+      function onResize() {
+        const cardW = getCardWidth();
+        const cardH = getCardHeight();
+        const colGap = getColumnGap();
+        const rowGap = getRowGap();
+        const padX = getTablePaddingX();
+        const padY = getTablePaddingY();
+        const devCenterX = padX + cardW / 2;
+        const mainCenterX = padX + cardW + colGap + cardW / 2;
+        const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
 
-            function getRowGap() {
-                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-gap').trim());
-            }
+        allCardEls.forEach(card => {
+          let cx, cy;
+          if (card.column === 'devlog') {
+            cx = devCenterX;
+          } else if (card.column === 'main') {
+            cx = mainCenterX;
+          } else {
+            cx = blogCenterX;
+          }
+          cy = padY + cardH / 2 + card.index * (cardH + rowGap);
+          card.centerX = cx;
+          card.centerY = cy;
+          card.el.style.left = (cx - cardW / 2) + 'px';
+          card.el.style.top = (cy - cardH / 2) + 'px';
+        });
 
-            function getTablePaddingX() {
-                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-x').trim());
-            }
+        const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
+        const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
+        const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
+        const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
+        const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+        tableSurface.style.width = totalWidth + 'px';
+        tableSurface.style.height = totalHeight + 'px';
 
-            function getTablePaddingY() {
-                return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--table-padding-y').trim());
-            }
+        if (currentCardIndex >= 0 && currentCardIndex < allCardEls.length) {
+          snapToCard(currentCardIndex, false);
+        }
+      }
 
-            function createMainCardHTML(data) {
-                return `
-                <div class="card-name">${data.name}<small>${data.sub}</small></div>
-                <div class="card-art">
-                    <div class="art-placeholder">
-                        <div class="play-circle"></div>
-                        <span class="placeholder-text">Image / Video</span>
-                    </div>
-                    <div class="art-title"><h2>${data.title}</h2></div>
-                </div>
-                <div class="card-desc">
-                    <p>${data.desc}</p>
-                    <div class="tag">${data.tag}</div>
-                </div>`;
-            }
+      window.addEventListener('resize', debounce(onResize, 200));
 
-            function createBlogCardHTML(data) {
-                return `
-                <div class="blog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
-                <div class="blog-art">
-                    <div class="art-placeholder">
-                        <div class="play-circle"></div>
-                        <span class="placeholder-text">Blog Image</span>
-                    </div>
-                </div>
-                <div class="blog-desc">
-                    <p>${data.content}</p>
-                    <div class="meta">${data.meta}</div>
-                </div>`;
-            }
+      function debounce(fn, delay) {
+        let timer;
+        return function(...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+      }
 
-            function buildAllCards() {
-                tableSurface.innerHTML = '';
-                allCardEls = [];
-                const cardW = getCardWidth();
-                const cardH = getCardHeight();
-                const colGap = getColumnGap();
-                const rowGap = getRowGap();
-                const padX = getTablePaddingX();
-                const padY = getTablePaddingY();
+      function init() {
+        buildAllCards();
+        // Home is now at index 1 in the main column; set it as the landing card
+        const homeIndex = allCardEls.findIndex(c => c.id === 'home');
+        const startIndex = homeIndex >= 0 ? homeIndex : 0;
+        updateCurrentCard(startIndex);
+        snapToCard(startIndex, false);
+        updateCardOpacities();
+      }
 
-                const mainCenterX = padX + cardW / 2;
-                const blogCenterX = padX + cardW + colGap + cardW / 2;
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
 
-                mainCardData.forEach((data, i) => {
-                    const el = document.createElement('article');
-                    el.className = 'card';
-                    el.innerHTML = createMainCardHTML(data);
-                    el.setAttribute('data-card-id', data.id);
-                    el.setAttribute('data-column', 'main');
-                    el.setAttribute('data-index', i);
-                    const cx = mainCenterX;
-                    const cy = padY + cardH / 2 + i * (cardH + rowGap);
-                    el.style.left = (cx - cardW / 2) + 'px';
-                    el.style.top = (cy - cardH / 2) + 'px';
-                    tableSurface.appendChild(el);
-                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
-                });
+      window.lifeSnakeStudio = {
+        navigateTo: function(cardId) {
+          const idx = allCardEls.findIndex(c => c.id === cardId);
+          if (idx >= 0) snapToCard(idx, true);
+        },
+        navigateToBlog: function(blogIndex) {
+          const idx = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIndex);
+          if (idx >= 0) snapToCard(idx, true);
+        },
+        navigateToDevlog: function(devlogIndex) {
+          const idx = allCardEls.findIndex(c => c.column === 'devlog' && c.index === devlogIndex);
+          if (idx >= 0) snapToCard(idx, true);
+        },
+        getCurrentCard: function() {
+          return allCardEls[currentCardIndex] || null;
+        },
+        getAllCards: function() {
+          return allCardEls;
+        },
+      };
 
-                blogPostData.forEach((data, i) => {
-                    const el = document.createElement('article');
-                    el.className = 'blog-card';
-                    el.innerHTML = createBlogCardHTML(data);
-                    el.setAttribute('data-card-id', 'blog-' + i);
-                    el.setAttribute('data-column', 'blog');
-                    el.setAttribute('data-index', i);
-                    const cx = blogCenterX;
-                    const cy = padY + cardH / 2 + i * (cardH + rowGap);
-                    el.style.left = (cx - cardW / 2) + 'px';
-                    el.style.top = (cy - cardH / 2) + 'px';
-                    tableSurface.appendChild(el);
-                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: 'blog-' + i });
-                });
-
-                const totalWidth = padX * 2 + cardW * 2 + colGap;
-                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
-                const totalHeight = Math.max(mainColHeight, blogColHeight);
-                tableSurface.style.width = totalWidth + 'px';
-                tableSurface.style.height = totalHeight + 'px';
-            }
-
-            function findClosestCardIndex() {
-                const vpW = viewport.clientWidth;
-                const vpH = viewport.clientHeight;
-                const targetX = vpW / 2 - tableTx;
-                const targetY = vpH / 2 - tableTy;
-                let bestIdx = 0;
-                let bestDist = Infinity;
-                allCardEls.forEach((card, i) => {
-                    const dx = card.centerX - targetX;
-                    const dy = card.centerY - targetY;
-                    let dist = dx * dx + dy * dy;
-                    // Stronger penalty to require less movement to switch cards
-                    if (i === currentCardIndex) {
-                        dist *= 4.0;   // was 1.6, now triggers after ~20% of card height
-                    }
-                    if (dist < bestDist) {
-                        bestDist = dist;
-                        bestIdx = i;
-                    }
-                });
-                return bestIdx;
-            }
-
-            function updateCurrentCard(index) {
-                allCardEls.forEach(c => c.el.classList.remove('current'));
-                if (index >= 0 && index < allCardEls.length) {
-                    currentCardIndex = index;
-                    allCardEls[index].el.classList.add('current');
-                }
-                updateCardOpacities();
-            }
-
-            function updateCardOpacities() {
-                allCardEls.forEach((card, i) => {
-                    if (i === currentCardIndex) {
-                        card.el.style.opacity = '1';
-                    } else {
-                        card.el.style.opacity = '0.28';
-                    }
-                });
-            }
-
-            function setTableTransform(tx, ty, useTransition = false) {
-                tableTx = tx;
-                tableTy = ty;
-                if (useTransition) {
-                    tableSurface.classList.add('snapping');
-                } else {
-                    tableSurface.classList.remove('snapping');
-                }
-                tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
-            }
-
-            function clearSnapTransition() {
-                tableSurface.classList.remove('snapping');
-            }
-
-            function snapToCard(index, animate = true) {
-                if (index < 0 || index >= allCardEls.length) return;
-                const card = allCardEls[index];
-                const vpW = viewport.clientWidth;
-                const vpH = viewport.clientHeight;
-                const targetTx = vpW / 2 - card.centerX;
-                const targetTy = vpH / 2 - card.centerY;
-                isSnapping = true;
-                setTableTransform(targetTx, targetTy, animate);
-                updateCurrentCard(index);
-
-                if (animate) {
-                    const onTransitionEnd = () => {
-                        clearSnapTransition();
-                        isSnapping = false;
-                        tableSurface.removeEventListener('transitionend', onTransitionEnd);
-                    };
-                    tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
-                    setTimeout(() => {
-                        if (isSnapping) {
-                            clearSnapTransition();
-                            isSnapping = false;
-                            tableSurface.removeEventListener('transitionend', onTransitionEnd);
-                        }
-                    }, 700);
-                } else {
-                    clearSnapTransition();
-                    isSnapping = false;
-                }
-            }
-
-            function getEventPos(e) {
-                return { x: e.clientX, y: e.clientY };
-            }
-
-            function onPointerDown(e) {
-                if (menu.classList.contains('active')) return;
-                if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
-                if (e.pointerType === 'mouse' && e.button !== 0) return;
-
-                e.preventDefault();
-                viewport.setPointerCapture(e.pointerId);
-                const pos = getEventPos(e);
-                pointerStartX = pos.x;
-                pointerStartY = pos.y;
-                tableStartTx = tableTx;
-                tableStartTy = tableTy;
-                pointerMoved = false;
-                isDragging = true;
-                isSnapping = false;
-                clearSnapTransition();
-                viewport.classList.add('grabbing');
-                tableSurface.classList.add('dragging');
-            }
-
-            function onPointerMove(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const pos = getEventPos(e);
-                const dx = pos.x - pointerStartX;
-                const dy = pos.y - pointerStartY;
-                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-                    pointerMoved = true;
-                }
-                const newTx = tableStartTx + dx;
-                const newTy = tableStartTy + dy;
-                setTableTransform(newTx, newTy, false);
-            }
-
-            function onPointerUp(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                viewport.classList.remove('grabbing');
-                tableSurface.classList.remove('dragging');
-                viewport.releasePointerCapture(e.pointerId);
-
-                const closestIdx = findClosestCardIndex();
-                snapToCard(closestIdx, true);
-            }
-
-            function onPointerCancel(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                viewport.classList.remove('grabbing');
-                tableSurface.classList.remove('dragging');
-                const closestIdx = findClosestCardIndex();
-                snapToCard(closestIdx, true);
-            }
-
-            viewport.addEventListener('pointerdown', onPointerDown);
-            viewport.addEventListener('pointermove', onPointerMove);
-            viewport.addEventListener('pointerup', onPointerUp);
-            viewport.addEventListener('pointercancel', onPointerCancel);
-            viewport.addEventListener('lostpointercapture', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    viewport.classList.remove('grabbing');
-                    tableSurface.classList.remove('dragging');
-                    const closestIdx = findClosestCardIndex();
-                    snapToCard(closestIdx, true);
-                }
-            });
-
-            viewport.addEventListener('touchstart', function(e) {
-                if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
-                if (menu.classList.contains('active')) return;
-                e.preventDefault();
-            }, { passive: false });
-
-            function toggleMenu() {
-                const isActive = menu.classList.contains('active');
-                if (isActive) {
-                    menu.classList.remove('active');
-                    overlay.classList.remove('active');
-                    viewport.classList.remove('menu-open');
-                } else {
-                    menu.classList.add('active');
-                    overlay.classList.add('active');
-                    viewport.classList.add('menu-open');
-                }
-            }
-
-            menuBtn.addEventListener('click', toggleMenu);
-            overlay.addEventListener('click', toggleMenu);
-
-            menu.querySelectorAll('a[data-nav]').forEach(link => {
-                link.addEventListener('click', () => {
-                    const navId = link.getAttribute('data-nav');
-                    toggleMenu();
-                    let foundIndex = -1;
-                    if (navId.startsWith('blog-')) {
-                        const blogIdx = parseInt(navId.split('-')[1]);
-                        foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
-                    } else {
-                        foundIndex = allCardEls.findIndex(c => c.id === navId);
-                    }
-                    if (foundIndex >= 0) {
-                        snapToCard(foundIndex, true);
-                    }
-                });
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (menu.classList.contains('active')) return;
-                if (isDragging || isSnapping) return;
-                const key = e.key;
-                if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
-                    e.preventDefault();
-                    const currentCard = allCardEls[currentCardIndex];
-                    if (!currentCard) return;
-                    let bestIdx = currentCardIndex;
-                    let bestDist = Infinity;
-                    const cx = currentCard.centerX;
-                    const cy = currentCard.centerY;
-
-                    allCardEls.forEach((card, i) => {
-                        if (i === currentCardIndex) return;
-                        const dx = card.centerX - cx;
-                        const dy = card.centerY - cy;
-                        let score = Infinity;
-                        if (key === 'ArrowUp' && dy < -20) score = Math.abs(dx) + Math.abs(dy);
-                        if (key === 'ArrowDown' && dy > 20) score = Math.abs(dx) + Math.abs(dy);
-                        if (key === 'ArrowLeft' && dx < -20) score = Math.abs(dx) + Math.abs(dy);
-                        if (key === 'ArrowRight' && dx > 20) score = Math.abs(dx) + Math.abs(dy);
-                        if (score < bestDist) {
-                            bestDist = score;
-                            bestIdx = i;
-                        }
-                    });
-                    if (bestIdx !== currentCardIndex && bestDist < Infinity) {
-                        snapToCard(bestIdx, true);
-                    }
-                }
-            });
-
-            function onResize() {
-                const cardW = getCardWidth();
-                const cardH = getCardHeight();
-                const colGap = getColumnGap();
-                const rowGap = getRowGap();
-                const padX = getTablePaddingX();
-                const padY = getTablePaddingY();
-                const mainCenterX = padX + cardW / 2;
-                const blogCenterX = padX + cardW + colGap + cardW / 2;
-
-                allCardEls.forEach(card => {
-                    let cx, cy;
-                    if (card.column === 'main') {
-                        cx = mainCenterX;
-                        cy = padY + cardH / 2 + card.index * (cardH + rowGap);
-                    } else {
-                        cx = blogCenterX;
-                        cy = padY + cardH / 2 + card.index * (cardH + rowGap);
-                    }
-                    card.centerX = cx;
-                    card.centerY = cy;
-                    card.el.style.left = (cx - cardW / 2) + 'px';
-                    card.el.style.top = (cy - cardH / 2) + 'px';
-                });
-
-                const totalWidth = padX * 2 + cardW * 2 + colGap;
-                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
-                const totalHeight = Math.max(mainColHeight, blogColHeight);
-                tableSurface.style.width = totalWidth + 'px';
-                tableSurface.style.height = totalHeight + 'px';
-
-                if (currentCardIndex >= 0 && currentCardIndex < allCardEls.length) {
-                    snapToCard(currentCardIndex, false);
-                }
-            }
-
-            window.addEventListener('resize', debounce(onResize, 200));
-
-            function debounce(fn, delay) {
-                let timer;
-                return function(...args) {
-                    clearTimeout(timer);
-                    timer = setTimeout(() => fn.apply(this, args), delay);
-                };
-            }
-
-            function init() {
-                buildAllCards();
-                updateCurrentCard(0);
-                if (allCardEls.length > 0) {
-                    snapToCard(0, false);
-                }
-                updateCardOpacities();
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-
-            window.lifeSnakeStudio = {
-                navigateTo: function(cardId) {
-                    const idx = allCardEls.findIndex(c => c.id === cardId);
-                    if (idx >= 0) snapToCard(idx, true);
-                },
-                navigateToBlog: function(blogIndex) {
-                    const idx = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIndex);
-                    if (idx >= 0) snapToCard(idx, true);
-                },
-                getCurrentCard: function() {
-                    return allCardEls[currentCardIndex] || null;
-                },
-                getAllCards: function() {
-                    return allCardEls;
-                },
-            };
-
-            console.log('🃏 Life Snake Studio – now snaps after tiny drag (quarter card or less).');
-        })();
+      console.log('🃏 Life Snake Studio – Home is the landing card (second row of the middle column).');
+    })();
   </script>
 </body>
 
 </html>
+```
