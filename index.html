@@ -728,7 +728,7 @@
         <a data-nav="presskit">Press Kit</a>
         <a data-nav="devlog-0">Devlog</a>
         <a data-nav="blog-0">Blog</a>
-        <div class="menu-version">v0.02</div>
+        <div class="menu-version">v0.1.1</div>
     </div>
     <div class="overlay" id="overlay"></div>
 
@@ -817,6 +817,7 @@
             let tableStartTy = 0;
             let pointerMoved = false;
             let currentSnapOnEnd = null;
+            let wheelSnapTimeout = null;
 
             function getCardWidth() {
                 return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
@@ -960,19 +961,6 @@
                 tableSurface.style.height = totalHeight + 'px';
             }
 
-            /**
-             * Finds the index of the card closest to the viewport center.
-             * Incorporates:
-             *  - Rectangular deadzone around current card
-             *  - Axis‑normalised distances (card width/gap based)
-             *  - Current‑card weighting
-             *  - **Directional boundary enforcement** to prevent bouncing
-             *    at grid edges when dragging into empty space.
-             *
-             * @param {number|null} dragDx - pointer delta X (client pixels)
-             * @param {number|null} dragDy - pointer delta Y (client pixels)
-             * @returns {number} card index
-             */
             function findClosestCardIndex(dragDx = null, dragDy = null) {
                 const vpW = viewport.clientWidth;
                 const vpH = viewport.clientHeight;
@@ -987,20 +975,15 @@
                 const colGap = getColumnGap();
                 const rowGap = getRowGap();
 
-                // ── 1. Rectangular deadzone ─────────────────────
-                const deadzoneX = colGap * 0.35;
-                const deadzoneY = rowGap * 0.35;
+                const deadzoneX = colGap * 0.25;
+                const deadzoneY = rowGap * 0.25;
                 const dxCurr = Math.abs(currentCard.centerX - targetX);
                 const dyCurr = Math.abs(currentCard.centerY - targetY);
                 if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) {
                     return currentCardIndex;
                 }
 
-                // ── 2. Directional boundary enforcement ─────────
-                // Prevent snapping to a card in the opposite direction
-                // when the user drags beyond the edge of the grid.
                 if (dragDx !== null && dragDy !== null) {
-                    // Compute grid bounding box of all card centers
                     let minX = Infinity, maxX = -Infinity;
                     let minY = Infinity, maxY = -Infinity;
                     allCardEls.forEach(c => {
@@ -1013,26 +996,12 @@
                     const marginX = cardW * 0.4;
                     const marginY = cardH * 0.4;
 
-                    // Dragged left → viewport moves right → targetX increases
-                    // If targetX is already beyond the rightmost card, stay.
-                    if (dragDx < -DRAG_THRESHOLD && targetX > maxX + marginX) {
-                        return currentCardIndex;
-                    }
-                    // Dragged right → viewport moves left → targetX decreases
-                    if (dragDx > DRAG_THRESHOLD && targetX < minX - marginX) {
-                        return currentCardIndex;
-                    }
-                    // Dragged up → viewport moves down → targetY increases
-                    if (dragDy < -DRAG_THRESHOLD && targetY > maxY + marginY) {
-                        return currentCardIndex;
-                    }
-                    // Dragged down → viewport moves up → targetY decreases
-                    if (dragDy > DRAG_THRESHOLD && targetY < minY - marginY) {
-                        return currentCardIndex;
-                    }
+                    if (dragDx < -DRAG_THRESHOLD && targetX > maxX + marginX) return currentCardIndex;
+                    if (dragDx > DRAG_THRESHOLD && targetX < minX - marginX) return currentCardIndex;
+                    if (dragDy < -DRAG_THRESHOLD && targetY > maxY + marginY) return currentCardIndex;
+                    if (dragDy > DRAG_THRESHOLD && targetY < minY - marginY) return currentCardIndex;
                 }
 
-                // ── 3. Normalised distance search ───────────────
                 const normX = colGap + cardW;
                 const normY = rowGap + cardH;
                 const CURRENT_CARD_WEIGHT = 4;
@@ -1143,6 +1112,24 @@
                 return { x: e.clientX, y: e.clientY };
             }
 
+            function findCardAtPoint(clientX, clientY) {
+                const viewportRect = viewport.getBoundingClientRect();
+                const tableX = clientX - viewportRect.left - tableTx;
+                const tableY = clientY - viewportRect.top - tableTy;
+                const cardW = getCardWidth();
+                const cardH = getCardHeight();
+
+                for (let i = 0; i < allCardEls.length; i++) {
+                    const card = allCardEls[i];
+                    const left = parseFloat(card.el.style.left);
+                    const top = parseFloat(card.el.style.top);
+                    if (tableX >= left && tableX <= left + cardW && tableY >= top && tableY <= top + cardH) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
             function onPointerDown(e) {
                 if (menu.classList.contains('active')) return;
                 if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
@@ -1162,6 +1149,10 @@
                 tableSurface.style.transition = 'none';
                 viewport.classList.add('grabbing');
                 tableSurface.classList.add('dragging');
+                if (wheelSnapTimeout) {
+                    clearTimeout(wheelSnapTimeout);
+                    wheelSnapTimeout = null;
+                }
             }
 
             function onPointerMove(e) {
@@ -1183,6 +1174,16 @@
                 tableSurface.classList.remove('dragging');
                 viewport.releasePointerCapture(e.pointerId);
 
+                if (!pointerMoved) {
+                    // Click/tap without drag: find card under pointer
+                    const pos = getEventPos(e);
+                    const clickedIndex = findCardAtPoint(pos.x, pos.y);
+                    if (clickedIndex !== -1) {
+                        snapToCard(clickedIndex, true);
+                        return;
+                    }
+                }
+
                 const pos = getEventPos(e);
                 const dragDx = pos.x - pointerStartX;
                 const dragDy = pos.y - pointerStartY;
@@ -1195,10 +1196,6 @@
                 isDragging = false;
                 viewport.classList.remove('grabbing');
                 tableSurface.classList.remove('dragging');
-
-                // On cancel we don't have a reliable final position,
-                // but we can still use the last known pointer position
-                // if available, or simply snap without direction check.
                 const closestIdx = findClosestCardIndex(null, null);
                 snapToCard(closestIdx, true);
             }
@@ -1221,6 +1218,34 @@
                 if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
                 if (menu.classList.contains('active')) return;
                 e.preventDefault();
+            }, { passive: false });
+
+            // Wheel / trackpad scroll → vertical navigation
+            viewport.addEventListener('wheel', function(e) {
+                if (menu.classList.contains('active')) return;
+                e.preventDefault();
+
+                if (isDragging) {
+                    // Cancel any active drag
+                    isDragging = false;
+                    viewport.classList.remove('grabbing');
+                    tableSurface.classList.remove('dragging');
+                }
+
+                clearSnapTransition();
+                isSnapping = false;
+
+                // Apply vertical movement (natural scrolling feel)
+                const dy = e.deltaY;
+                tableTy -= dy * 0.9;
+                setTableTransform(tableTx, tableTy);
+
+                if (wheelSnapTimeout) clearTimeout(wheelSnapTimeout);
+                wheelSnapTimeout = setTimeout(() => {
+                    const closestIdx = findClosestCardIndex(null, null);
+                    snapToCard(closestIdx, true);
+                    wheelSnapTimeout = null;
+                }, 150);
             }, { passive: false });
 
             function toggleMenu() {
@@ -1387,7 +1412,7 @@
                 },
             };
 
-            console.log('🃏 Life Snake Studio – Edge bouncing fixed. Directional boundary guard active. v0.02');
+            console.log('🃏 Life Snake Studio – v0.1.1 | Click cards to snap, scroll to navigate.');
         })();
     </script>
 </body>
