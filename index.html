@@ -728,7 +728,7 @@
         <a data-nav="presskit">Press Kit</a>
         <a data-nav="devlog-0">Devlog</a>
         <a data-nav="blog-0">Blog</a>
-        <div class="menu-version">v0.1.3</div>
+        <div class="menu-version">v0.2.0</div>
     </div>
     <div class="overlay" id="overlay"></div>
 
@@ -744,80 +744,14 @@
             const overlay = document.getElementById('overlay');
             const menuBtn = document.getElementById('menuBtn');
 
-            // ── snap animation tuning ──────────────────────────────
             const SNAP_SPEED_FACTOR = 0.028;
             const SNAP_MIN_DURATION = 0.18;
             const SNAP_MAX_DURATION = 0.72;
             const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
             const DRAG_THRESHOLD = 4;
-            // ────────────────────────────────────────────────────────
-
-            // ── snapping sensitivity ───────────────────────────────
             const DEADZONE_X_FACTOR = 0.15;
             const DEADZONE_Y_FACTOR = 0.15;
             const CURRENT_CARD_WEIGHT = 1.5;
-            // ────────────────────────────────────────────────────────
-
-            const mainCardData = [
-                { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
-                    desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
-                    tag: 'Lore & Regions' },
-                { id: 'home', name: 'Home', sub: 'Universe entry point', title: 'Yugimon Universe',
-                    desc: 'Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.',
-                    tag: 'Start Here' },
-                { id: 'tcg', name: 'TCG', sub: 'how to play · database · builder', title: 'Trading Card Game',
-                    desc: 'Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.',
-                    tag: 'Card Game Hub' },
-                { id: 'engine', name: 'Engine & Devkit', sub: 'YugiCore SDK', title: 'Engine & Devkit',
-                    desc: 'The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.',
-                    tag: 'Custom Toolset' },
-                { id: 'licensing', name: 'Licensing', sub: 'for indies · assets · pricing', title: 'Licensing',
-                    desc: 'License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.',
-                    tag: 'For Indies' },
-                { id: 'community', name: 'Community', sub: 'discord · forums · showcases', title: 'Community',
-                    desc: 'Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.',
-                    tag: 'Join Us' },
-                { id: 'contact', name: 'Contact', sub: 'inquiries · press', title: 'Contact',
-                    desc: 'General questions, press inquiries, or direct links to the licensing application. We\'d love to hear from you.',
-                    tag: 'Get in Touch' },
-                { id: 'presskit', name: 'Press Kit', sub: 'logos · art · fact sheet', title: 'Press Kit',
-                    desc: 'Download official logos, key art, fact sheet, and media assets for press, creators, and partners.',
-                    tag: 'Media Downloads' },
-            ];
-
-            const devlogPostData = [
-                { title: 'Devlog One', label: 'Update',
-                    content: 'First devlog. Behind the scenes of building the engine and tools.', meta: 'Latest' },
-                { title: 'Devlog Two', label: 'Progress',
-                    content: 'Second entry. Challenges with the card game engine and how I overcame them.',
-                    meta: 'Ongoing' },
-                { title: 'Devlog Three', label: 'Design',
-                    content: 'Thoughts on world design, creature balancing, and community feedback.',
-                    meta: 'Design notes' },
-            ];
-
-            // ── NEW: Fetch blog posts from blog-highlights folder ──
-            async function loadBlogCards() {
-                const folder = 'blog-highlights';
-                try {
-                    const manifestResp = await fetch(`${folder}/manifest.json`);
-                    if (!manifestResp.ok) throw new Error('manifest not found');
-                    const files = await manifestResp.json(); // array of filenames
-
-                    const blogDataArray = [];
-                    for (const file of files) {
-                        const postResp = await fetch(`${folder}/${file}`);
-                        if (!postResp.ok) continue;
-                        const post = await postResp.json();
-                        blogDataArray.push(post);
-                    }
-                    return blogDataArray;
-                } catch (err) {
-                    console.warn('Could not load blog posts, using empty array.', err);
-                    return [];
-                }
-            }
-            // ─────────────────────────────────────────────────────────
 
             let allCardEls = [];
             let currentCardIndex = 0;
@@ -832,6 +766,35 @@
             let pointerMoved = false;
             let currentSnapOnEnd = null;
             let wheelSnapTimeout = null;
+
+            // Data arrays after filtering
+            let mainCards = [];
+            let devlogCards = [];
+            let blogCards = [];
+
+            // ── Single file loader ─────────────────────────────────
+            async function loadAllCards() {
+                try {
+                    const resp = await fetch('mainpagecards.json');
+                    if (!resp.ok) throw new Error('Failed to load mainpagecards.json');
+                    const all = await resp.json();
+                    // filter and sort each column
+                    mainCards = all
+                        .filter(c => c.column === 'main')
+                        .sort((a, b) => a.order - b.order);
+                    devlogCards = all
+                        .filter(c => c.column === 'devlog')
+                        .sort((a, b) => a.order - b.order);
+                    blogCards = all
+                        .filter(c => c.column === 'blog')
+                        .sort((a, b) => a.order - b.order);
+                } catch (err) {
+                    console.warn('Could not load cards, using empty arrays.', err);
+                    mainCards = [];
+                    devlogCards = [];
+                    blogCards = [];
+                }
+            }
 
             function getCardWidth() {
                 return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
@@ -869,7 +832,7 @@
                         <div class="art-title"><h2>${data.title}</h2></div>
                     </div>
                     <div class="card-desc">
-                        <p>${data.desc}</p>
+                        <p>${data.description}</p>
                         <div class="tag">${data.tag}</div>
                     </div>`;
             }
@@ -884,7 +847,7 @@
                         </div>
                     </div>
                     <div class="blog-desc">
-                        <p>${data.content}</p>
+                        <p>${data.description}</p>
                         <div class="meta">${data.meta}</div>
                     </div>`;
             }
@@ -899,15 +862,15 @@
                         </div>
                     </div>
                     <div class="devlog-desc">
-                        <p>${data.content}</p>
+                        <p>${data.description}</p>
                         <div class="meta">${data.meta}</div>
                     </div>`;
             }
 
-            // ── buildAllCards is now async ──────────────────────────
             async function buildAllCards() {
                 tableSurface.innerHTML = '';
                 allCardEls = [];
+
                 const cardW = getCardWidth();
                 const cardH = getCardHeight();
                 const colGap = getColumnGap();
@@ -919,12 +882,12 @@
                 const mainCenterX = padX + cardW + colGap + cardW / 2;
                 const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
 
-                // Devlog cards (left column) – still hardcoded
-                devlogPostData.forEach((data, i) => {
+                // Devlog column
+                devlogCards.forEach((data, i) => {
                     const el = document.createElement('article');
                     el.className = 'devlog-card';
                     el.innerHTML = createDevlogCardHTML(data);
-                    el.setAttribute('data-card-id', 'devlog-' + i);
+                    el.setAttribute('data-card-id', data.id);
                     el.setAttribute('data-column', 'devlog');
                     el.setAttribute('data-index', i);
                     const cx = devCenterX;
@@ -932,11 +895,11 @@
                     el.style.left = (cx - cardW / 2) + 'px';
                     el.style.top = (cy - cardH / 2) + 'px';
                     tableSurface.appendChild(el);
-                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: 'devlog-' + i });
+                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: data.id });
                 });
 
-                // Main cards (center column)
-                mainCardData.forEach((data, i) => {
+                // Main column
+                mainCards.forEach((data, i) => {
                     const el = document.createElement('article');
                     el.className = 'card';
                     el.innerHTML = createMainCardHTML(data);
@@ -951,13 +914,12 @@
                     allCardEls.push({ el, centerX: cx, centerY: cy, column: 'main', index: i, id: data.id });
                 });
 
-                // Blog cards (right column) – now loaded from folder
-                const blogPostData = await loadBlogCards();
-                blogPostData.forEach((data, i) => {
+                // Blog column
+                blogCards.forEach((data, i) => {
                     const el = document.createElement('article');
                     el.className = 'blog-card';
                     el.innerHTML = createBlogCardHTML(data);
-                    el.setAttribute('data-card-id', 'blog-' + i);
+                    el.setAttribute('data-card-id', data.id);
                     el.setAttribute('data-column', 'blog');
                     el.setAttribute('data-index', i);
                     const cx = blogCenterX;
@@ -965,21 +927,18 @@
                     el.style.left = (cx - cardW / 2) + 'px';
                     el.style.top = (cy - cardH / 2) + 'px';
                     tableSurface.appendChild(el);
-                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: 'blog-' + i });
+                    allCardEls.push({ el, centerX: cx, centerY: cy, column: 'blog', index: i, id: data.id });
                 });
 
                 const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
-                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) * rowGap;
-                const blogColHeight = padY * 2 + blogPostData.length * cardH + (blogPostData.length - 1) * rowGap;
-                const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+                const mainColHeight = padY * 2 + mainCards.length * cardH + (mainCards.length - 1) * rowGap;
+                const devlogColHeight = padY * 2 + devlogCards.length * cardH + (devlogCards.length - 1) * rowGap;
+                const blogColHeight = padY * 2 + blogCards.length * cardH + (blogCards.length - 1) * rowGap;
                 tableSurface.style.width = totalWidth + 'px';
-                tableSurface.style.height = totalHeight + 'px';
+                tableSurface.style.height = Math.max(mainColHeight, devlogColHeight, blogColHeight) + 'px';
             }
-            // ────────────────────────────────────────────────────────
 
-            /* ... (rest of the script: snapping, drag handling, etc. – unchanged) ... */
-
+            /* ── Snapping, dragging, keyboard, resize (unchanged internally) ── */
             function findClosestCardIndex(dragDx = null, dragDy = null) {
                 const vpW = viewport.clientWidth;
                 const vpH = viewport.clientHeight;
@@ -988,20 +947,15 @@
 
                 const currentCard = allCardEls[currentCardIndex];
                 if (!currentCard) return 0;
-
                 const cardW = getCardWidth();
                 const cardH = getCardHeight();
                 const colGap = getColumnGap();
                 const rowGap = getRowGap();
-
                 const deadzoneX = colGap * DEADZONE_X_FACTOR;
                 const deadzoneY = rowGap * DEADZONE_Y_FACTOR;
                 const dxCurr = Math.abs(currentCard.centerX - targetX);
                 const dyCurr = Math.abs(currentCard.centerY - targetY);
-                if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) {
-                    return currentCardIndex;
-                }
-
+                if (dxCurr <= deadzoneX && dyCurr <= deadzoneY) return currentCardIndex;
                 if (dragDx !== null && dragDy !== null) {
                     let minX = Infinity, maxX = -Infinity;
                     let minY = Infinity, maxY = -Infinity;
@@ -1011,19 +965,15 @@
                         if (c.centerY < minY) minY = c.centerY;
                         if (c.centerY > maxY) maxY = c.centerY;
                     });
-
                     const marginX = cardW * 0.3;
                     const marginY = cardH * 0.3;
-
                     if (dragDx < -DRAG_THRESHOLD && targetX > maxX + marginX) return currentCardIndex;
                     if (dragDx > DRAG_THRESHOLD && targetX < minX - marginX) return currentCardIndex;
                     if (dragDy < -DRAG_THRESHOLD && targetY > maxY + marginY) return currentCardIndex;
                     if (dragDy > DRAG_THRESHOLD && targetY < minY - marginY) return currentCardIndex;
                 }
-
                 const normX = colGap + cardW;
                 const normY = rowGap + cardH;
-
                 let bestIdx = 0;
                 let bestDist = Infinity;
                 for (let i = 0; i < allCardEls.length; i++) {
@@ -1031,13 +981,8 @@
                     const dx = (card.centerX - targetX) / normX;
                     const dy = (card.centerY - targetY) / normY;
                     let dist = dx * dx + dy * dy;
-                    if (i === currentCardIndex) {
-                        dist *= CURRENT_CARD_WEIGHT;
-                    }
-                    if (dist < bestDist) {
-                        bestDist = dist;
-                        bestIdx = i;
-                    }
+                    if (i === currentCardIndex) dist *= CURRENT_CARD_WEIGHT;
+                    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
                 }
                 return bestIdx;
             }
@@ -1058,8 +1003,7 @@
             }
 
             function setTableTransform(tx, ty) {
-                tableTx = tx;
-                tableTy = ty;
+                tableTx = tx; tableTy = ty;
                 tableSurface.style.transform = `translate(${tx}px, ${ty}px)`;
             }
 
@@ -1075,46 +1019,26 @@
             function snapToCard(index, animate = true) {
                 if (index < 0 || index >= allCardEls.length) return;
                 const card = allCardEls[index];
-                const vpW = viewport.clientWidth;
-                const vpH = viewport.clientHeight;
+                const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
                 const targetTx = vpW / 2 - card.centerX;
                 const targetTy = vpH / 2 - card.centerY;
-
                 if (animate) {
                     clearSnapTransition();
-
-                    const cardW = getCardWidth();
-                    const cardH = getCardHeight();
+                    const cardW = getCardWidth(), cardH = getCardHeight();
                     const scaleY = cardW / cardH;
-                    const dx = targetTx - tableTx;
-                    const dy = (targetTy - tableTy) * scaleY;
+                    const dx = targetTx - tableTx, dy = (targetTy - tableTy) * scaleY;
                     const dist = Math.hypot(dx, dy);
-
-                    const duration = Math.min(
-                        Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
-                        SNAP_MAX_DURATION
-                    );
+                    const duration = Math.min(Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION), SNAP_MAX_DURATION);
                     isSnapping = true;
                     tableSurface.style.transition = `transform ${duration}s ${SNAP_EASING}`;
                     tableSurface.classList.add('snapping');
                     setTableTransform(targetTx, targetTy);
                     updateCurrentCard(index);
-
                     const cleanupTimeout = duration * 1000 + 120;
-                    const onTransitionEnd = () => {
-                        clearSnapTransition();
-                        isSnapping = false;
-                        currentSnapOnEnd = null;
-                    };
+                    const onTransitionEnd = () => { clearSnapTransition(); isSnapping = false; currentSnapOnEnd = null; };
                     currentSnapOnEnd = onTransitionEnd;
                     tableSurface.addEventListener('transitionend', onTransitionEnd, { once: true });
-
-                    setTimeout(() => {
-                        if (isSnapping && currentSnapOnEnd === onTransitionEnd) {
-                            clearSnapTransition();
-                            isSnapping = false;
-                        }
-                    }, cleanupTimeout);
+                    setTimeout(() => { if (isSnapping && currentSnapOnEnd === onTransitionEnd) { clearSnapTransition(); isSnapping = false; } }, cleanupTimeout);
                 } else {
                     clearSnapTransition();
                     isSnapping = true;
@@ -1126,24 +1050,18 @@
                 }
             }
 
-            function getEventPos(e) {
-                return { x: e.clientX, y: e.clientY };
-            }
+            function getEventPos(e) { return { x: e.clientX, y: e.clientY }; }
 
             function findCardAtPoint(clientX, clientY) {
-                const viewportRect = viewport.getBoundingClientRect();
-                const tableX = clientX - viewportRect.left - tableTx;
-                const tableY = clientY - viewportRect.top - tableTy;
-                const cardW = getCardWidth();
-                const cardH = getCardHeight();
-
+                const vpRect = viewport.getBoundingClientRect();
+                const tableX = clientX - vpRect.left - tableTx;
+                const tableY = clientY - vpRect.top - tableTy;
+                const cardW = getCardWidth(), cardH = getCardHeight();
                 for (let i = 0; i < allCardEls.length; i++) {
                     const card = allCardEls[i];
                     const left = parseFloat(card.el.style.left);
                     const top = parseFloat(card.el.style.top);
-                    if (tableX >= left && tableX <= left + cardW && tableY >= top && tableY <= top + cardH) {
-                        return i;
-                    }
+                    if (tableX >= left && tableX <= left + cardW && tableY >= top && tableY <= top + cardH) return i;
                 }
                 return -1;
             }
@@ -1152,36 +1070,25 @@
                 if (menu.classList.contains('active')) return;
                 if (e.target.closest('.topbar') && !e.target.closest('.viewport')) return;
                 if (e.pointerType === 'mouse' && e.button !== 0) return;
-
                 e.preventDefault();
                 viewport.setPointerCapture(e.pointerId);
                 const pos = getEventPos(e);
-                pointerStartX = pos.x;
-                pointerStartY = pos.y;
-                tableStartTx = tableTx;
-                tableStartTy = tableTy;
-                pointerMoved = false;
-                isDragging = true;
-                isSnapping = false;
+                pointerStartX = pos.x; pointerStartY = pos.y;
+                tableStartTx = tableTx; tableStartTy = tableTy;
+                pointerMoved = false; isDragging = true; isSnapping = false;
                 clearSnapTransition();
                 tableSurface.style.transition = 'none';
                 viewport.classList.add('grabbing');
                 tableSurface.classList.add('dragging');
-                if (wheelSnapTimeout) {
-                    clearTimeout(wheelSnapTimeout);
-                    wheelSnapTimeout = null;
-                }
+                if (wheelSnapTimeout) { clearTimeout(wheelSnapTimeout); wheelSnapTimeout = null; }
             }
 
             function onPointerMove(e) {
                 if (!isDragging) return;
                 e.preventDefault();
                 const pos = getEventPos(e);
-                const dx = pos.x - pointerStartX;
-                const dy = pos.y - pointerStartY;
-                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-                    pointerMoved = true;
-                }
+                const dx = pos.x - pointerStartX, dy = pos.y - pointerStartY;
+                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) pointerMoved = true;
                 setTableTransform(tableStartTx + dx, tableStartTy + dy);
             }
 
@@ -1191,21 +1098,14 @@
                 viewport.classList.remove('grabbing');
                 tableSurface.classList.remove('dragging');
                 viewport.releasePointerCapture(e.pointerId);
-
                 if (!pointerMoved) {
                     const pos = getEventPos(e);
                     const clickedIndex = findCardAtPoint(pos.x, pos.y);
-                    if (clickedIndex !== -1) {
-                        snapToCard(clickedIndex, true);
-                        return;
-                    }
+                    if (clickedIndex !== -1) { snapToCard(clickedIndex, true); return; }
                 }
-
                 const pos = getEventPos(e);
-                const dragDx = pos.x - pointerStartX;
-                const dragDy = pos.y - pointerStartY;
-                const closestIdx = findClosestCardIndex(dragDx, dragDy);
-                snapToCard(closestIdx, true);
+                const dragDx = pos.x - pointerStartX, dragDy = pos.y - pointerStartY;
+                snapToCard(findClosestCardIndex(dragDx, dragDy), true);
             }
 
             function onPointerCancel(e) {
@@ -1213,8 +1113,7 @@
                 isDragging = false;
                 viewport.classList.remove('grabbing');
                 tableSurface.classList.remove('dragging');
-                const closestIdx = findClosestCardIndex(null, null);
-                snapToCard(closestIdx, true);
+                snapToCard(findClosestCardIndex(null, null), true);
             }
 
             viewport.addEventListener('pointerdown', onPointerDown);
@@ -1226,8 +1125,7 @@
                     isDragging = false;
                     viewport.classList.remove('grabbing');
                     tableSurface.classList.remove('dragging');
-                    const closestIdx = findClosestCardIndex(null, null);
-                    snapToCard(closestIdx, true);
+                    snapToCard(findClosestCardIndex(null, null), true);
                 }
             });
 
@@ -1240,31 +1138,23 @@
             viewport.addEventListener('wheel', function(e) {
                 if (menu.classList.contains('active')) return;
                 e.preventDefault();
-
                 if (isDragging) {
                     isDragging = false;
                     viewport.classList.remove('grabbing');
                     tableSurface.classList.remove('dragging');
                 }
-
-                clearSnapTransition();
-                isSnapping = false;
-
-                const dy = e.deltaY;
-                tableTy -= dy * 0.9;
+                clearSnapTransition(); isSnapping = false;
+                tableTy -= e.deltaY * 0.9;
                 setTableTransform(tableTx, tableTy);
-
                 if (wheelSnapTimeout) clearTimeout(wheelSnapTimeout);
                 wheelSnapTimeout = setTimeout(() => {
-                    const closestIdx = findClosestCardIndex(null, null);
-                    snapToCard(closestIdx, true);
+                    snapToCard(findClosestCardIndex(null, null), true);
                     wheelSnapTimeout = null;
                 }, 150);
             }, { passive: false });
 
             function toggleMenu() {
-                const isActive = menu.classList.contains('active');
-                if (isActive) {
+                if (menu.classList.contains('active')) {
                     menu.classList.remove('active');
                     overlay.classList.remove('active');
                     viewport.classList.remove('menu-open');
@@ -1282,20 +1172,8 @@
                 link.addEventListener('click', () => {
                     const navId = link.getAttribute('data-nav');
                     toggleMenu();
-                    let foundIndex = -1;
-                    if (navId.startsWith('devlog-')) {
-                        const devlogIdx = parseInt(navId.split('-')[1]);
-                        foundIndex = allCardEls.findIndex(c => c.column === 'devlog' && c.index ===
-                            devlogIdx);
-                    } else if (navId.startsWith('blog-')) {
-                        const blogIdx = parseInt(navId.split('-')[1]);
-                        foundIndex = allCardEls.findIndex(c => c.column === 'blog' && c.index === blogIdx);
-                    } else {
-                        foundIndex = allCardEls.findIndex(c => c.id === navId);
-                    }
-                    if (foundIndex >= 0) {
-                        snapToCard(foundIndex, true);
-                    }
+                    let foundIndex = allCardEls.findIndex(c => c.id === navId);
+                    if (foundIndex >= 0) snapToCard(foundIndex, true);
                 });
             });
 
@@ -1309,16 +1187,10 @@
                     if (!currentCard) return;
                     let bestIdx = currentCardIndex;
                     let bestDist = Infinity;
-                    const cx = currentCard.centerX;
-                    const cy = currentCard.centerY;
-
-                    const cardW = getCardWidth();
-                    const cardH = getCardHeight();
-                    const colGap = getColumnGap();
-                    const rowGap = getRowGap();
-                    const normX = colGap + cardW;
-                    const normY = rowGap + cardH;
-
+                    const cx = currentCard.centerX, cy = currentCard.centerY;
+                    const cardW = getCardWidth(), cardH = getCardHeight();
+                    const colGap = getColumnGap(), rowGap = getRowGap();
+                    const normX = colGap + cardW, normY = rowGap + cardH;
                     allCardEls.forEach((card, i) => {
                         if (i === currentCardIndex) return;
                         const dx = (card.centerX - cx) / normX;
@@ -1328,53 +1200,37 @@
                         if (key === 'ArrowDown' && dy > 0.25) score = Math.abs(dx) + Math.abs(dy);
                         if (key === 'ArrowLeft' && dx < -0.25) score = Math.abs(dx) + Math.abs(dy);
                         if (key === 'ArrowRight' && dx > 0.25) score = Math.abs(dx) + Math.abs(dy);
-                        if (score < bestDist) {
-                            bestDist = score;
-                            bestIdx = i;
-                        }
+                        if (score < bestDist) { bestDist = score; bestIdx = i; }
                     });
-                    if (bestIdx !== currentCardIndex && bestDist < Infinity) {
-                        snapToCard(bestIdx, true);
-                    }
+                    if (bestIdx !== currentCardIndex && bestDist < Infinity) snapToCard(bestIdx, true);
                 }
             });
 
             function onResize() {
-                const cardW = getCardWidth();
-                const cardH = getCardHeight();
-                const colGap = getColumnGap();
-                const rowGap = getRowGap();
-                const padX = getTablePaddingX();
-                const padY = getTablePaddingY();
+                const cardW = getCardWidth(), cardH = getCardHeight();
+                const colGap = getColumnGap(), rowGap = getRowGap();
+                const padX = getTablePaddingX(), padY = getTablePaddingY();
                 const devCenterX = padX + cardW / 2;
                 const mainCenterX = padX + cardW + colGap + cardW / 2;
                 const blogCenterX = padX + 2 * cardW + 2 * colGap + cardW / 2;
 
                 allCardEls.forEach(card => {
                     let cx, cy;
-                    if (card.column === 'devlog') {
-                        cx = devCenterX;
-                    } else if (card.column === 'main') {
-                        cx = mainCenterX;
-                    } else {
-                        cx = blogCenterX;
-                    }
+                    if (card.column === 'devlog') cx = devCenterX;
+                    else if (card.column === 'main') cx = mainCenterX;
+                    else cx = blogCenterX;
                     cy = padY + cardH / 2 + card.index * (cardH + rowGap);
-                    card.centerX = cx;
-                    card.centerY = cy;
+                    card.centerX = cx; card.centerY = cy;
                     card.el.style.left = (cx - cardW / 2) + 'px';
                     card.el.style.top = (cy - cardH / 2) + 'px';
                 });
 
                 const totalWidth = padX * 2 + cardW * 3 + colGap * 2;
-                const mainColHeight = padY * 2 + mainCardData.length * cardH + (mainCardData.length - 1) * rowGap;
-                const devlogColHeight = padY * 2 + devlogPostData.length * cardH + (devlogPostData.length - 1) *
-                    rowGap;
-                const blogColHeight = padY * 2 + allCardEls.filter(c => c.column === 'blog').length * cardH + 
-                    (allCardEls.filter(c => c.column === 'blog').length - 1) * rowGap;
-                const totalHeight = Math.max(mainColHeight, devlogColHeight, blogColHeight);
+                const mainColHeight = padY * 2 + mainCards.length * cardH + (mainCards.length - 1) * rowGap;
+                const devlogColHeight = padY * 2 + devlogCards.length * cardH + (devlogCards.length - 1) * rowGap;
+                const blogColHeight = padY * 2 + blogCards.length * cardH + (blogCards.length - 1) * rowGap;
                 tableSurface.style.width = totalWidth + 'px';
-                tableSurface.style.height = totalHeight + 'px';
+                tableSurface.style.height = Math.max(mainColHeight, devlogColHeight, blogColHeight) + 'px';
 
                 if (currentCardIndex >= 0 && currentCardIndex < allCardEls.length) {
                     snapToCard(currentCardIndex, false);
@@ -1391,8 +1247,9 @@
                 };
             }
 
-            // ── init is now async ──────────────────────────────────
+            // ── Init ────────────────────────────────────────────────
             async function init() {
+                await loadAllCards();
                 await buildAllCards();
                 const homeIndex = allCardEls.findIndex(c => c.id === 'home');
                 const startIndex = homeIndex >= 0 ? homeIndex : 0;
@@ -1428,7 +1285,7 @@
                 },
             };
 
-            console.log('🃏 Life Snake Studio – v0.1.2 | Blog now loaded from blog-highlights folder.');
+            console.log('🃏 Life Snake Studio – v0.2.0 | Single JSON, full data-driven.');
         })();
     </script>
 </body>
