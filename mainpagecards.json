@@ -1,8 +1,12 @@
-[
+{
+    "settings": {
+        "landingCardId": "home"
+    },
+    "cards": [
         {
-            "column": "main",
+            "column": "devlog",
             "order": 0,
-            "type": "main",
+            "type": "devlog",
             "id": "devlog-0",
             "name": "",
             "sub": "",
@@ -26,9 +30,9 @@
             "tag": ""
         },
         {
-            "column": "main",
+            "column": "devlog",
             "order": 2,
-            "type": "main",
+            "type": "devlog",
             "id": "devlog-2",
             "name": "",
             "sub": "",
@@ -39,9 +43,9 @@
             "tag": ""
         },
         {
-            "column": "devlog",
+            "column": "main",
             "order": 0,
-            "type": "devlog",
+            "type": "main",
             "id": "home",
             "name": "Home",
             "sub": "Universe entry point",
@@ -91,9 +95,9 @@
             "tag": "Custom Toolset"
         },
         {
-            "column": "devlog",
+            "column": "main",
             "order": 4,
-            "type": "devlog",
+            "type": "main",
             "id": "licensing",
             "name": "Licensing",
             "sub": "for indies · assets · pricing",
@@ -195,3 +199,4 @@
             "tag": ""
         }
     ]
+}
