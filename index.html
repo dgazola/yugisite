@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -733,7 +734,6 @@
       const SNAP_EASING = 'cubic-bezier(0.22, 0.1, 0.22, 1.0)';
       // ────────────────────────────────────────────────────────
 
-      // Main cards – World first, Home second (so Home is the landing card with room to navigate in all directions)
       const mainCardData = [
         { id: 'world', name: 'World', sub: 'lore · creatures · characters', title: 'Yugimon World',
           desc: 'Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.',
@@ -889,7 +889,7 @@
           allCardEls.push({ el, centerX: cx, centerY: cy, column: 'devlog', index: i, id: 'devlog-' + i });
         });
 
-        // Main cards (center column) – World first, Home second
+        // Main cards (center column)
         mainCardData.forEach((data, i) => {
           const el = document.createElement('article');
           el.className = 'card';
@@ -930,29 +930,45 @@
         tableSurface.style.height = totalHeight + 'px';
       }
 
+      // ── Deadzone + halved distance for current card (mixed approach) ──
       function findClosestCardIndex() {
         const vpW = viewport.clientWidth;
         const vpH = viewport.clientHeight;
         const targetX = vpW / 2 - tableTx;
         const targetY = vpH / 2 - tableTy;
+
+        const currentCard = allCardEls[currentCardIndex];
+        if (!currentCard) return 0;
+
+        // Deadzone: if very close to current card's center, stay
+        const dxCurr = currentCard.centerX - targetX;
+        const dyCurr = currentCard.centerY - targetY;
+        const distToCurrent = Math.sqrt(dxCurr * dxCurr + dyCurr * dyCurr);
+        const deadzoneRadius = Math.min(getCardWidth(), getCardHeight()) * 0.2; // 3% – small
+        if (distToCurrent <= deadzoneRadius) {
+          return currentCardIndex;
+        }
+
+        // Outside deadzone: find nearest card, but weight current card's distance by factor
+        const WEIGHT_CURRENT = 0.1; // current card's distance is divided by 2 (makes it "half" as far)
         let bestIdx = 0;
         let bestDist = Infinity;
-        allCardEls.forEach((card, i) => {
+        for (let i = 0; i < allCardEls.length; i++) {
+          const card = allCardEls[i];
           const dx = card.centerX - targetX;
           const dy = card.centerY - targetY;
           let dist = dx * dx + dy * dy;
           if (i === currentCardIndex) {
-            // The stickiness factor has been halved (from 4.0 to 2.0)
-            // so that the drag distance needed to snap to the next card is halved.
-            dist *=64;
+            dist /= WEIGHT_CURRENT; // current card appears closer
           }
           if (dist < bestDist) {
             bestDist = dist;
             bestIdx = i;
           }
-        });
+        }
         return bestIdx;
       }
+      // ─────────────────────────────────────────────────────────
 
       function updateCurrentCard(index) {
         allCardEls.forEach(c => c.el.classList.remove('current'));
@@ -999,16 +1015,13 @@
         if (animate) {
           clearSnapTransition();
 
-          // ── make vertical movement feel as snappy as horizontal ──
-          // by scaling the vertical delta with the ratio width/height.
-          // This way a move of one card height feels comparable to one card width.
+          // Make vertical movement feel as snappy as horizontal
           const cardW = getCardWidth();
           const cardH = getCardHeight();
-          const scaleY = cardW / cardH;   // width is the minor dimension
+          const scaleY = cardW / cardH;
           const dx = targetTx - tableTx;
           const dy = (targetTy - tableTy) * scaleY;
           const dist = Math.hypot(dx, dy);
-          // ──────────────────────────────────────────────────────────
 
           const duration = Math.min(
             Math.max(Math.sqrt(dist) * SNAP_SPEED_FACTOR, SNAP_MIN_DURATION),
@@ -1245,7 +1258,6 @@
 
       function init() {
         buildAllCards();
-        // Home is now at index 1 in the main column; set it as the landing card
         const homeIndex = allCardEls.findIndex(c => c.id === 'home');
         const startIndex = homeIndex >= 0 ? homeIndex : 0;
         updateCurrentCard(startIndex);
@@ -1280,9 +1292,10 @@
         },
       };
 
-      console.log('🃏 Life Snake Studio – Home is the landing card (second row of the middle column). Snap stickiness halved.');
+      console.log('🃏 Life Snake Studio – Mixed approach: tiny deadzone + current card weighted at ½ distance.');
     })();
   </script>
 </body>
 
 </html>
+ 
