@@ -9,10 +9,13 @@
 <body>
   <div class="editor-container">
     <header class="editor-header">
-      <h1>🃏 Content Editor</h1>
+      <h1>🃏 Card Editor</h1>
       <div class="editor-actions">
-        <button id="saveBtn" class="btn btn-primary">💾 Save</button>
-        <button id="revertBtn" class="btn btn-secondary">↺ Revert</button>
+        <button id="loadLocalBtn" class="btn btn-secondary">📂 Load File</button>
+        <button id="loadUrlBtn" class="btn btn-secondary">🌐 Load URL</button>
+        <button id="loadRepoBtn" class="btn btn-secondary">📦 Load Repo</button>
+        <button id="saveBtn" class="btn btn-secondary">💾 Download JSON</button>
+        <button id="uploadRepoBtn" class="btn btn-primary">🚀 Upload to Repo</button>
         <a href="index.html" class="btn btn-ghost">← Back to Site</a>
       </div>
     </header>
@@ -23,11 +26,8 @@
           <button class="tab main-tab active" data-tab="cards">Cards</button>
           <button class="tab main-tab" data-tab="menu">Menu</button>
           <button class="tab main-tab" data-tab="languages">Languages</button>
-          <button class="tab main-tab" data-tab="blog">Blog</button>
-          <button class="tab main-tab" data-tab="devlog">Devlog</button>
         </div>
 
-        <!-- Cards panel -->
         <div class="panel" id="panelCards">
           <div class="column-tabs" id="columnTabs">
             <button class="tab col-tab active" data-column="main">Main</button>
@@ -44,7 +44,6 @@
           <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
         </div>
 
-        <!-- Menu panel -->
         <div class="panel" id="panelMenu" style="display:none;">
           <h3>Menu Items</h3>
           <p class="help-text">Use up/down buttons to reorder.</p>
@@ -52,7 +51,6 @@
           <button id="addMenuItemBtn" class="btn btn-primary">+ Add Menu Item</button>
         </div>
 
-        <!-- Languages panel -->
         <div class="panel" id="panelLanguages" style="display:none;">
           <h3>Languages</h3>
           <div id="langList"></div>
@@ -62,30 +60,12 @@
             <button id="addLanguageBtn" class="btn btn-primary">Add Language</button>
           </div>
         </div>
-
-        <!-- Blog panel -->
-        <div class="panel" id="panelBlog" style="display:none;">
-          <h3>Blog Entries</h3>
-          <p class="help-text">Edit blog posts (dummy for now).</p>
-          <div id="blogList"></div>
-          <button id="addBlogBtn" class="btn btn-primary">+ Add Blog Entry</button>
-        </div>
-
-        <!-- Devlog panel -->
-        <div class="panel" id="panelDevlog" style="display:none;">
-          <h3>Devlog Entries</h3>
-          <p class="help-text">Edit devlog posts (dummy for now).</p>
-          <div id="devlogList"></div>
-          <button id="addDevlogBtn" class="btn btn-primary">+ Add Devlog Entry</button>
-        </div>
       </aside>
 
       <main class="editor-main">
         <div class="lang-tabs" id="langTabs"></div>
         <div id="cardList" class="card-list"></div>
         <div id="menuEditArea" class="card-list" style="display:none;"></div>
-        <div id="blogEditArea" class="card-list" style="display:none;"></div>
-        <div id="devlogEditArea" class="card-list" style="display:none;"></div>
       </main>
     </div>
   </div>
