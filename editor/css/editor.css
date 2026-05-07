@@ -308,3 +308,88 @@ body {
   color: #0a0a06;
   border-color: var(--editor-accent);
 }
+    /* Main tabs */
+.main-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.main-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 0.8rem;
+}
+
+/* Language tab styling (existing) */
+.lang-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.lang-tab {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  padding: 6px 4px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  border-radius: var(--editor-radius);
+  color: var(--editor-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lang-tab:hover {
+  border-color: var(--editor-accent);
+  color: var(--editor-text);
+}
+.lang-tab.active {
+  background: var(--editor-accent);
+  color: #0a0a06;
+  border-color: var(--editor-accent);
+}
+
+/* Panel visibility */
+.panel {
+  transition: opacity 0.2s;
+}
+
+/* Menu list items */
+#menuList .menu-editor-item,
+#langList .lang-editor-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  gap: 8px;
+  border-bottom: 1px solid var(--editor-border);
+}
+#menuList .menu-editor-item span,
+#langList .lang-editor-item span {
+  flex: 1;
+  font-size: 0.85rem;
+}
+#menuList .menu-editor-item button,
+#langList .lang-editor-item button {
+  background: var(--editor-danger);
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.add-language {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.add-language input {
+  flex: 1;
+  padding: 6px;
+  background: #0a0a06;
+  border: 1px solid var(--editor-border);
+  color: var(--editor-text);
+  border-radius: var(--editor-radius);
+}
