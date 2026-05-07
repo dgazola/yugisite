@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Editor – Life Snake Studio</title>
+  <link rel="stylesheet" href="editor/css/editor.css" />
+</head>
+<body>
+  <div class="editor-container">
+    <header class="editor-header">
+      <h1>🃏 Card Editor</h1>
+      <div class="editor-actions">
+        <button id="loadBtn" class="btn btn-secondary">📂 Load JSON</button>
+        <button id="saveBtn" class="btn btn-secondary">💾 Download JSON</button>
+        <a href="index.html" class="btn btn-ghost">← Back to Site</a>
+      </div>
+    </header>
+
+    <div class="editor-workspace">
+      <!-- Sidebar: column tabs + landing card -->
+      <aside class="editor-sidebar">
+        <div class="column-tabs" id="columnTabs">
+          <button class="tab active" data-column="main">Main</button>
+          <button class="tab" data-column="devlog">Devlog</button>
+          <button class="tab" data-column="blog">Blog</button>
+        </div>
+
+        <div class="landing-card-section">
+          <h3>Landing Card</h3>
+          <select id="landingCardSelect">
+            <option value="">— None —</option>
+          </select>
+          <p class="help-text">First card shown when the site loads.</p>
+        </div>
+
+        <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
+      </aside>
+
+      <!-- Main area: card list -->
+      <main class="editor-main">
+        <div id="cardList" class="card-list">
+          <!-- cards rendered here -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="editor/js/editor.js"></script>
+</body>
+</html>
