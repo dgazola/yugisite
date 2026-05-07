@@ -19,14 +19,12 @@
 
     <div class="editor-workspace">
       <aside class="editor-sidebar">
-        <!-- Main tabs: Cards | Menu | Languages -->
         <div class="main-tabs" id="mainTabs">
           <button class="tab main-tab active" data-tab="cards">Cards</button>
           <button class="tab main-tab" data-tab="menu">Menu</button>
           <button class="tab main-tab" data-tab="languages">Languages</button>
         </div>
 
-        <!-- Cards panel -->
         <div class="panel" id="panelCards">
           <div class="column-tabs" id="columnTabs">
             <button class="tab col-tab active" data-column="main">Main</button>
@@ -38,19 +36,18 @@
             <select id="landingCardSelect">
               <option value="">— None —</option>
             </select>
+            <p class="help-text">First card shown when the site loads.</p>
           </div>
           <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
         </div>
 
-        <!-- Menu panel -->
         <div class="panel" id="panelMenu" style="display:none;">
           <h3>Menu Items</h3>
-          <p class="help-text">Drag to reorder not yet available; use up/down buttons.</p>
+          <p class="help-text">Use up/down buttons to reorder.</p>
           <div id="menuList"></div>
           <button id="addMenuItemBtn" class="btn btn-primary">+ Add Menu Item</button>
         </div>
 
-        <!-- Languages panel -->
         <div class="panel" id="panelLanguages" style="display:none;">
           <h3>Languages</h3>
           <div id="langList"></div>
@@ -63,9 +60,7 @@
       </aside>
 
       <main class="editor-main">
-        <div class="lang-tabs" id="langTabs">
-          <!-- filled by JS -->
-        </div>
+        <div class="lang-tabs" id="langTabs"></div>
         <div id="cardList" class="card-list"></div>
         <div id="menuEditArea" class="card-list" style="display:none;"></div>
       </main>
