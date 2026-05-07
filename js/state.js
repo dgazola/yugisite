@@ -21,12 +21,10 @@ const state = {
   settings: {},
   menuItems: [],
 
-  // Grid‑lock drag state
-  dragLockedAxis: null,        // 'x' | 'y' | null
-  lockStartX: 0,               // pointer position when lock started
-  lockStartY: 0,
-  lockStartTx: 0,              // table position when lock started
-  lockStartTy: 0,
-  dragStartCard: null,         // the card that was current when drag began
-  columnCenterX: 0,            // X center of the current column
+  // Axis lock
+  dominantAxis: null,           // 'x' | 'y' | null
+  initialPointerX: 0,          // pointer position at drag start (or after last axis switch)
+  initialPointerY: 0,
+  initialTableTx: 0,           // table position at start of current lock
+  initialTableTy: 0,
 };
