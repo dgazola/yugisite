@@ -1,7 +1,7 @@
 async function loadAllCards() {
   try {
-    const resp = await fetch('mainpagecards.json');
-    if (!resp.ok) throw new Error('Failed to load mainpagecards.json');
+    const resp = await fetch('Content/mainpagecards.json');
+    if (!resp.ok) throw new Error('Failed to load Content/mainpagecards.json');
     const json = await resp.json();
 
     let cardsArray = [];
