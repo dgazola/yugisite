@@ -1,14 +1,14 @@
-/* ── All cards share this structure ── */
+/* ── Card base – fixed aspect ratio ─────────────────── */
 .card,
 .blog-card,
 .devlog-card {
-  position: absolute;          /* placed by JS */
+  position: absolute;
   width: var(--card-width);
-  aspect-ratio: 5 / 7.2;
-  background: #020202;        /* fallback behind art */
+  aspect-ratio: 5 / 7.2;                    /* fixed shape, never grows */
+  background: #020202;
   border: 4px solid var(--card-border-color);
   border-radius: 10px;
-  padding: 7px;
+  padding: 0;                               /* outer padding removed – overlay handles margins */
   box-shadow:
     inset 0 0 0 2px var(--card-inner-frame),
     0 0 0 1px rgba(184,134,11,0.18),
@@ -19,8 +19,7 @@
   opacity: 0.28;
   pointer-events: none;
   will-change: opacity, box-shadow;
-  overflow: hidden;           /* keep corners clean */
-  z-index: 1;
+  overflow: hidden;                         /* everything stays inside the card */
 }
 
 .card.current,
@@ -36,20 +35,14 @@
   z-index: 5;
 }
 
-/* ── Full‑size art background ── */
-.card-art-bg {
-  position: absolute;
-  inset: 7px;                /* inside the padding */
-  border-radius: 4px;        /* slightly rounded */
-  z-index: 0;
-  background-color: var(--card-art-bg);
-  background-image:
-    linear-gradient(rgba(184,134,11,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(184,134,11,0.06) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
+.table-surface.dragging .card,
+.table-surface.dragging .blog-card,
+.table-surface.dragging .devlog-card { opacity: 0.9 !important; transition: opacity 0.2s ease; }
+.table-surface.dragging .card.current,
+.table-surface.dragging .blog-card.current,
+.table-surface.dragging .devlog-card.current { opacity: 1 !important; }
 
-/* Corner ornaments – keep them above everything */
+/* Corner decorations */
 .card::before,
 .blog-card::before,
 .devlog-card::before {
@@ -61,7 +54,7 @@
   border-top: 2px solid var(--bronze-light);
   opacity: 0.5;
   pointer-events: none;
-  z-index: 4;
+  z-index: 10;                               /* above overlays */
 }
 .card::after,
 .blog-card::after,
@@ -74,94 +67,143 @@
   border-top: 2px solid var(--bronze-light);
   opacity: 0.5;
   pointer-events: none;
-  z-index: 4;
+  z-index: 10;
 }
 
-/* ── Name overlay (top) ── */
-.card-name {
+/* ── Art background – fills the entire card ─────────── */
+.card-art,
+.blog-art,
+.devlog-art {
+  position: absolute;
+  inset: 7px;                                /* matches the old padding area */
+  background-color: var(--card-art-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background-image:
+    linear-gradient(rgba(184,134,11,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,134,11,0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.card-art::before,
+.blog-art::before,
+.devlog-art::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(184,134,11,0.3);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Overlay container (name, desc, etc.) ───────────── */
+.card-overlay {
   position: relative;
   z-index: 2;
-  background: linear-gradient(180deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0) 100%);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 7px;
+  pointer-events: none;                       /* clicks pass through to the card */
+}
+
+/* ── Opaque mode (default) ─────────────────────────── */
+.card.opaque .card-name,
+.blog-card.opaque .blog-name,
+.devlog-card.opaque .devlog-name {
+  background: linear-gradient(180deg, #c4940c 0%, #9a7208 100%);
+  color: var(--card-name-text);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.15);
+  border: 1px solid rgba(0,0,0,0.25);
+  border-bottom: 2px solid rgba(0,0,0,0.35);
+}
+
+.card.opaque .card-desc,
+.blog-card.opaque .blog-desc,
+.devlog-card.opaque .devlog-desc {
+  background-color: var(--card-desc-bg);
+  border: 1px solid rgba(184,134,11,0.12);
+  border-top: 2px solid rgba(184,134,11,0.3);
+}
+
+/* ── Transparent mode ──────────────────────────────── */
+.card.transparent .card-name {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: var(--bronze-light);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  border: 1px solid rgba(184,134,11,0.4);
+  border-bottom: 1px solid rgba(184,134,11,0.25);
+}
+
+.card.transparent .card-desc {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
   color: var(--text);
-  padding: 12px 14px 30px 14px;   /* extra bottom padding for fade */
+  border: 1px solid rgba(184,134,11,0.2);
+  border-top: 1px solid rgba(184,134,11,0.3);
+}
+
+.blog-card.transparent .blog-name,
+.devlog-card.transparent .devlog-name {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: var(--bronze-light);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  border: 1px solid rgba(184,134,11,0.4);
+  border-bottom: 1px solid rgba(184,134,11,0.25);
+}
+
+.blog-card.transparent .blog-desc,
+.devlog-card.transparent .devlog-desc {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  color: var(--text);
+  border: 1px solid rgba(184,134,11,0.2);
+  border-top: 1px solid rgba(184,134,11,0.3);
+}
+
+/* ── Card name bar (shared) ────────────────────────── */
+.card-name,
+.blog-name,
+.devlog-name {
+  padding: 10px 14px;
   text-align: center;
   font-weight: 750;
   font-size: 0.95rem;
   letter-spacing: 0.05em;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  border-radius: 3px 3px 0 0;
   flex-shrink: 0;
+  z-index: 1;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   flex-direction: column;
-  border-radius: 3px 3px 0 0;
 }
+
+.blog-name,
+.devlog-name {
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 8px;
+}
+
 .card-name small {
   font-weight: 400;
   font-size: 0.65rem;
   letter-spacing: 0.06em;
   text-transform: none;
-  opacity: 0.85;
+  opacity: 0.75;
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
-/* ── Description overlay (bottom) ── */
-.card-desc {
-  position: relative;
-  z-index: 2;
-  margin-top: auto;
-  background: linear-gradient(0deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 100%);
-  color: var(--text);
-  padding: 40px 14px 16px 14px;   /* top padding for fade */
-  text-align: center;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  border-radius: 0 0 3px 3px;
-}
-.card-desc p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.4;
-  font-size: 0.8rem;
-  max-width: 90%;
-}
-
-.tag {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--tag-bg);
-  border: 1px solid var(--tag-border);
-  color: var(--tag-text);
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  font-weight: 500;
-}
-
-/* ── Blog / Devlog name overlays ── */
-.blog-name,
-.devlog-name {
-  position: relative;
-  z-index: 2;
-  background: linear-gradient(180deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0) 100%);
-  color: var(--text);
-  padding: 12px 14px 30px 14px;
-  font-weight: 700;
-  font-size: 0.88rem;
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  text-transform: uppercase;
-  border-radius: 3px 3px 0 0;
-}
 .blog-name h3,
 .devlog-name h3 {
   margin: 0;
@@ -169,46 +211,126 @@
   font-weight: 700;
   color: inherit;
 }
+
 .blog-name span,
 .devlog-name span {
-  color: var(--bronze-light);
+  color: #2a1e04;
   font-size: 0.65rem;
   font-weight: 600;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.1);
   padding: 3px 9px;
   border-radius: 999px;
   white-space: nowrap;
   text-transform: none;
 }
 
+/* ── Art placeholder (centred) ─────────────────────── */
+.art-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+.art-placeholder .play-circle {
+  width: 52px; height: 52px;
+  border: 2px solid rgba(212,160,23,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.art-placeholder .play-circle::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 15px solid rgba(212,160,23,0.8);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  margin-left: 4px;
+}
+.art-placeholder .placeholder-text {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: rgba(196,184,150,0.55);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Blog/Devlog smaller play circle */
+.blog-art .art-placeholder .play-circle,
+.devlog-art .art-placeholder .play-circle {
+  width: 44px; height: 44px;
+  border-color: rgba(180,140,20,0.55);
+}
+.blog-art .art-placeholder .play-circle::after,
+.devlog-art .art-placeholder .play-circle::after {
+  border-left: 12px solid rgba(180,140,20,0.65);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+/* ── Art title (bottom of art area) ────────────────── */
+.art-title {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  padding: 8px 14px;
+  text-align: center;
+  z-index: 4;
+  border-top: 1px solid rgba(184,134,11,0.4);
+}
+.art-title h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--bronze-light);
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+/* ── Description area ──────────────────────────────── */
+.card-desc,
 .blog-desc,
 .devlog-desc {
-  position: relative;
-  z-index: 2;
-  margin-top: auto;
-  background: linear-gradient(0deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 100%);
-  color: var(--muted);
-  padding: 40px 14px 16px 14px;
+  padding: 14px 14px 16px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   border-radius: 0 0 3px 3px;
+  z-index: 1;
+  gap: 8px;
 }
+.card-desc p,
 .blog-desc p,
 .devlog-desc p {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.82rem;
   max-width: 90%;
 }
 .blog-desc .meta,
 .devlog-desc .meta {
   margin-top: auto;
-  color: var(--bronze-light);
+  color: #9a8b65;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   font-style: italic;
+  font-weight: 500;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  color: var(--tag-text);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
   font-weight: 500;
 }
