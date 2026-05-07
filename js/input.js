@@ -40,12 +40,8 @@ function onPointerDown(e) {
   state.isDragging = true;
   state.isSnapping = false;
 
-  // Reset axis lock
+  // Reset dominant axis
   state.dominantAxis = null;
-  state.initialPointerX = pos.x;
-  state.initialPointerY = pos.y;
-  state.initialTableTx = state.tableTx;
-  state.initialTableTy = state.tableTy;
 
   clearSnapTransition();
   const tableSurface = document.getElementById('tableSurface');
@@ -64,8 +60,8 @@ function onPointerMove(e) {
   e.preventDefault();
 
   const pos = getEventPos(e);
-  const totalDx = pos.x - state.initialPointerX;
-  const totalDy = pos.y - state.initialPointerY;
+  const totalDx = pos.x - state.pointerStartX;
+  const totalDy = pos.y - state.pointerStartY;
   const absX = Math.abs(totalDx);
   const absY = Math.abs(totalDy);
 
@@ -74,52 +70,37 @@ function onPointerMove(e) {
     state.pointerMoved = true;
   }
 
-  // ── 1. Not locked yet ──────────────────────────────────
+  // 1. No dominant axis yet – try to lock one
   if (!state.dominantAxis) {
     if (absX > AXIS_LOCK_MIN && absX > absY + AXIS_LOCK_MIN) {
-      // Lock to X
       state.dominantAxis = 'x';
-      // Keep initial references; they already match the start
     } else if (absY > AXIS_LOCK_MIN && absY > absX + AXIS_LOCK_MIN) {
-      // Lock to Y
       state.dominantAxis = 'y';
     } else {
-      // Not enough movement – stay still
+      // Not enough separation – keep the table frozen
+      setTableTransform(state.tableStartTx, state.tableStartTy);
       return;
     }
   }
 
-  // ── 2. Move along the locked axis ─────────────────────
+  // 2. Move strictly along the dominant axis
   if (state.dominantAxis === 'x') {
-    // Only horizontal movement from initial start
-    setTableTransform(state.initialTableTx + totalDx, state.initialTableTy);
+    setTableTransform(state.tableStartTx + totalDx, state.tableStartTy);
 
     // Check if we should switch to Y
     if (absY > absX + AXIS_SWITCH_THRESHOLD) {
-      // Switch to Y: first apply accumulated Y offset, then reset references
-      const newTx = state.initialTableTx + totalDx;   // keep current X
-      const newTy = state.initialTableTy + totalDy;   // apply full vertical movement
-      setTableTransform(newTx, newTy);
-
       state.dominantAxis = 'y';
-      state.initialPointerX = pos.x;
-      state.initialPointerY = pos.y;
-      state.initialTableTx = newTx;
-      state.initialTableTy = newTy;
+      // Immediately snap to the vertical rail (no extra CSS – the new axis will be applied on next move)
+      // but let's apply it right away to avoid a frame of lag
+      setTableTransform(state.tableStartTx, state.tableStartTy + totalDy);
     }
   } else if (state.dominantAxis === 'y') {
-    setTableTransform(state.initialTableTx, state.initialTableTy + totalDy);
+    setTableTransform(state.tableStartTx, state.tableStartTy + totalDy);
 
+    // Check if we should switch to X
     if (absX > absY + AXIS_SWITCH_THRESHOLD) {
-      const newTx = state.initialTableTx + totalDx;
-      const newTy = state.initialTableTy + totalDy;
-      setTableTransform(newTx, newTy);
-
       state.dominantAxis = 'x';
-      state.initialPointerX = pos.x;
-      state.initialPointerY = pos.y;
-      state.initialTableTx = newTx;
-      state.initialTableTy = newTy;
+      setTableTransform(state.tableStartTx + totalDx, state.tableStartTy);
     }
   }
 }
@@ -144,7 +125,7 @@ function onPointerUp(e) {
     }
   }
 
-  // Snapping uses the actual table position – no extra work needed
+  // Snapping uses the actual table position
   const pos = getEventPos(e);
   const dragDx = pos.x - state.pointerStartX;
   const dragDy = pos.y - state.pointerStartY;
