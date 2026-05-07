@@ -39,8 +39,6 @@ function onPointerDown(e) {
   state.pointerMoved = false;
   state.isDragging = true;
   state.isSnapping = false;
-
-  // Reset dominant axis
   state.dominantAxis = null;
 
   clearSnapTransition();
@@ -65,39 +63,29 @@ function onPointerMove(e) {
   const absX = Math.abs(totalDx);
   const absY = Math.abs(totalDy);
 
-  // Mark that we moved
   if (absX > DRAG_THRESHOLD || absY > DRAG_THRESHOLD) {
     state.pointerMoved = true;
   }
 
-  // 1. No dominant axis yet – try to lock one
   if (!state.dominantAxis) {
     if (absX > AXIS_LOCK_MIN && absX > absY + AXIS_LOCK_MIN) {
       state.dominantAxis = 'x';
     } else if (absY > AXIS_LOCK_MIN && absY > absX + AXIS_LOCK_MIN) {
       state.dominantAxis = 'y';
     } else {
-      // Not enough separation – keep the table frozen
       setTableTransform(state.tableStartTx, state.tableStartTy);
       return;
     }
   }
 
-  // 2. Move strictly along the dominant axis
   if (state.dominantAxis === 'x') {
     setTableTransform(state.tableStartTx + totalDx, state.tableStartTy);
-
-    // Check if we should switch to Y
     if (absY > absX + AXIS_SWITCH_THRESHOLD) {
       state.dominantAxis = 'y';
-      // Immediately snap to the vertical rail (no extra CSS – the new axis will be applied on next move)
-      // but let's apply it right away to avoid a frame of lag
       setTableTransform(state.tableStartTx, state.tableStartTy + totalDy);
     }
   } else if (state.dominantAxis === 'y') {
     setTableTransform(state.tableStartTx, state.tableStartTy + totalDy);
-
-    // Check if we should switch to X
     if (absX > absY + AXIS_SWITCH_THRESHOLD) {
       state.dominantAxis = 'x';
       setTableTransform(state.tableStartTx + totalDx, state.tableStartTy);
@@ -125,7 +113,6 @@ function onPointerUp(e) {
     }
   }
 
-  // Snapping uses the actual table position
   const pos = getEventPos(e);
   const dragDx = pos.x - state.pointerStartX;
   const dragDy = pos.y - state.pointerStartY;
@@ -211,7 +198,6 @@ function onKeyDown(e) {
   }
 }
 
-// ── Attach all listeners ──────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const viewport = document.getElementById('viewport');
   viewport.addEventListener('pointerdown', onPointerDown);
