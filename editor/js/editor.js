@@ -130,6 +130,14 @@
             <option value="transparent" ${card.uiMode === 'transparent' ? 'selected' : ''}>Transparent</option>
           </select>
         </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Image URL</label>
+          <input type="text" class="field-imageurl" value="${escapeHtml(card.imageUrl || '')}" />
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Video URL</label>
+          <input type="text" class="field-videourl" value="${escapeHtml(card.videoUrl || '')}" />
+        </div>
         <div class="card-editor-grid">
           <div class="form-group full-width"><label>Title</label><input type="text" class="field-title" value="${escapeHtml(t.title||'')}"></div>
           <div class="form-group full-width"><label>Description</label><textarea class="field-desc" rows="3">${escapeHtml(t.description||'')}</textarea></div>
@@ -147,6 +155,8 @@
       el.querySelector('.move-up').addEventListener('click', () => moveCard(card.id, -1));
       el.querySelector('.move-down').addEventListener('click', () => moveCard(card.id, 1));
       el.querySelector('.field-uimode').addEventListener('change', (e) => { card.uiMode = e.target.value; });
+      el.querySelector('.field-imageurl').addEventListener('input', (e) => { card.imageUrl = e.target.value; });
+      el.querySelector('.field-videourl').addEventListener('input', (e) => { card.videoUrl = e.target.value; });
 
       const sync = (field, value) => { card.translations[currentLang][field] = value; refreshLandingSelect(); };
       el.querySelector('.field-title').addEventListener('input', e => sync('title', e.target.value));
@@ -170,6 +180,8 @@
       type: currentColumn,
       id: generateId(),
       uiMode: 'opaque',
+      imageUrl: null,
+      videoUrl: null,
       translations: {}
     };
     data.settings.languages.forEach(lang => {
@@ -460,6 +472,8 @@
       type: c.type || c.column,
       id: c.id || generateId(),
       uiMode: c.uiMode || 'opaque',
+      imageUrl: c.imageUrl || null,
+      videoUrl: c.videoUrl || null,
       translations: {
         en: { name: c.name||"", sub: c.sub||"", label: c.label||"", title: c.title||"", description: c.description||"", meta: c.meta||"", tag: c.tag||"" }
       }
