@@ -1,0 +1,44 @@
+/* css/base.css */
+:root {
+  --bg: #000000;
+  --line: #3d2e0a;
+  --text: #f5f0e6;
+  --muted: #c4b896;
+  --bronze: #b8860b;
+  --bronze-light: #d4a017;
+  --tag-bg: rgba(184, 134, 11, 0.22);
+  --tag-border: rgba(212, 160, 23, 0.6);
+  --tag-text: #e8d5a3;
+  --card-name-text: #0a0a0a;
+  --card-art-bg: #111108;
+  --card-desc-bg: #050505;
+  --card-border-color: #3d2e0a;
+  --card-inner-frame: rgba(184, 134, 11, 0.5);
+  --card-width: 400px;
+  --card-height: 576px;
+  --column-gap: 120px;
+  --row-gap: 40px;
+  --table-padding-x: 300px;
+  --table-padding-y: 200px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
