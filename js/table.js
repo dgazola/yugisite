@@ -1,5 +1,3 @@
-// js/table.js
-// Builds the entire card layout on the table surface
 function getCardWidth() {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-width').trim());
 }
@@ -44,6 +42,7 @@ async function buildAllCards() {
   state.devlogCards.forEach((data, i) => {
     const el = document.createElement('article');
     el.className = 'devlog-card';
+    el.classList.add(data.uiMode || 'opaque');
     el.innerHTML = createDevlogCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'devlog');
@@ -60,6 +59,7 @@ async function buildAllCards() {
   state.mainCards.forEach((data, i) => {
     const el = document.createElement('article');
     el.className = 'card';
+    el.classList.add(data.uiMode || 'opaque');
     el.innerHTML = createMainCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'main');
@@ -76,6 +76,7 @@ async function buildAllCards() {
   state.blogCards.forEach((data, i) => {
     const el = document.createElement('article');
     el.className = 'blog-card';
+    el.classList.add(data.uiMode || 'opaque');
     el.innerHTML = createBlogCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'blog');
