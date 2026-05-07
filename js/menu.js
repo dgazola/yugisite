@@ -1,5 +1,17 @@
-// js/menu.js
-// sidebar menu toggle
+function attachMenuEvents() {
+  const menu = document.getElementById('menu');
+  const links = menu.querySelectorAll('a[data-nav]');
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      const navId = link.getAttribute('data-nav');
+      toggleMenu();
+      const foundIndex = state.allCardEls.findIndex(c => c.id === navId);
+      if (foundIndex >= 0) snapToCard(foundIndex, true);
+    });
+  });
+}
+
+// toggleMenu is now defined here (moved from old file)
 function toggleMenu() {
   const menu = document.getElementById('menu');
   const overlay = document.getElementById('overlay');
@@ -21,15 +33,4 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('overlay');
   menuBtn.addEventListener('click', toggleMenu);
   overlay.addEventListener('click', toggleMenu);
-
-  // navigation links inside the menu
-  const menu = document.getElementById('menu');
-  menu.querySelectorAll('a[data-nav]').forEach(link => {
-    link.addEventListener('click', () => {
-      const navId = link.getAttribute('data-nav');
-      toggleMenu();
-      const foundIndex = state.allCardEls.findIndex(c => c.id === navId);
-      if (foundIndex >= 0) snapToCard(foundIndex, true);
-    });
-  });
 });
