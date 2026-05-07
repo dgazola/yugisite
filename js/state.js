@@ -21,10 +21,6 @@ const state = {
   settings: {},
   menuItems: [],
 
-  // Axis lock
-  dominantAxis: null,           // 'x' | 'y' | null
-  initialPointerX: 0,          // pointer position at drag start (or after last axis switch)
-  initialPointerY: 0,
-  initialTableTx: 0,           // table position at start of current lock
-  initialTableTy: 0,
+  // Axis lock – based on total distance from drag start
+  dominantAxis: null,   // 'x' | 'y' | null
 };
