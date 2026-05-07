@@ -1,10 +1,24 @@
 function createMainCardHTML(data) {
-  return `
-    <div class="card-art">
+  const hasImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasVideo = data.videoUrl && data.videoUrl.trim() !== '';
+
+  let mediaHTML = '';
+  if (hasImage || hasVideo) {
+    mediaHTML = `
+      ${hasImage ? `<img class="card-image" src="${data.imageUrl}" alt="" />` : ''}
+      ${hasVideo ? `<video class="card-video" src="${data.videoUrl}" muted loop playsinline></video>` : ''}`;
+  } else {
+    // Default placeholder
+    mediaHTML = `
       <div class="art-placeholder">
         <div class="play-circle"></div>
         <span class="placeholder-text">Image / Video</span>
-      </div>
+      </div>`;
+  }
+
+  return `
+    <div class="card-art">
+      ${mediaHTML}
       <div class="art-title"><h2>${data.title}</h2></div>
     </div>
     <div class="card-overlay">
@@ -18,12 +32,25 @@ function createMainCardHTML(data) {
 }
 
 function createBlogCardHTML(data) {
-  return `
-    <div class="blog-art">
+  const hasImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasVideo = data.videoUrl && data.videoUrl.trim() !== '';
+
+  let mediaHTML = '';
+  if (hasImage || hasVideo) {
+    mediaHTML = `
+      ${hasImage ? `<img class="card-image" src="${data.imageUrl}" alt="" />` : ''}
+      ${hasVideo ? `<video class="card-video" src="${data.videoUrl}" muted loop playsinline></video>` : ''}`;
+  } else {
+    mediaHTML = `
       <div class="art-placeholder">
         <div class="play-circle"></div>
         <span class="placeholder-text">Blog Image</span>
-      </div>
+      </div>`;
+  }
+
+  return `
+    <div class="blog-art">
+      ${mediaHTML}
     </div>
     <div class="card-overlay">
       <div class="blog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
@@ -36,12 +63,25 @@ function createBlogCardHTML(data) {
 }
 
 function createDevlogCardHTML(data) {
-  return `
-    <div class="devlog-art">
+  const hasImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasVideo = data.videoUrl && data.videoUrl.trim() !== '';
+
+  let mediaHTML = '';
+  if (hasImage || hasVideo) {
+    mediaHTML = `
+      ${hasImage ? `<img class="card-image" src="${data.imageUrl}" alt="" />` : ''}
+      ${hasVideo ? `<video class="card-video" src="${data.videoUrl}" muted loop playsinline></video>` : ''}`;
+  } else {
+    mediaHTML = `
       <div class="art-placeholder">
         <div class="play-circle"></div>
         <span class="placeholder-text">Devlog Image</span>
-      </div>
+      </div>`;
+  }
+
+  return `
+    <div class="devlog-art">
+      ${mediaHTML}
     </div>
     <div class="card-overlay">
       <div class="devlog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
