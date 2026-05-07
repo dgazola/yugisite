@@ -1,5 +1,3 @@
-// js/input.js
-// Pointer, wheel, and keyboard handlers
 function getEventPos(e) {
   return { x: e.clientX, y: e.clientY };
 }
@@ -42,6 +40,13 @@ function onPointerDown(e) {
   state.isDragging = true;
   state.isSnapping = false;
 
+  // Reset axis lock
+  state.dragLockedAxis = null;
+  state.lockStartX = pos.x;
+  state.lockStartY = pos.y;
+  state.lockStartTx = state.tableTx;
+  state.lockStartTy = state.tableTy;
+
   clearSnapTransition();
   const tableSurface = document.getElementById('tableSurface');
   tableSurface.style.transition = 'none';
@@ -64,12 +69,65 @@ function onPointerMove(e) {
   if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
     state.pointerMoved = true;
   }
-  setTableTransform(state.tableStartTx + dx, state.tableStartTy + dy);
+
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+
+  if (!state.dragLockedAxis) {
+    // Decide axis after minimum movement
+    if (absDx > AXIS_LOCK_MIN && absDx > absDy + AXIS_LOCK_MIN) {
+      state.dragLockedAxis = 'x';
+      state.lockStartX = pos.x;
+      state.lockStartY = pos.y;
+      state.lockStartTx = state.tableTx;
+      state.lockStartTy = state.tableTy;
+    } else if (absDy > AXIS_LOCK_MIN && absDy > absDx + AXIS_LOCK_MIN) {
+      state.dragLockedAxis = 'y';
+      state.lockStartX = pos.x;
+      state.lockStartY = pos.y;
+      state.lockStartTx = state.tableTx;
+      state.lockStartTy = state.tableTy;
+    } else {
+      // Free movement before lock
+      setTableTransform(state.tableStartTx + dx, state.tableStartTy + dy);
+    }
+    return;
+  }
+
+  // We have a lock – compute delta from lock start
+  const lockDx = pos.x - state.lockStartX;
+  const lockDy = pos.y - state.lockStartY;
+
+  if (state.dragLockedAxis === 'x') {
+    // Check for switch to vertical
+    if (Math.abs(lockDy) > AXIS_SWITCH_THRESHOLD) {
+      // Switch to y-axis, resetting lock start to current position
+      state.dragLockedAxis = 'y';
+      state.lockStartX = pos.x;
+      state.lockStartY = pos.y;
+      state.lockStartTx = state.tableTx;
+      state.lockStartTy = state.tableTy;
+      // No movement on this frame for the old axis
+      return;
+    }
+    setTableTransform(state.lockStartTx + lockDx, state.lockStartTy);
+  } else if (state.dragLockedAxis === 'y') {
+    if (Math.abs(lockDx) > AXIS_SWITCH_THRESHOLD) {
+      state.dragLockedAxis = 'x';
+      state.lockStartX = pos.x;
+      state.lockStartY = pos.y;
+      state.lockStartTx = state.tableTx;
+      state.lockStartTy = state.tableTy;
+      return;
+    }
+    setTableTransform(state.lockStartTx, state.lockStartTy + lockDy);
+  }
 }
 
 function onPointerUp(e) {
   if (!state.isDragging) return;
   state.isDragging = false;
+  state.dragLockedAxis = null;
 
   const viewport = document.getElementById('viewport');
   const tableSurface = document.getElementById('tableSurface');
@@ -95,7 +153,7 @@ function onPointerUp(e) {
 function onPointerCancel(e) {
   if (!state.isDragging) return;
   state.isDragging = false;
-
+  state.dragLockedAxis = null;
   const viewport = document.getElementById('viewport');
   const tableSurface = document.getElementById('tableSurface');
   viewport.classList.remove('grabbing');
@@ -171,7 +229,6 @@ function onKeyDown(e) {
   }
 }
 
-// attach global event listeners (runs once when file executes)
 document.addEventListener('DOMContentLoaded', () => {
   const viewport = document.getElementById('viewport');
   viewport.addEventListener('pointerdown', onPointerDown);
@@ -181,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
   viewport.addEventListener('lostpointercapture', () => {
     if (state.isDragging) {
       state.isDragging = false;
+      state.dragLockedAxis = null;
       viewport.classList.remove('grabbing');
       document.getElementById('tableSurface').classList.remove('dragging');
       snapToCard(findClosestCardIndex(null, null), true);
