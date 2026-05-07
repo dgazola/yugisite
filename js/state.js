@@ -20,7 +20,5 @@ const state = {
   rawCards: [],
   settings: {},
   menuItems: [],
-
-  // Axis lock – based on total distance from drag start
-  dominantAxis: null,   // 'x' | 'y' | null
+  dominantAxis: null,
 };
