@@ -176,9 +176,9 @@
       "order": 0,
       "type": "main",
       "id": "home",
-      "uiMode": "opaque",
+      "uiMode": "transparent",
       "imageUrl": "https://uploads2.yugioh.com/card_images/257/detail/Dark-Magician.jpg?1375127294",
-      "videoUrl": null,
+      "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
       "translations": {
         "en": {
           "name": "Home",
