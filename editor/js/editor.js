@@ -28,7 +28,9 @@
   const addMenuItemBtn = document.getElementById('addMenuItemBtn');
   const addLanguageBtn = document.getElementById('addLanguageBtn');
   const newLangCode = document.getElementById('newLangCode');
-  const loadBtn = document.getElementById('loadBtn');
+  const loadLocalBtn = document.getElementById('loadLocalBtn');
+  const loadUrlBtn = document.getElementById('loadUrlBtn');
+  const loadRepoBtn = document.getElementById('loadRepoBtn');
   const saveBtn = document.getElementById('saveBtn');
 
   function generateId() {
@@ -412,58 +414,44 @@
     }
   });
 
-  loadBtn.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const json = JSON.parse(ev.target.result);
-          if (Array.isArray(json)) {
-            data = {
-              settings: { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } },
-              menu: [],
-              cards: json.map(c => migrateOldCard(c))
-            };
-          } else {
-            data = json;
-            if (!data.settings) data.settings = { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } };
-            if (!data.settings.languages) data.settings.languages = ["en"];
-            if (!data.menu) data.menu = [];
-            data.cards.forEach(c => {
-              if (!c.translations) c.translations = {};
-              data.settings.languages.forEach(lang => {
-                if (!c.translations[lang]) c.translations[lang] = { name:"", sub:"", label:"", title:c.title||"", description:c.description||"", meta:"", tag:"" };
-              });
-            });
-            data.menu.forEach(item => {
-              item.translations = ensureTranslations(item.translations, data.settings.languages);
-            });
-          }
-          currentLang = data.settings.defaultLanguage || 'en';
-          currentMainTab = 'cards';
-          mainTabs.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
-          mainTabs.querySelector('[data-tab="cards"]').classList.add('active');
-          panelCards.style.display = 'block';
-          panelMenu.style.display = 'none';
-          panelLanguages.style.display = 'none';
-          cardList.style.display = 'block';
-          menuEditArea.style.display = 'none';
-          reorderAll();
-          renderLangTabs();
-          renderCardList();
-          renderMenuList();
-          refreshLandingSelect();
-        } catch (err) { alert('Failed to parse JSON: ' + err.message); }
+  // ── Load JSON helpers ──────────────────────────────────
+  function processLoadedJson(json) {
+    if (Array.isArray(json)) {
+      data = {
+        settings: { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } },
+        menu: [],
+        cards: json.map(c => migrateOldCard(c))
       };
-      reader.readAsText(file);
-    });
-    input.click();
-  });
+    } else {
+      data = json;
+      if (!data.settings) data.settings = { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } };
+      if (!data.settings.languages) data.settings.languages = ["en"];
+      if (!data.menu) data.menu = [];
+      data.cards.forEach(c => {
+        if (!c.translations) c.translations = {};
+        data.settings.languages.forEach(lang => {
+          if (!c.translations[lang]) c.translations[lang] = { name:"", sub:"", label:"", title:c.title||"", description:c.description||"", meta:"", tag:"" };
+        });
+      });
+      data.menu.forEach(item => {
+        item.translations = ensureTranslations(item.translations, data.settings.languages);
+      });
+    }
+    currentLang = data.settings.defaultLanguage || 'en';
+    currentMainTab = 'cards';
+    mainTabs.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    mainTabs.querySelector('[data-tab="cards"]').classList.add('active');
+    panelCards.style.display = 'block';
+    panelMenu.style.display = 'none';
+    panelLanguages.style.display = 'none';
+    cardList.style.display = 'block';
+    menuEditArea.style.display = 'none';
+    reorderAll();
+    renderLangTabs();
+    renderCardList();
+    renderMenuList();
+    refreshLandingSelect();
+  }
 
   function migrateOldCard(c) {
     return {
@@ -480,6 +468,54 @@
     };
   }
 
+  // ── Load from File ─────────────────────────────────────
+  loadLocalBtn.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const json = JSON.parse(ev.target.result);
+          processLoadedJson(json);
+        } catch (err) { alert('Failed to parse JSON: ' + err.message); }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  });
+
+  // ── Load from URL ──────────────────────────────────────
+  loadUrlBtn.addEventListener('click', () => {
+    const url = prompt('Enter the URL of the JSON file:');
+    if (!url) return;
+    fetch(url)
+      .then(resp => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+        return resp.json();
+      })
+      .then(json => processLoadedJson(json))
+      .catch(err => alert('Failed to fetch JSON: ' + err.message));
+  });
+
+  // ── Load from Repo (pre-filled with default raw URL) ───
+  loadRepoBtn.addEventListener('click', () => {
+    const defaultUrl = 'https://raw.githubusercontent.com/dgazola/yugisite/main/mainpagecards.json';
+    const url = prompt('Enter the raw GitHub URL (or other repo URL):', defaultUrl);
+    if (!url) return;
+    fetch(url)
+      .then(resp => {
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+        return resp.json();
+      })
+      .then(json => processLoadedJson(json))
+      .catch(err => alert('Failed to fetch JSON: ' + err.message));
+  });
+
+  // ── Save / Download ────────────────────────────────────
   saveBtn.addEventListener('click', () => {
     reorderAll();
     data.cards.forEach(c => { if (!c.id) c.id = generateId(); });
@@ -495,35 +531,13 @@
     URL.revokeObjectURL(url);
   });
 
+  // ── Auto‑load from server ──────────────────────────────
   async function autoLoad() {
     try {
       const resp = await fetch('../mainpagecards.json');
       if (!resp.ok) throw new Error('Not found');
       const json = await resp.json();
-      if (Array.isArray(json)) {
-        data = {
-          settings: { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } },
-          menu: [],
-          cards: json.map(c => migrateOldCard(c))
-        };
-      } else {
-        data = json;
-        if (!data.settings) data.settings = { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } };
-        if (!data.settings.languages) data.settings.languages = ["en"];
-        if (!data.menu) data.menu = [];
-        data.cards.forEach(c => {
-          if (!c.translations) c.translations = {};
-          data.settings.languages.forEach(lang => {
-            if (!c.translations[lang]) c.translations[lang] = { name:"", sub:"", label:"", title:c.title||"", description:c.description||"", meta:"", tag:"" };
-          });
-        });
-      }
-      currentLang = data.settings.defaultLanguage || 'en';
-      reorderAll();
-      renderLangTabs();
-      renderCardList();
-      renderMenuList();
-      refreshLandingSelect();
+      processLoadedJson(json);
     } catch {
       console.log('No JSON found on server.');
       renderLangTabs();
