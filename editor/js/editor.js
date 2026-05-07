@@ -1,20 +1,20 @@
 (function() {
   // ── Data stores ──────────────────────────────────────
   let mainData = { settings: { landingCardId: "", defaultLanguage: "en", languages: ["en"], siteTitle: { "en": "Life Snake Studio" } }, menu: [], cards: [] };
-  let blogEntries = [];   // dummy blog entries
-  let devlogEntries = []; // dummy devlog entries
+  let blogEntries = [];
+  let devlogEntries = [];
 
   let currentColumn = "main";
   let currentLang = "en";
   let currentMainTab = "cards";
 
-  // GitHub config (stored in localStorage)
+  // GitHub config
   let gitToken = localStorage.getItem('github_token') || '';
   let gitRepo = localStorage.getItem('github_repo') || 'dgazola/yugisite';
   let gitBranch = localStorage.getItem('github_branch') || 'main';
-  let gitBasePath = 'Content'; // folder in repo
+  let gitBasePath = 'Content';
 
-  // ── DOM refs ─────────────────────────────────────────
+  // DOM refs
   const mainTabs = document.getElementById('mainTabs');
   const panelCards = document.getElementById('panelCards');
   const panelMenu = document.getElementById('panelMenu');
@@ -49,11 +49,7 @@
     langs.forEach(l => { if (!obj[l]) obj[l] = (l === 'en' ? '' : (obj['en'] || '')); });
     return obj;
   }
-
-  function reorderCards(col) {
-    let order = 0;
-    mainData.cards.forEach(c => { if (c.column === col) c.order = order++; });
-  }
+  function reorderCards(col) { let o = 0; mainData.cards.forEach(c => { if (c.column === col) c.order = o++; }); }
   function reorderAllCards() { ['main','devlog','blog'].forEach(c => reorderCards(c)); }
 
   // ── Language & UI tabs ───────────────────────────────
@@ -71,7 +67,6 @@
     });
   }
 
-  // ── Landing select ────────────────────────────────────
   function refreshLandingSelect() {
     const cur = landingSelect.value;
     landingSelect.innerHTML = '<option value="">— None —</option>';
@@ -86,7 +81,6 @@
   }
   landingSelect.addEventListener('change', () => { mainData.settings.landingCardId = landingSelect.value; });
 
-  // ── Tab switching ────────────────────────────────────
   function switchMainTab(tabName) {
     currentMainTab = tabName;
     mainTabs.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
@@ -119,7 +113,6 @@
 
   // ── Cards tab ─────────────────────────────────────────
   function getColumnCards() { return mainData.cards.filter(c => c.column === currentColumn); }
-
   function renderCardList() {
     const cards = getColumnCards();
     cardList.innerHTML = '';
@@ -175,7 +168,6 @@
       cardList.appendChild(el);
     });
   }
-
   function addCard() {
     const newCard = { column: currentColumn, order: getColumnCards().length, type: currentColumn, id: generateId(), uiMode: 'opaque', imageUrl: null, videoUrl: null, translations: {} };
     mainData.settings.languages.forEach(l => newCard.translations[l] = { name:"", sub:"", label:"", title:"New Card", description:"", meta:"", tag:"" });
@@ -344,23 +336,30 @@
   }
   addDevlogBtn.onclick = () => { devlogEntries.push({ title: 'New Devlog', body: '' }); renderDevlogList(); renderDevlogEdit(); };
 
-  // ── GitHub API helpers ────────────────────────────────
-  async function uploadFile(path, content, message) {
+  // ── GitHub API helpers (FIXED: fetch latest SHA right before upload) ──
+  async function getLatestSha(path) {
     const url = `https://api.github.com/repos/${gitRepo}/contents/${path}`;
-    let sha = null;
-    try {
-      const resp = await fetch(url, { headers: { 'Authorization': `token ${gitToken}` } });
-      if (resp.ok) { const f = await resp.json(); sha = f.sha; }
-      else if (resp.status !== 404) throw new Error(`HTTP ${resp.status}`);
-    } catch(e) {}
+    const resp = await fetch(url, { headers: { 'Authorization': `token ${gitToken}` } });
+    if (resp.status === 404) return null; // file doesn't exist
+    if (!resp.ok) throw new Error(`Fetch SHA failed: ${resp.status}`);
+    const data = await resp.json();
+    return data.sha;
+  }
+
+  async function uploadFile(path, content, message) {
+    // Always fetch the current SHA right before uploading
+    const sha = await getLatestSha(path);
     const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: gitBranch };
     if (sha) body.sha = sha;
-    const putResp = await fetch(url, {
+    const putResp = await fetch(`https://api.github.com/repos/${gitRepo}/contents/${path}`, {
       method: 'PUT',
       headers: { 'Authorization': `token ${gitToken}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    if (!putResp.ok) throw new Error((await putResp.json()).message || `HTTP ${putResp.status}`);
+    if (!putResp.ok) {
+      const errData = await putResp.json();
+      throw new Error(errData.message || `HTTP ${putResp.status}`);
+    }
   }
 
   async function loadFile(path) {
@@ -382,7 +381,7 @@
     localStorage.setItem('github_branch', gitBranch);
   }
 
-  // ── Load all content from repo ────────────────────────
+  // ── Load ALL content from repo ───────────────────────
   async function loadAllFromRepo() {
     try {
       promptForConfig();
@@ -424,15 +423,19 @@
     };
   }
 
-  // ── Save all content to repo ──────────────────────────
+  // ── Save ALL content to repo (now safe from SHA mismatch) ──
   async function saveAllToRepo() {
     try {
       promptForConfig();
       reorderAllCards();
       mainData.cards.forEach(c => { if (!c.id) c.id = generateId(); });
-      if (mainData.settings.landingCardId && !mainData.cards.find(c => c.id === mainData.settings.landingCardId)) mainData.settings.landingCardId = "";
+      if (mainData.settings.landingCardId && !mainData.cards.find(c => c.id === mainData.settings.landingCardId))
+        mainData.settings.landingCardId = "";
+
       const commitMsg = prompt('Commit message:', 'Update content');
       if (!commitMsg) return;
+
+      // Upload each file – each call will fetch the latest SHA right before uploading
       await Promise.all([
         uploadFile(`${gitBasePath}/mainpagecards.json`, JSON.stringify(mainData, null, 2), commitMsg),
         uploadFile(`${gitBasePath}/blog.json`, JSON.stringify(blogEntries, null, 2), commitMsg),
@@ -446,14 +449,15 @@
 
   // ── Button events ─────────────────────────────────────
   saveBtn.onclick = saveAllToRepo;
-  revertBtn.onclick = async () => { if (confirm('Revert all changes? Unsaved work will be lost.')) await loadAllFromRepo(); };
+  revertBtn.onclick = async () => {
+    if (confirm('Revert all changes? Unsaved work will be lost.')) await loadAllFromRepo();
+  };
 
-  // ── Init: auto-load from repo on open ─────────────────
+  // ── Init: auto-load from repo ─────────────────────────
   (async function init() {
     if (gitToken) {
-      try { await loadAllFromRepo(); } catch(e) { console.log('Could not auto-load, showing empty editor.'); renderLangTabs(); renderCardList(); }
+      try { await loadAllFromRepo(); } catch(e) { console.log('Auto-load failed, showing empty editor.'); renderLangTabs(); renderCardList(); }
     } else {
-      // No token yet – just show empty editor; user can load manually
       renderLangTabs();
       renderCardList();
     }
