@@ -44,4 +44,11 @@ function createDevlogCardHTML(data) {
       </div>
     </div>
     <div class="card-overlay">
-      <div class="devlog-name"><h3>
+      <div class="devlog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
+      <div style="flex:1"></div>
+      <div class="devlog-desc">
+        <p>${data.description}</p>
+        <div class="meta">${data.meta}</div>
+      </div>
+    </div>`;
+}
