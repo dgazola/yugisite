@@ -1,9 +1,99 @@
 {
   "settings": {
-    "landingCardId": "home",
+    "landingCardId": "world",
     "defaultLanguage": "en",
-    "languages": ["en", "pt"]
+    "languages": [
+      "en",
+      "pt",
+      "es"
+    ],
+    "siteTitle": {
+      "en": "Life Snake Studio",
+      "pt": "Life Snake Studio"
+    }
   },
+  "menu": [
+    {
+      "id": "home",
+      "translations": {
+        "en": "Home",
+        "pt": "Início",
+        "es": "Inicio"
+      }
+    },
+    {
+      "id": "world",
+      "translations": {
+        "en": "World",
+        "pt": "Mundo",
+        "es": "Mundo"
+      }
+    },
+    {
+      "id": "tcg",
+      "translations": {
+        "en": "TCG",
+        "pt": "TCG",
+        "es": "TCG"
+      }
+    },
+    {
+      "id": "engine",
+      "translations": {
+        "en": "Engine & Devkit",
+        "pt": "Engine & Devkit",
+        "es": "Engine & Devkit"
+      }
+    },
+    {
+      "id": "licensing",
+      "translations": {
+        "en": "Licensing",
+        "pt": "Licenciar",
+        "es": "Licenciar"
+      }
+    },
+    {
+      "id": "community",
+      "translations": {
+        "en": "Community",
+        "pt": "Comunidade",
+        "es": "Comunidad"
+      }
+    },
+    {
+      "id": "contact",
+      "translations": {
+        "en": "Contact",
+        "pt": "Contato",
+        "es": "Contacto"
+      }
+    },
+    {
+      "id": "presskit",
+      "translations": {
+        "en": "Press Kit",
+        "pt": "Kit de Imprensa",
+        "es": "Kit de Prensa"
+      }
+    },
+    {
+      "id": "devlog-0",
+      "translations": {
+        "en": "Devlog",
+        "pt": "Devlog",
+        "es": "Devlog"
+      }
+    },
+    {
+      "id": "blog-0",
+      "translations": {
+        "en": "Blog",
+        "pt": "Blog",
+        "es": "Blog"
+      }
+    }
+  ],
   "cards": [
     {
       "column": "devlog",
@@ -27,6 +117,15 @@
           "title": "Devlog Um",
           "description": "Primeiro devlog. Bastidores da construção do motor e ferramentas.",
           "meta": "Recente",
+          "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
           "tag": ""
         }
       }
@@ -54,6 +153,15 @@
           "description": "Segunda entrada. Desafios com o motor do jogo de cartas e como os superei.",
           "meta": "Em andamento",
           "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
+          "tag": ""
         }
       }
     },
@@ -79,6 +187,15 @@
           "title": "Devlog Três",
           "description": "Reflexões sobre design de mundo, balanceamento de criaturas e feedback da comunidade.",
           "meta": "Notas de design",
+          "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
           "tag": ""
         }
       }
@@ -106,6 +223,15 @@
           "description": "Bem‑vindo ao Life Snake Studio. Explore o mundo de Yugimon: a história, o jogo de cartas e oportunidades de licenciamento para desenvolvedores independentes.",
           "meta": "",
           "tag": "Comece Aqui"
+        },
+        "es": {
+          "name": "Inicio",
+          "sub": "Punto de entrada al universo",
+          "label": "",
+          "title": "Universo Yugimon",
+          "description": "Bienvenido a The Life Snake Studios. Explora el mundo de Yugimon: el lore, el juego de cartas coleccionables y las oportunidades de licenciamiento para desarrolladores indie.\nComienza Aquí",
+          "meta": "",
+          "tag": "Comienza Aquí"
         }
       }
     },
@@ -132,6 +258,15 @@
           "description": "Mergulhe na história, explore regiões através de um mapa interativo e navegue pelos diretórios de criaturas e personagens.",
           "meta": "",
           "tag": "História e Regiões"
+        },
+        "es": {
+          "name": "Mundo",
+          "sub": "lore · criaturas · personajes",
+          "label": "",
+          "title": "Mundo de Yugimon",
+          "description": "Sumérgete en el lore, explora regiones mediante un mapa interactivo y revisa los directorios de criaturas y personajes.",
+          "meta": "",
+          "tag": "Lore y Regiones"
         }
       }
     },
@@ -158,6 +293,15 @@
           "description": "Aprenda as regras, pesquise o banco de cartas, construa decks e explore formatos, coleções e guias de estratégia.",
           "meta": "",
           "tag": "Central do Jogo"
+        },
+        "es": {
+          "name": "Centro del Juego de Cartas",
+          "sub": "cómo jugar · base de datos · constructor",
+          "label": "",
+          "title": "Juego de Cartas Coleccionables",
+          "description": "Aprende las reglas, explora la base de datos de cartas, crea mazos y descubre formatos, expansiones y guías de estrategia.",
+          "meta": "",
+          "tag": "TCG"
         }
       }
     },
@@ -184,6 +328,15 @@
           "description": "O conjunto de ferramentas personalizado que criei para acelerar o desenvolvimento de jogos. Atualmente um asset Unity, futuramente uma camada própria de engine sobre Stride.",
           "meta": "",
           "tag": "Ferramentas Personalizadas"
+        },
+        "es": {
+          "name": "Motor y Kit de Desarrollo",
+          "sub": "YugiCore SDK",
+          "label": "",
+          "title": "Motor y Kit de Desarrollo",
+          "description": "El conjunto de herramientas personalizadas que construí para crear juegos más rápido. Actualmente es un asset para Unity, más adelante será su propia capa de motor sobre Stride.\nMotor y Kit de Desarrollo",
+          "meta": "",
+          "tag": "Conjunto de Herramientas Personalizadas"
         }
       }
     },
@@ -208,6 +361,15 @@
           "label": "",
           "title": "Licenciamento",
           "description": "Licencie a propriedade intelectual de Yugimon. Navegue pelo catálogo de assets, compare planos de preços e solicite o uso de assets oficiais.",
+          "meta": "",
+          "tag": "Para Indies"
+        },
+        "es": {
+          "name": "Licenciamiento",
+          "sub": "para indies · assets · precios",
+          "label": "",
+          "title": "Licenciamiento",
+          "description": "Licencia la IP de Yugimon. Explora el catálogo de assets, compara niveles de precios y solicita usar assets oficiales.",
           "meta": "",
           "tag": "Para Indies"
         }
@@ -236,6 +398,15 @@
           "description": "Participe da discussão no Discord e nos fóruns. Veja conteúdo de fãs, destaques de jogos licenciados e conecte‑se com criadores.",
           "meta": "",
           "tag": "Junte‑se a Nós"
+        },
+        "es": {
+          "name": "Comunidad",
+          "sub": "discord · foros · destacados",
+          "label": "",
+          "title": "Comunidad",
+          "description": "Únete a la conversación en Discord y los foros. Mira contenido de fans, juegos licenciados destacados y conecta con otros creadores.",
+          "meta": "",
+          "tag": "Únete"
         }
       }
     },
@@ -262,6 +433,15 @@
           "description": "Dúvidas gerais, consultas da imprensa ou links diretos para o pedido de licenciamento. Adoraríamos ouvir você.",
           "meta": "",
           "tag": "Entre em Contato"
+        },
+        "es": {
+          "name": "Contacto",
+          "sub": "consultas · prensa",
+          "label": "",
+          "title": "Contacto",
+          "description": "Preguntas generales, consultas de prensa o enlaces directos a la solicitud de licenciamiento. Nos encantaría saber de ti.",
+          "meta": "",
+          "tag": "Ponte en Contacto"
         }
       }
     },
@@ -288,6 +468,15 @@
           "description": "Baixe logos oficiais, artes principais, ficha técnica e assets de mídia para imprensa, criadores e parceiros.",
           "meta": "",
           "tag": "Downloads de Mídia"
+        },
+        "es": {
+          "name": "Kit de Prensa",
+          "sub": "logos · arte · hoja informativa",
+          "label": "",
+          "title": "Kit de Prensa",
+          "description": "Descarga logos oficiales, arte principal, hoja informativa y recursos multimedia para prensa, creadores y socios.",
+          "meta": "",
+          "tag": "Descargas Multimedia"
         }
       }
     },
@@ -313,6 +502,15 @@
           "title": "Página do Blog 1",
           "description": "Esta é a primeira página pública do blog. Ela apresenta o blog, o tom e que tipo de atualizações aparecerão aqui.",
           "meta": "Entrada fixa",
+          "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
           "tag": ""
         }
       }
@@ -340,6 +538,15 @@
           "description": "Um post de registro de desenvolvimento sobre progresso, ferramentas, decisões de design ou o que mais couber no feed pessoal.",
           "meta": "Atualização recente",
           "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
+          "tag": ""
         }
       }
     },
@@ -366,6 +573,15 @@
           "description": "Outro cartão de postagem no feed do blog. Adicione quantos quiser sem misturá‑los ao feed principal.",
           "meta": "Seção independente do blog",
           "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
+          "tag": ""
         }
       }
     },
@@ -391,6 +607,15 @@
           "title": "Página do Blog 4",
           "description": "Post extra visível apenas na página completa do blog. O feed principal mostra apenas o cartão de pré‑visualização.",
           "meta": "Exclusivo da página do blog",
+          "tag": ""
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "[Placeholder]",
+          "title": "[Placeholder]",
+          "description": "[Placeholder]",
+          "meta": "[Placeholder]",
           "tag": ""
         }
       }
