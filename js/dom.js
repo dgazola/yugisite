@@ -1,5 +1,4 @@
 function createMainCardHTML(data) {
-  const uiClass = data.uiMode || 'opaque';
   return `
     <div class="card-art">
       <div class="art-placeholder">
@@ -19,7 +18,6 @@ function createMainCardHTML(data) {
 }
 
 function createBlogCardHTML(data) {
-  const uiClass = data.uiMode || 'opaque';
   return `
     <div class="blog-art">
       <div class="art-placeholder">
@@ -38,7 +36,6 @@ function createBlogCardHTML(data) {
 }
 
 function createDevlogCardHTML(data) {
-  const uiClass = data.uiMode || 'opaque';
   return `
     <div class="devlog-art">
       <div class="art-placeholder">
@@ -47,11 +44,4 @@ function createDevlogCardHTML(data) {
       </div>
     </div>
     <div class="card-overlay">
-      <div class="devlog-name"><h3>${data.title}</h3><span>${data.label}</span></div>
-      <div style="flex:1"></div>
-      <div class="devlog-desc">
-        <p>${data.description}</p>
-        <div class="meta">${data.meta}</div>
-      </div>
-    </div>`;
-}
+      <div class="devlog-name"><h3>
