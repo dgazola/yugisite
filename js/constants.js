@@ -8,8 +8,5 @@ const DEADZONE_Y_FACTOR = 0.15;
 const CURRENT_CARD_WEIGHT = 1.5;
 
 // Axis lock
-const AXIS_LOCK_MIN = 8;             // min pixels to lock an axis
-const AXIS_SWITCH_THRESHOLD = 30;    // perpendicular distance to force axis switch
-
-// Row tolerance for horizontal row‑locking (half row gap + small margin)
-const ROW_TOLERANCE = 24;            // will be adjusted dynamically if needed
+const AXIS_LOCK_MIN = 6;          // px of dominance required to lock an axis
+const AXIS_SWITCH_THRESHOLD = 35; // perpendicular delta needed to force an axis switch
