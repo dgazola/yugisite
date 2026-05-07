@@ -6,31 +6,43 @@ async function loadAllCards() {
 
     let cardsArray = [];
     let settings = {};
+    let menuItems = [];
 
     if (Array.isArray(json)) {
       // Old format – migrate
       cardsArray = json.map(c => migrateCard(c));
       settings = { defaultLanguage: "en", languages: ["en"] };
+      menuItems = [];
     } else if (json && Array.isArray(json.cards)) {
       cardsArray = json.cards.map(c => {
-        // Ensure each card has translations
-        if (!c.translations) {
-          return migrateCard(c);
-        }
+        if (!c.translations) return migrateCard(c);
         return c;
       });
       settings = json.settings || {};
       if (!settings.defaultLanguage) settings.defaultLanguage = "en";
       if (!settings.languages) settings.languages = ["en"];
+      if (!settings.siteTitle) settings.siteTitle = { en: "Life Snake Studio" };
+
+      menuItems = json.menu || [];
+      // Ensure each menu item has translations for all languages
+      menuItems.forEach(item => {
+        if (!item.translations) item.translations = {};
+        settings.languages.forEach(lang => {
+          if (!item.translations[lang]) item.translations[lang] = item.id; // fallback
+        });
+      });
+      // If no menu, create default one from known cards
+      if (menuItems.length === 0) {
+        menuItems = generateDefaultMenu(cardsArray, settings.languages);
+      }
     } else {
       throw new Error('Invalid JSON structure');
     }
 
     state.settings = settings;
-    // Store raw cards for later language switches
     state.rawCards = cardsArray;
+    state.menuItems = menuItems;
 
-    // Determine initial language
     const urlParams = new URLSearchParams(window.location.search);
     let lang = urlParams.get('lang') ||
                localStorage.getItem('preferredLanguage') ||
@@ -41,7 +53,6 @@ async function loadAllCards() {
     state.currentLanguage = lang;
     localStorage.setItem('preferredLanguage', lang);
 
-    // Build localised card arrays
     applyLanguage(lang);
 
   } catch (err) {
@@ -50,15 +61,17 @@ async function loadAllCards() {
     state.devlogCards = [];
     state.blogCards = [];
     state.rawCards = [];
-    state.settings = { defaultLanguage: "en", languages: ["en"] };
+    state.menuItems = [];
+    state.settings = { defaultLanguage: "en", languages: ["en"], siteTitle: { en: "Life Snake Studio" } };
   }
 
-  // Update language selector UI
+  buildMenuHTML();
+  populateLanguageSelector();
+  updateSiteTitle();
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = state.currentLanguage;
 }
 
-// Migrate old flat card to new translation structure
 function migrateCard(card) {
   return {
     column: card.column || "main",
@@ -79,7 +92,6 @@ function migrateCard(card) {
   };
 }
 
-// Apply a language: re‑build main/devlog/blog arrays from rawCards
 function applyLanguage(lang) {
   state.currentLanguage = lang;
   const defaultLang = state.settings.defaultLanguage || 'en';
@@ -112,4 +124,67 @@ function applyLanguage(lang) {
     .filter(c => c.column === 'blog')
     .sort((a, b) => a.order - b.order)
     .map(localise);
+
+  buildMenuHTML();
+  updateSiteTitle();
+}
+
+function generateDefaultMenu(cards, languages) {
+  // Create a default menu from cards that have IDs like home, world, etc.
+  const knownOrder = ['home','world','tcg','engine','licensing','community','contact','presskit','devlog-0','blog-0'];
+  const menu = [];
+  knownOrder.forEach(id => {
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      const entry = { id, translations: {} };
+      languages.forEach(lang => {
+        const trans = card.translations && card.translations[lang]
+          ? card.translations[lang]
+          : (card.translations && card.translations.en ? card.translations.en : {});
+        entry.translations[lang] = trans.name || trans.title || id;
+      });
+      menu.push(entry);
+    }
+  });
+  return menu;
+}
+
+function buildMenuHTML() {
+  const container = document.getElementById('menuLinks');
+  if (!container) return;
+  container.innerHTML = '';
+  state.menuItems.forEach(item => {
+    const label = item.translations[state.currentLanguage] ||
+                  item.translations[state.settings.defaultLanguage] ||
+                  item.id;
+    const a = document.createElement('a');
+    a.setAttribute('data-nav', item.id);
+    a.textContent = label;
+    container.appendChild(a);
+  });
+  // Re-attach event listeners for menu navigation
+  attachMenuEvents();
+}
+
+function updateSiteTitle() {
+  const el = document.getElementById('siteTitle');
+  if (!el) return;
+  const titleObj = state.settings.siteTitle;
+  if (titleObj && typeof titleObj === 'object') {
+    el.textContent = titleObj[state.currentLanguage] || titleObj[state.settings.defaultLanguage] || 'Life Snake Studio';
+  } else {
+    el.textContent = 'Life Snake Studio';
+  }
+}
+
+function populateLanguageSelector() {
+  const sel = document.getElementById('langSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  (state.settings.languages || ['en']).forEach(lang => {
+    const opt = document.createElement('option');
+    opt.value = lang;
+    opt.textContent = lang.toUpperCase();
+    sel.appendChild(opt);
+  });
 }
