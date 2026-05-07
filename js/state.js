@@ -1,5 +1,4 @@
-// js/state.js
-// global mutable state, shared across modules
+// Global mutable state
 const state = {
   allCardEls: [],
   currentCardIndex: 0,
@@ -18,4 +17,7 @@ const state = {
   devlogCards: [],
   blogCards: [],
   landingCardId: "home",
+  currentLanguage: "en",
+  rawCards: [],           // original cards from JSON (with translations)
+  settings: {},           // loaded settings (languages, defaultLanguage, etc.)
 };
