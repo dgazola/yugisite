@@ -19,31 +19,55 @@
 
     <div class="editor-workspace">
       <aside class="editor-sidebar">
-        <div class="column-tabs" id="columnTabs">
-          <button class="tab active" data-column="main">Main</button>
-          <button class="tab" data-column="devlog">Devlog</button>
-          <button class="tab" data-column="blog">Blog</button>
+        <!-- Main tabs: Cards | Menu | Languages -->
+        <div class="main-tabs" id="mainTabs">
+          <button class="tab main-tab active" data-tab="cards">Cards</button>
+          <button class="tab main-tab" data-tab="menu">Menu</button>
+          <button class="tab main-tab" data-tab="languages">Languages</button>
         </div>
 
-        <div class="lang-tabs" id="langTabs">
-          <!-- dynamically filled -->
+        <!-- Cards panel -->
+        <div class="panel" id="panelCards">
+          <div class="column-tabs" id="columnTabs">
+            <button class="tab col-tab active" data-column="main">Main</button>
+            <button class="tab col-tab" data-column="devlog">Devlog</button>
+            <button class="tab col-tab" data-column="blog">Blog</button>
+          </div>
+          <div class="landing-card-section">
+            <h3>Landing Card</h3>
+            <select id="landingCardSelect">
+              <option value="">— None —</option>
+            </select>
+          </div>
+          <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
         </div>
 
-        <div class="landing-card-section">
-          <h3>Landing Card</h3>
-          <select id="landingCardSelect">
-            <option value="">— None —</option>
-          </select>
-          <p class="help-text">First card shown when the site loads.</p>
+        <!-- Menu panel -->
+        <div class="panel" id="panelMenu" style="display:none;">
+          <h3>Menu Items</h3>
+          <p class="help-text">Drag to reorder not yet available; use up/down buttons.</p>
+          <div id="menuList"></div>
+          <button id="addMenuItemBtn" class="btn btn-primary">+ Add Menu Item</button>
         </div>
 
-        <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
+        <!-- Languages panel -->
+        <div class="panel" id="panelLanguages" style="display:none;">
+          <h3>Languages</h3>
+          <div id="langList"></div>
+          <hr>
+          <div class="add-language">
+            <input type="text" id="newLangCode" placeholder="e.g. es, fr" maxlength="5" />
+            <button id="addLanguageBtn" class="btn btn-primary">Add Language</button>
+          </div>
+        </div>
       </aside>
 
       <main class="editor-main">
-        <div id="cardList" class="card-list">
-          <!-- cards rendered here -->
+        <div class="lang-tabs" id="langTabs">
+          <!-- filled by JS -->
         </div>
+        <div id="cardList" class="card-list"></div>
+        <div id="menuEditArea" class="card-list" style="display:none;"></div>
       </main>
     </div>
   </div>
