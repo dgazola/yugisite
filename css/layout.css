@@ -1,4 +1,3 @@
-/* css/layout.css */
 .topbar {
   position: fixed;
   top: 0;
@@ -31,6 +30,22 @@
   letter-spacing: 0.08em;
   font-size: 0.95rem;
   color: var(--bronze-light);
+}
+
+.lang-switcher {
+  margin-left: auto;
+}
+.lang-switcher select {
+  background: transparent;
+  border: 1px solid var(--bronze-light);
+  color: var(--bronze-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.lang-switcher select:hover {
+  border-color: #e8c547;
 }
 
 .side-menu {
@@ -124,19 +139,4 @@
       rgba(60,40,10,0.04) 3px,
       rgba(60,40,10,0.04) 4px);
   background-color: #0a0a06;
-}
-.lang-switcher {
-  margin-left: auto;
-}
-.lang-switcher select {
-  background: transparent;
-  border: 1px solid var(--bronze-light);
-  color: var(--bronze-light);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.lang-switcher select:hover {
-  border-color: #e8c547;
 }
