@@ -76,6 +76,8 @@ function migrateCard(card) {
     type: card.type || card.column || "main",
     id: card.id || "",
     uiMode: card.uiMode || 'opaque',
+    imageUrl: card.imageUrl || null,
+    videoUrl: card.videoUrl || null,
     translations: {
       en: {
         name: card.name || "",
@@ -101,6 +103,8 @@ function applyLanguage(lang) {
     return {
       ...card,
       uiMode: card.uiMode || 'opaque',
+      imageUrl: card.imageUrl || null,
+      videoUrl: card.videoUrl || null,
       name: trans?.name || '',
       sub: trans?.sub || '',
       label: trans?.label || '',
