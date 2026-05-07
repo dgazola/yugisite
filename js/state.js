@@ -1,4 +1,3 @@
-// Global mutable state
 const state = {
   allCardEls: [],
   currentCardIndex: 0,
@@ -18,6 +17,11 @@ const state = {
   blogCards: [],
   landingCardId: "home",
   currentLanguage: "en",
-  rawCards: [],           // original cards from JSON (with translations)
-  settings: {},           // loaded settings (languages, defaultLanguage, etc.)
+  rawCards: [],
+  settings: {
+    defaultLanguage: "en",
+    languages: ["en"],
+    siteTitle: { en: "Life Snake Studio" }
+  },
+  menuItems: []   // { id: "home", translations: { en: "Home", pt: "Início" } }
 };
