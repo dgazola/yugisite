@@ -1,5 +1,3 @@
-// js/snap.js
-// Snapping logic and card selection
 function findClosestCardIndex(dragDx = null, dragDy = null) {
   const viewport = document.getElementById('viewport');
   const vpW = viewport.clientWidth;
@@ -23,7 +21,6 @@ function findClosestCardIndex(dragDx = null, dragDy = null) {
     return state.currentCardIndex;
   }
 
-  // during drag, avoid jumping to outside cards if threshold not crossed
   if (dragDx !== null && dragDy !== null) {
     let minX = Infinity, maxX = -Infinity;
     let minY = Infinity, maxY = -Infinity;
