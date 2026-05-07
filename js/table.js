@@ -43,6 +43,9 @@ async function buildAllCards() {
     const el = document.createElement('article');
     el.className = 'devlog-card';
     el.classList.add(data.uiMode || 'opaque');
+    if (data.imageUrl && data.videoUrl) {
+      el.classList.add('has-both');
+    }
     el.innerHTML = createDevlogCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'devlog');
@@ -60,6 +63,9 @@ async function buildAllCards() {
     const el = document.createElement('article');
     el.className = 'card';
     el.classList.add(data.uiMode || 'opaque');
+    if (data.imageUrl && data.videoUrl) {
+      el.classList.add('has-both');
+    }
     el.innerHTML = createMainCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'main');
@@ -77,6 +83,9 @@ async function buildAllCards() {
     const el = document.createElement('article');
     el.className = 'blog-card';
     el.classList.add(data.uiMode || 'opaque');
+    if (data.imageUrl && data.videoUrl) {
+      el.classList.add('has-both');
+    }
     el.innerHTML = createBlogCardHTML(data);
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'blog');
