@@ -55,11 +55,30 @@ function findClosestCardIndex(dragDx = null, dragDy = null) {
   return bestIdx;
 }
 
+function pauseAllVideos() {
+  state.allCardEls.forEach(card => {
+    const video = card.el.querySelector('video');
+    if (video) video.pause();
+  });
+}
+
+function playVideoOfCard(index) {
+  if (index < 0 || index >= state.allCardEls.length) return;
+  const card = state.allCardEls[index];
+  const video = card.el.querySelector('video');
+  if (video) video.play();
+}
+
 function updateCurrentCard(index) {
+  // Pause all videos first
+  pauseAllVideos();
+
   state.allCardEls.forEach(c => c.el.classList.remove('current'));
   if (index >= 0 && index < state.allCardEls.length) {
     state.currentCardIndex = index;
     state.allCardEls[index].el.classList.add('current');
+    // Play video if present
+    playVideoOfCard(index);
   }
   updateCardOpacities();
 }
