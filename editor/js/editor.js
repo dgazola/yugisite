@@ -32,7 +32,9 @@
   const loadUrlBtn = document.getElementById('loadUrlBtn');
   const loadRepoBtn = document.getElementById('loadRepoBtn');
   const saveBtn = document.getElementById('saveBtn');
+  const uploadRepoBtn = document.getElementById('uploadRepoBtn');
 
+  // ── Helpers ──────────────────────────────────────────
   function generateId() {
     return 'card-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 4);
   }
@@ -414,7 +416,7 @@
     }
   });
 
-  // ── Load JSON helpers ──────────────────────────────────
+  // ── Load JSON helpers ─────────────────────────────────
   function processLoadedJson(json) {
     if (Array.isArray(json)) {
       data = {
@@ -468,7 +470,7 @@
     };
   }
 
-  // ── Load from File ─────────────────────────────────────
+  // ── Load from File ────────────────────────────────────
   loadLocalBtn.addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -488,7 +490,7 @@
     input.click();
   });
 
-  // ── Load from URL ──────────────────────────────────────
+  // ── Load from URL ─────────────────────────────────────
   loadUrlBtn.addEventListener('click', () => {
     const url = prompt('Enter the URL of the JSON file:');
     if (!url) return;
@@ -501,10 +503,10 @@
       .catch(err => alert('Failed to fetch JSON: ' + err.message));
   });
 
-  // ── Load from Repo (pre-filled with default raw URL) ───
+  // ── Load from Repo ────────────────────────────────────
   loadRepoBtn.addEventListener('click', () => {
     const defaultUrl = 'https://raw.githubusercontent.com/dgazola/yugisite/main/mainpagecards.json';
-    const url = prompt('Enter the raw GitHub URL (or other repo URL):', defaultUrl);
+    const url = prompt('Enter the raw GitHub URL:', defaultUrl);
     if (!url) return;
     fetch(url)
       .then(resp => {
@@ -515,7 +517,7 @@
       .catch(err => alert('Failed to fetch JSON: ' + err.message));
   });
 
-  // ── Save / Download ────────────────────────────────────
+  // ── Save / Download ───────────────────────────────────
   saveBtn.addEventListener('click', () => {
     reorderAll();
     data.cards.forEach(c => { if (!c.id) c.id = generateId(); });
@@ -531,7 +533,88 @@
     URL.revokeObjectURL(url);
   });
 
-  // ── Auto‑load from server ──────────────────────────────
+  // ── Upload to Repo (GitHub API) ───────────────────────
+  uploadRepoBtn.addEventListener('click', async () => {
+    // Prepare the JSON
+    reorderAll();
+    data.cards.forEach(c => { if (!c.id) c.id = generateId(); });
+    if (data.settings.landingCardId && !data.cards.find(c => c.id === data.settings.landingCardId))
+      data.settings.landingCardId = "";
+    const jsonContent = JSON.stringify(data, null, 2);
+
+    // Ask for token, owner, repo, branch, path
+    let token = localStorage.getItem('github_token') || '';
+    let repo = localStorage.getItem('github_repo') || 'dgazola/yugisite';
+    let branch = localStorage.getItem('github_branch') || 'main';
+    let path = localStorage.getItem('github_path') || 'mainpagecards.json';
+
+    token = prompt('GitHub Personal Access Token (will be saved locally):', token);
+    if (!token) return;
+    localStorage.setItem('github_token', token);
+
+    repo = prompt('Repository (owner/repo):', repo);
+    if (!repo) return;
+    localStorage.setItem('github_repo', repo);
+
+    branch = prompt('Branch name:', branch);
+    if (!branch) return;
+    localStorage.setItem('github_branch', branch);
+
+    path = prompt('File path in repo:', path);
+    if (!path) return;
+    localStorage.setItem('github_path', path);
+
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+    try {
+      // First try to get the file's SHA (in case it exists)
+      let sha = null;
+      try {
+        const getResp = await fetch(apiUrl, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        if (getResp.ok) {
+          const fileData = await getResp.json();
+          sha = fileData.sha;
+        } else if (getResp.status !== 404) {
+          throw new Error(`GitHub API error: ${getResp.status}`);
+        }
+      } catch (e) {
+        // File might not exist – that's fine
+      }
+
+      // Prepare commit body
+      const commitMessage = prompt('Commit message:', 'Update mainpagecards.json via editor');
+      if (!commitMessage) return;
+
+      const body = {
+        message: commitMessage,
+        content: btoa(unescape(encodeURIComponent(jsonContent))), // base64
+        branch: branch
+      };
+      if (sha) body.sha = sha;
+
+      const putResp = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!putResp.ok) {
+        const err = await putResp.json();
+        throw new Error(err.message || `HTTP ${putResp.status}`);
+      }
+
+      alert('✅ File uploaded successfully to GitHub!');
+    } catch (err) {
+      alert('❌ Upload failed: ' + err.message);
+    }
+  });
+
+  // ── Auto‑load from server ─────────────────────────────
   async function autoLoad() {
     try {
       const resp = await fetch('../mainpagecards.json');
