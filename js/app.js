@@ -20,17 +20,13 @@ async function init() {
   updateCardOpacities();
 }
 
-// Rebuild the whole table for a new language
 async function switchLanguage(lang) {
-  // Store current card id to restore after rebuild
   const currentCard = state.allCardEls[state.currentCardIndex];
   const restoreId = currentCard ? currentCard.id : null;
 
   applyLanguage(lang);
-  // Rebuild DOM
   await buildAllCards();
 
-  // Try to snap back to the same card
   let newIndex = state.allCardEls.findIndex(c => c.id === restoreId);
   if (newIndex < 0) {
     newIndex = state.allCardEls.findIndex(c => c.id === state.landingCardId);
@@ -41,25 +37,22 @@ async function switchLanguage(lang) {
   updateCardOpacities();
 
   localStorage.setItem('preferredLanguage', lang);
+  document.getElementById('langSelect').value = lang;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', debounce(onResize, 200));
 
-  // Language selector
   const langSelect = document.getElementById('langSelect');
-  if (langSelect) {
-    langSelect.addEventListener('change', (e) => {
-      switchLanguage(e.target.value);
-    });
-  }
+  langSelect.addEventListener('change', (e) => {
+    switchLanguage(e.target.value);
+  });
 
   init().then(() => {
-    console.log('🃏 Life Snake Studio – v0.2.0 | Multi‑language');
+    console.log('🃏 Life Snake Studio – v0.2.0 | Multi‑language with dynamic menu');
   });
 });
 
-// Public API (unchanged)
 window.lifeSnakeStudio = {
   navigateTo: function(cardId) {
     const idx = state.allCardEls.findIndex(c => c.id === cardId);
