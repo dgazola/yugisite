@@ -1,6 +1,8 @@
 {
   "settings": {
-    "landingCardId": "home"
+    "landingCardId": "home",
+    "defaultLanguage": "en",
+    "languages": ["en", "pt"]
   },
   "cards": [
     {
@@ -8,195 +10,390 @@
       "order": 0,
       "type": "devlog",
       "id": "devlog-0",
-      "name": "",
-      "sub": "",
-      "label": "Update",
-      "title": "Devlog One",
-      "description": "First devlog. Behind the scenes of building the engine and tools.",
-      "meta": "Latest",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Update",
+          "title": "Devlog One",
+          "description": "First devlog. Behind the scenes of building the engine and tools.",
+          "meta": "Latest",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Atualização",
+          "title": "Devlog Um",
+          "description": "Primeiro devlog. Bastidores da construção do motor e ferramentas.",
+          "meta": "Recente",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "devlog",
       "order": 1,
       "type": "devlog",
       "id": "devlog-1",
-      "name": "",
-      "sub": "",
-      "label": "Progress",
-      "title": "Devlog Two",
-      "description": "Second entry. Challenges with the card game engine and how I overcame them.",
-      "meta": "Ongoing",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Progress",
+          "title": "Devlog Two",
+          "description": "Second entry. Challenges with the card game engine and how I overcame them.",
+          "meta": "Ongoing",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Progresso",
+          "title": "Devlog Dois",
+          "description": "Segunda entrada. Desafios com o motor do jogo de cartas e como os superei.",
+          "meta": "Em andamento",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "devlog",
       "order": 2,
       "type": "devlog",
       "id": "devlog-2",
-      "name": "",
-      "sub": "",
-      "label": "Design",
-      "title": "Devlog Three",
-      "description": "Thoughts on world design, creature balancing, and community feedback.",
-      "meta": "Design notes",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Design",
+          "title": "Devlog Three",
+          "description": "Thoughts on world design, creature balancing, and community feedback.",
+          "meta": "Design notes",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Design",
+          "title": "Devlog Três",
+          "description": "Reflexões sobre design de mundo, balanceamento de criaturas e feedback da comunidade.",
+          "meta": "Notas de design",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "main",
       "order": 0,
       "type": "main",
       "id": "home",
-      "name": "Home",
-      "sub": "Universe entry point",
-      "label": "",
-      "title": "Yugimon Universe",
-      "description": "Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.",
-      "meta": "",
-      "tag": "Start Here"
+      "translations": {
+        "en": {
+          "name": "Home",
+          "sub": "Universe entry point",
+          "label": "",
+          "title": "Yugimon Universe",
+          "description": "Welcome to Life Snake Studio. Explore the world of Yugimon: the lore, the trading card game, and licensing opportunities for indie developers.",
+          "meta": "",
+          "tag": "Start Here"
+        },
+        "pt": {
+          "name": "Início",
+          "sub": "Ponto de entrada do universo",
+          "label": "",
+          "title": "Universo Yugimon",
+          "description": "Bem‑vindo ao Life Snake Studio. Explore o mundo de Yugimon: a história, o jogo de cartas e oportunidades de licenciamento para desenvolvedores independentes.",
+          "meta": "",
+          "tag": "Comece Aqui"
+        }
+      }
     },
     {
       "column": "main",
       "order": 1,
       "type": "main",
       "id": "world",
-      "name": "World",
-      "sub": "lore · creatures · characters",
-      "label": "",
-      "title": "Yugimon World",
-      "description": "Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.",
-      "meta": "",
-      "tag": "Lore & Regions"
+      "translations": {
+        "en": {
+          "name": "World",
+          "sub": "lore · creatures · characters",
+          "label": "",
+          "title": "Yugimon World",
+          "description": "Dive into the lore, explore regions via an interactive map, and browse the creature and character directories.",
+          "meta": "",
+          "tag": "Lore & Regions"
+        },
+        "pt": {
+          "name": "Mundo",
+          "sub": "história · criaturas · personagens",
+          "label": "",
+          "title": "Mundo Yugimon",
+          "description": "Mergulhe na história, explore regiões através de um mapa interativo e navegue pelos diretórios de criaturas e personagens.",
+          "meta": "",
+          "tag": "História e Regiões"
+        }
+      }
     },
     {
       "column": "main",
       "order": 2,
       "type": "main",
       "id": "tcg",
-      "name": "TCG",
-      "sub": "how to play · database · builder",
-      "label": "",
-      "title": "Trading Card Game",
-      "description": "Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.",
-      "meta": "",
-      "tag": "Card Game Hub"
+      "translations": {
+        "en": {
+          "name": "TCG",
+          "sub": "how to play · database · builder",
+          "label": "",
+          "title": "Trading Card Game",
+          "description": "Learn the rules, search the card database, build decks, and explore formats, sets, and strategy guides.",
+          "meta": "",
+          "tag": "Card Game Hub"
+        },
+        "pt": {
+          "name": "TCG",
+          "sub": "como jogar · base de dados · construtor",
+          "label": "",
+          "title": "Jogo de Cartas Colecionáveis",
+          "description": "Aprenda as regras, pesquise o banco de cartas, construa decks e explore formatos, coleções e guias de estratégia.",
+          "meta": "",
+          "tag": "Central do Jogo"
+        }
+      }
     },
     {
       "column": "main",
       "order": 3,
       "type": "main",
       "id": "engine",
-      "name": "Engine & Devkit",
-      "sub": "YugiCore SDK",
-      "label": "",
-      "title": "Engine & Devkit",
-      "description": "The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.",
-      "meta": "",
-      "tag": "Custom Toolset"
+      "translations": {
+        "en": {
+          "name": "Engine & Devkit",
+          "sub": "YugiCore SDK",
+          "label": "",
+          "title": "Engine & Devkit",
+          "description": "The custom toolset I built to make games faster. Currently a Unity asset, later its own engine layer on Stride.",
+          "meta": "",
+          "tag": "Custom Toolset"
+        },
+        "pt": {
+          "name": "Motor e Kit Dev",
+          "sub": "SDK YugiCore",
+          "label": "",
+          "title": "Motor e Kit de Desenvolvimento",
+          "description": "O conjunto de ferramentas personalizado que criei para acelerar o desenvolvimento de jogos. Atualmente um asset Unity, futuramente uma camada própria de engine sobre Stride.",
+          "meta": "",
+          "tag": "Ferramentas Personalizadas"
+        }
+      }
     },
     {
       "column": "main",
       "order": 4,
       "type": "main",
       "id": "licensing",
-      "name": "Licensing",
-      "sub": "for indies · assets · pricing",
-      "label": "",
-      "title": "Licensing",
-      "description": "License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.",
-      "meta": "",
-      "tag": "For Indies"
+      "translations": {
+        "en": {
+          "name": "Licensing",
+          "sub": "for indies · assets · pricing",
+          "label": "",
+          "title": "Licensing",
+          "description": "License the Yugimon IP. Browse the asset catalog, compare pricing tiers, and apply to use official assets.",
+          "meta": "",
+          "tag": "For Indies"
+        },
+        "pt": {
+          "name": "Licenciamento",
+          "sub": "para indies · assets · preços",
+          "label": "",
+          "title": "Licenciamento",
+          "description": "Licencie a propriedade intelectual de Yugimon. Navegue pelo catálogo de assets, compare planos de preços e solicite o uso de assets oficiais.",
+          "meta": "",
+          "tag": "Para Indies"
+        }
+      }
     },
     {
       "column": "main",
       "order": 5,
       "type": "main",
       "id": "community",
-      "name": "Community",
-      "sub": "discord · forums · showcases",
-      "label": "",
-      "title": "Community",
-      "description": "Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.",
-      "meta": "",
-      "tag": "Join Us"
+      "translations": {
+        "en": {
+          "name": "Community",
+          "sub": "discord · forums · showcases",
+          "label": "",
+          "title": "Community",
+          "description": "Join the discussion on Discord and forums. See fan content, licensed game spotlights, and connect with creators.",
+          "meta": "",
+          "tag": "Join Us"
+        },
+        "pt": {
+          "name": "Comunidade",
+          "sub": "discord · fóruns · mostras",
+          "label": "",
+          "title": "Comunidade",
+          "description": "Participe da discussão no Discord e nos fóruns. Veja conteúdo de fãs, destaques de jogos licenciados e conecte‑se com criadores.",
+          "meta": "",
+          "tag": "Junte‑se a Nós"
+        }
+      }
     },
     {
       "column": "main",
       "order": 6,
       "type": "main",
       "id": "contact",
-      "name": "Contact",
-      "sub": "inquiries · press",
-      "label": "",
-      "title": "Contact",
-      "description": "General questions, press inquiries, or direct links to the licensing application. We'd love to hear from you.",
-      "meta": "",
-      "tag": "Get in Touch"
+      "translations": {
+        "en": {
+          "name": "Contact",
+          "sub": "inquiries · press",
+          "label": "",
+          "title": "Contact",
+          "description": "General questions, press inquiries, or direct links to the licensing application. We'd love to hear from you.",
+          "meta": "",
+          "tag": "Get in Touch"
+        },
+        "pt": {
+          "name": "Contato",
+          "sub": "consultas · imprensa",
+          "label": "",
+          "title": "Contato",
+          "description": "Dúvidas gerais, consultas da imprensa ou links diretos para o pedido de licenciamento. Adoraríamos ouvir você.",
+          "meta": "",
+          "tag": "Entre em Contato"
+        }
+      }
     },
     {
       "column": "main",
       "order": 7,
       "type": "main",
       "id": "presskit",
-      "name": "Press Kit",
-      "sub": "logos · art · fact sheet",
-      "label": "",
-      "title": "Press Kit",
-      "description": "Download official logos, key art, fact sheet, and media assets for press, creators, and partners.",
-      "meta": "",
-      "tag": "Media Downloads"
+      "translations": {
+        "en": {
+          "name": "Press Kit",
+          "sub": "logos · art · fact sheet",
+          "label": "",
+          "title": "Press Kit",
+          "description": "Download official logos, key art, fact sheet, and media assets for press, creators, and partners.",
+          "meta": "",
+          "tag": "Media Downloads"
+        },
+        "pt": {
+          "name": "Kit de Imprensa",
+          "sub": "logos · arte · ficha técnica",
+          "label": "",
+          "title": "Kit de Imprensa",
+          "description": "Baixe logos oficiais, artes principais, ficha técnica e assets de mídia para imprensa, criadores e parceiros.",
+          "meta": "",
+          "tag": "Downloads de Mídia"
+        }
+      }
     },
     {
       "column": "blog",
       "order": 0,
       "type": "blog",
       "id": "blog-0",
-      "name": "",
-      "sub": "",
-      "label": "Intro",
-      "title": "Blog Page 1",
-      "description": "This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.",
-      "meta": "Pinned entry",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Intro",
+          "title": "Blog Page 1",
+          "description": "This is the first public blog page. It introduces the blog, the tone, and what kind of updates will appear here.",
+          "meta": "Pinned entry",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Introdução",
+          "title": "Página do Blog 1",
+          "description": "Esta é a primeira página pública do blog. Ela apresenta o blog, o tom e que tipo de atualizações aparecerão aqui.",
+          "meta": "Entrada fixa",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "blog",
       "order": 1,
       "type": "blog",
       "id": "blog-1",
-      "name": "",
-      "sub": "",
-      "label": "Dev log",
-      "title": "Blog Page 2",
-      "description": "A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.",
-      "meta": "Recent update",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Dev log",
+          "title": "Blog Page 2",
+          "description": "A dev log post about progress, tools, design decisions, or whatever else belongs in the personal feed.",
+          "meta": "Recent update",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Registro de dev",
+          "title": "Página do Blog 2",
+          "description": "Um post de registro de desenvolvimento sobre progresso, ferramentas, decisões de design ou o que mais couber no feed pessoal.",
+          "meta": "Atualização recente",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "blog",
       "order": 2,
       "type": "blog",
       "id": "blog-2",
-      "name": "",
-      "sub": "",
-      "label": "Notes",
-      "title": "Blog Page 3",
-      "description": "Another post card in the blog feed. Add as many as you want without mixing them into the main feed.",
-      "meta": "Independent blog section",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Notes",
+          "title": "Blog Page 3",
+          "description": "Another post card in the blog feed. Add as many as you want without mixing them into the main feed.",
+          "meta": "Independent blog section",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Notas",
+          "title": "Página do Blog 3",
+          "description": "Outro cartão de postagem no feed do blog. Adicione quantos quiser sem misturá‑los ao feed principal.",
+          "meta": "Seção independente do blog",
+          "tag": ""
+        }
+      }
     },
     {
       "column": "blog",
       "order": 3,
       "type": "blog",
       "id": "blog-3",
-      "name": "",
-      "sub": "",
-      "label": "Update",
-      "title": "Blog Page 4",
-      "description": "Extra post only visible on the full blog page. The main feed only shows the preview card.",
-      "meta": "Exclusive to blog page",
-      "tag": ""
+      "translations": {
+        "en": {
+          "name": "",
+          "sub": "",
+          "label": "Update",
+          "title": "Blog Page 4",
+          "description": "Extra post only visible on the full blog page. The main feed only shows the preview card.",
+          "meta": "Exclusive to blog page",
+          "tag": ""
+        },
+        "pt": {
+          "name": "",
+          "sub": "",
+          "label": "Atualização",
+          "title": "Página do Blog 4",
+          "description": "Post extra visível apenas na página completa do blog. O feed principal mostra apenas o cartão de pré‑visualização.",
+          "meta": "Exclusivo da página do blog",
+          "tag": ""
+        }
+      }
     }
   ]
 }
