@@ -105,6 +105,81 @@
   z-index: 3;
 }
 
+/* ── Image & Video ──────────────────────────────────── */
+.card-art img,
+.card-art video,
+.blog-art img,
+.blog-art video,
+.devlog-art img,
+.devlog-art video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.card-image { display: block; }
+.card-video { display: none; }
+
+/* When current card: show video, hide image (if video exists) */
+.card.current .card-video,
+.blog-card.current .card-video,
+.devlog-card.current .card-video {
+  display: block;
+}
+.card.current .card-image,
+.blog-card.current .card-image,
+.devlog-card.current .card-image {
+  display: none;
+}
+
+/* Placeholder (when no media) */
+.art-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+.art-placeholder .play-circle {
+  width: 52px; height: 52px;
+  border: 2px solid rgba(212,160,23,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.art-placeholder .play-circle::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 15px solid rgba(212,160,23,0.8);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  margin-left: 4px;
+}
+.art-placeholder .placeholder-text {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: rgba(196,184,150,0.55);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.blog-art .art-placeholder .play-circle,
+.devlog-art .art-placeholder .play-circle {
+  width: 44px; height: 44px;
+  border-color: rgba(180,140,20,0.55);
+}
+.blog-art .art-placeholder .play-circle::after,
+.devlog-art .art-placeholder .play-circle::after {
+  border-left: 12px solid rgba(180,140,20,0.65);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
 /* ── Overlay container ──────────────────────────────── */
 .card-overlay {
   position: relative;
@@ -227,51 +302,6 @@
   border-radius: 999px;
   white-space: nowrap;
   text-transform: none;
-}
-
-/* ── Art placeholder ────────────────────────────────── */
-.art-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  z-index: 2;
-  pointer-events: none;
-}
-.art-placeholder .play-circle {
-  width: 52px; height: 52px;
-  border: 2px solid rgba(212,160,23,0.7);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.art-placeholder .play-circle::after {
-  content: '';
-  width: 0; height: 0;
-  border-left: 15px solid rgba(212,160,23,0.8);
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  margin-left: 4px;
-}
-.art-placeholder .placeholder-text {
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  color: rgba(196,184,150,0.55);
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-.blog-art .art-placeholder .play-circle,
-.devlog-art .art-placeholder .play-circle {
-  width: 44px; height: 44px;
-  border-color: rgba(180,140,20,0.55);
-}
-.blog-art .art-placeholder .play-circle::after,
-.devlog-art .art-placeholder .play-circle::after {
-  border-left: 12px solid rgba(180,140,20,0.65);
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
 }
 
 /* ── Art title ──────────────────────────────────────── */
