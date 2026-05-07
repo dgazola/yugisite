@@ -18,12 +18,15 @@
     </header>
 
     <div class="editor-workspace">
-      <!-- Sidebar: column tabs + landing card -->
       <aside class="editor-sidebar">
         <div class="column-tabs" id="columnTabs">
           <button class="tab active" data-column="main">Main</button>
           <button class="tab" data-column="devlog">Devlog</button>
           <button class="tab" data-column="blog">Blog</button>
+        </div>
+
+        <div class="lang-tabs" id="langTabs">
+          <!-- dynamically filled -->
         </div>
 
         <div class="landing-card-section">
@@ -37,7 +40,6 @@
         <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
       </aside>
 
-      <!-- Main area: card list -->
       <main class="editor-main">
         <div id="cardList" class="card-list">
           <!-- cards rendered here -->
