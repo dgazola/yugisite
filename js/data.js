@@ -9,7 +9,6 @@ async function loadAllCards() {
     let menuItems = [];
 
     if (Array.isArray(json)) {
-      // Old format – migrate
       cardsArray = json.map(c => migrateCard(c));
       settings = { defaultLanguage: "en", languages: ["en"] };
       menuItems = [];
@@ -24,14 +23,12 @@ async function loadAllCards() {
       if (!settings.siteTitle) settings.siteTitle = { en: "Life Snake Studio" };
 
       menuItems = json.menu || [];
-      // Ensure each menu item has translations for all languages
       menuItems.forEach(item => {
         if (!item.translations) item.translations = {};
         settings.languages.forEach(lang => {
-          if (!item.translations[lang]) item.translations[lang] = item.id; // fallback
+          if (!item.translations[lang]) item.translations[lang] = item.id;
         });
       });
-      // If no menu, create default one from known cards
       if (menuItems.length === 0) {
         menuItems = generateDefaultMenu(cardsArray, settings.languages);
       }
@@ -78,6 +75,7 @@ function migrateCard(card) {
     order: card.order || 0,
     type: card.type || card.column || "main",
     id: card.id || "",
+    uiMode: card.uiMode || 'opaque',
     translations: {
       en: {
         name: card.name || "",
@@ -102,6 +100,7 @@ function applyLanguage(lang) {
       : (card.translations && card.translations[defaultLang] ? card.translations[defaultLang] : null);
     return {
       ...card,
+      uiMode: card.uiMode || 'opaque',
       name: trans?.name || '',
       sub: trans?.sub || '',
       label: trans?.label || '',
@@ -130,7 +129,6 @@ function applyLanguage(lang) {
 }
 
 function generateDefaultMenu(cards, languages) {
-  // Create a default menu from cards that have IDs like home, world, etc.
   const knownOrder = ['home','world','tcg','engine','licensing','community','contact','presskit','devlog-0','blog-0'];
   const menu = [];
   knownOrder.forEach(id => {
@@ -162,7 +160,6 @@ function buildMenuHTML() {
     a.textContent = label;
     container.appendChild(a);
   });
-  // Re-attach event listeners for menu navigation
   attachMenuEvents();
 }
 
