@@ -21,6 +21,71 @@ function findCardAtPoint(clientX, clientY) {
   return -1;
 }
 
+// ── HELPERS ─────────────────────────────────────────────
+function getColumnCenter(column) {
+  const padX = getTablePaddingX();
+  const cardW = getCardWidth();
+  const colGap = getColumnGap();
+  if (column === 'devlog') return padX + cardW / 2;
+  if (column === 'blog')   return padX + 2 * cardW + 2 * colGap + cardW / 2;
+  return padX + cardW + colGap + cardW / 2; // main
+}
+
+// Snap to the nearest card in the same column (vertical lock)
+function snapToNearestInColumn() {
+  const viewport = document.getElementById('viewport');
+  const vpH = viewport.clientHeight;
+  const targetY = vpH / 2 - state.tableTy;   // world Y we should be looking at
+
+  const columnCards = state.allCardEls.filter(c => c.el.getAttribute('data-column') === state.dragStartCard.column);
+  if (columnCards.length === 0) return;
+
+  let best = null;
+  let bestDist = Infinity;
+  columnCards.forEach(card => {
+    const dist = Math.abs(card.centerY - targetY);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = card;
+    }
+  });
+  if (best) {
+    const idx = state.allCardEls.indexOf(best);
+    if (idx >= 0) snapToCard(idx, true);
+  }
+}
+
+// Snap to the nearest card in the same row (horizontal lock)
+function snapToNearestInRow() {
+  const viewport = document.getElementById('viewport');
+  const vpW = viewport.clientWidth;
+  const targetX = vpW / 2 - state.tableTx;   // world X we should be looking at
+  const rowY = state.dragStartCard.centerY;   // fixed row Y
+
+  const rowTolerance = ROW_TOLERANCE + getRowGap() / 2;
+  const candidates = state.allCardEls.filter(card => {
+    return Math.abs(card.centerY - rowY) <= rowTolerance;
+  });
+
+  if (candidates.length === 0) return;
+
+  let best = null;
+  let bestDist = Infinity;
+  candidates.forEach(card => {
+    const dist = Math.abs(card.centerX - targetX);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = card;
+    }
+  });
+
+  if (best) {
+    const idx = state.allCardEls.indexOf(best);
+    if (idx >= 0) snapToCard(idx, true);
+  }
+}
+
+// ── POINTER HANDLERS ────────────────────────────────────
 function onPointerDown(e) {
   const menu = document.getElementById('menu');
   if (menu.classList.contains('active')) return;
@@ -39,6 +104,12 @@ function onPointerDown(e) {
   state.pointerMoved = false;
   state.isDragging = true;
   state.isSnapping = false;
+
+  // Remember which card we're on
+  state.dragStartCard = state.allCardEls[state.currentCardIndex] || null;
+  if (state.dragStartCard) {
+    state.columnCenterX = getColumnCenter(state.dragStartCard.column);
+  }
 
   // Reset axis lock
   state.dragLockedAxis = null;
@@ -73,8 +144,8 @@ function onPointerMove(e) {
   const absDx = Math.abs(dx);
   const absDy = Math.abs(dy);
 
+  // Axis lock decision
   if (!state.dragLockedAxis) {
-    // Decide axis after minimum movement
     if (absDx > AXIS_LOCK_MIN && absDx > absDy + AXIS_LOCK_MIN) {
       state.dragLockedAxis = 'x';
       state.lockStartX = pos.x;
@@ -88,46 +159,62 @@ function onPointerMove(e) {
       state.lockStartTx = state.tableTx;
       state.lockStartTy = state.tableTy;
     } else {
-      // Free movement before lock
+      // Not enough movement to lock yet – free move (but only small, won't matter)
       setTableTransform(state.tableStartTx + dx, state.tableStartTy + dy);
     }
     return;
   }
 
-  // We have a lock – compute delta from lock start
+  // Axis switch check
   const lockDx = pos.x - state.lockStartX;
   const lockDy = pos.y - state.lockStartY;
 
-  if (state.dragLockedAxis === 'x') {
-    // Check for switch to vertical
-    if (Math.abs(lockDy) > AXIS_SWITCH_THRESHOLD) {
-      // Switch to y-axis, resetting lock start to current position
-      state.dragLockedAxis = 'y';
-      state.lockStartX = pos.x;
-      state.lockStartY = pos.y;
-      state.lockStartTx = state.tableTx;
-      state.lockStartTy = state.tableTy;
-      // No movement on this frame for the old axis
-      return;
-    }
-    setTableTransform(state.lockStartTx + lockDx, state.lockStartTy);
-  } else if (state.dragLockedAxis === 'y') {
-    if (Math.abs(lockDx) > AXIS_SWITCH_THRESHOLD) {
-      state.dragLockedAxis = 'x';
-      state.lockStartX = pos.x;
-      state.lockStartY = pos.y;
-      state.lockStartTx = state.tableTx;
-      state.lockStartTy = state.tableTy;
-      return;
-    }
-    setTableTransform(state.lockStartTx, state.lockStartTy + lockDy);
+  if (state.dragLockedAxis === 'x' && Math.abs(lockDy) > AXIS_SWITCH_THRESHOLD) {
+    // Switch to vertical
+    state.dragLockedAxis = 'y';
+    state.lockStartX = pos.x;
+    state.lockStartY = pos.y;
+    state.lockStartTx = state.tableTx;
+    state.lockStartTy = state.tableTy;
+    return; // no movement this frame
+  }
+  if (state.dragLockedAxis === 'y' && Math.abs(lockDx) > AXIS_SWITCH_THRESHOLD) {
+    // Switch to horizontal
+    state.dragLockedAxis = 'x';
+    state.lockStartX = pos.x;
+    state.lockStartY = pos.y;
+    state.lockStartTx = state.tableTx;
+    state.lockStartTy = state.tableTy;
+    return;
+  }
+
+  // ── Grid‑locked movement ─────────────────────────────
+  const viewport = document.getElementById('viewport');
+  const vpW = viewport.clientWidth;
+  const vpH = viewport.clientHeight;
+
+  if (state.dragLockedAxis === 'y' && state.dragStartCard) {
+    // Lock horizontal to current column center
+    const newTx = vpW / 2 - state.columnCenterX;
+    const newTy = state.lockStartTy + lockDy;
+    setTableTransform(newTx, newTy);
+  } else if (state.dragLockedAxis === 'x' && state.dragStartCard) {
+    // Lock vertical to current row (startCard.centerY)
+    const rowY = state.dragStartCard.centerY;
+    const newTy = vpH / 2 - rowY;
+    const newTx = state.lockStartTx + lockDx;
+    setTableTransform(newTx, newTy);
+  } else {
+    // Fallback (no start card) – free movement
+    const newTx = state.lockStartTx + lockDx;
+    const newTy = state.lockStartTy + lockDy;
+    setTableTransform(newTx, newTy);
   }
 }
 
 function onPointerUp(e) {
   if (!state.isDragging) return;
   state.isDragging = false;
-  state.dragLockedAxis = null;
 
   const viewport = document.getElementById('viewport');
   const tableSurface = document.getElementById('tableSurface');
@@ -135,25 +222,40 @@ function onPointerUp(e) {
   tableSurface.classList.remove('dragging');
   viewport.releasePointerCapture(e.pointerId);
 
+  // If the user didn't really move, treat as a tap
   if (!state.pointerMoved) {
     const pos = getEventPos(e);
     const clickedIndex = findCardAtPoint(pos.x, pos.y);
     if (clickedIndex !== -1) {
       snapToCard(clickedIndex, true);
+      state.dragLockedAxis = null;
+      state.dragStartCard = null;
       return;
     }
   }
 
-  const pos = getEventPos(e);
-  const dragDx = pos.x - state.pointerStartX;
-  const dragDy = pos.y - state.pointerStartY;
-  snapToCard(findClosestCardIndex(dragDx, dragDy), true);
+  // Snap based on locked axis
+  if (state.dragLockedAxis === 'y') {
+    snapToNearestInColumn();
+  } else if (state.dragLockedAxis === 'x') {
+    snapToNearestInRow();
+  } else {
+    // No axis lock – fallback to free snap
+    const pos = getEventPos(e);
+    const dragDx = pos.x - state.pointerStartX;
+    const dragDy = pos.y - state.pointerStartY;
+    snapToCard(findClosestCardIndex(dragDx, dragDy), true);
+  }
+
+  state.dragLockedAxis = null;
+  state.dragStartCard = null;
 }
 
 function onPointerCancel(e) {
   if (!state.isDragging) return;
   state.isDragging = false;
   state.dragLockedAxis = null;
+  state.dragStartCard = null;
   const viewport = document.getElementById('viewport');
   const tableSurface = document.getElementById('tableSurface');
   viewport.classList.remove('grabbing');
@@ -161,6 +263,7 @@ function onPointerCancel(e) {
   snapToCard(findClosestCardIndex(null, null), true);
 }
 
+// Wheel and keyboard remain unchanged
 function onWheel(e) {
   const menu = document.getElementById('menu');
   if (menu.classList.contains('active')) return;
@@ -239,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.isDragging) {
       state.isDragging = false;
       state.dragLockedAxis = null;
+      state.dragStartCard = null;
       viewport.classList.remove('grabbing');
       document.getElementById('tableSurface').classList.remove('dragging');
       snapToCard(findClosestCardIndex(null, null), true);
