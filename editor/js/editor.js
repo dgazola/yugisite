@@ -135,7 +135,7 @@
           <input type="text" class="field-imageurl" value="${escapeHtml(card.imageUrl || '')}" />
         </div>
         <div class="form-group" style="margin-bottom:8px;">
-          <label>Video URL</label>
+          <label>WebM Video URL</label>
           <input type="text" class="field-videourl" value="${escapeHtml(card.videoUrl || '')}" />
         </div>
         <div class="card-editor-grid">
