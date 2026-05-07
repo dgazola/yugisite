@@ -11,7 +11,6 @@ function attachMenuEvents() {
   });
 }
 
-// toggleMenu is now defined here (moved from old file)
 function toggleMenu() {
   const menu = document.getElementById('menu');
   const overlay = document.getElementById('overlay');
