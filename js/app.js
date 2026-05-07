@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   init().then(() => {
-    console.log('🃏 Life Snake Studio – v0.2.0 | Multi‑language with dynamic menu');
+    console.log('🃏 Life Snake Studio – v0.2.0');
   });
 });
 
