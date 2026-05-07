@@ -18,10 +18,13 @@ const state = {
   landingCardId: "home",
   currentLanguage: "en",
   rawCards: [],
-  settings: {
-    defaultLanguage: "en",
-    languages: ["en"],
-    siteTitle: { en: "Life Snake Studio" }
-  },
-  menuItems: []   // { id: "home", translations: { en: "Home", pt: "Início" } }
+  settings: {},
+  menuItems: [],
+
+  // Axis lock
+  dragLockedAxis: null,          // 'x' | 'y' | null
+  lockStartX: 0,                // pointer position when current lock started
+  lockStartY: 0,
+  lockStartTx: 0,               // table position when lock started
+  lockStartTy: 0,
 };
