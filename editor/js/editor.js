@@ -505,7 +505,7 @@
 
   // ── Load from Repo ────────────────────────────────────
   loadRepoBtn.addEventListener('click', () => {
-    const defaultUrl = 'https://raw.githubusercontent.com/dgazola/yugisite/main/mainpagecards.json';
+    const defaultUrl = 'https://raw.githubusercontent.com/dgazola/yugisite/main/Content/mainpagecards.json';
     const url = prompt('Enter the raw GitHub URL:', defaultUrl);
     if (!url) return;
     fetch(url)
@@ -535,18 +535,16 @@
 
   // ── Upload to Repo (GitHub API) ───────────────────────
   uploadRepoBtn.addEventListener('click', async () => {
-    // Prepare the JSON
     reorderAll();
     data.cards.forEach(c => { if (!c.id) c.id = generateId(); });
     if (data.settings.landingCardId && !data.cards.find(c => c.id === data.settings.landingCardId))
       data.settings.landingCardId = "";
     const jsonContent = JSON.stringify(data, null, 2);
 
-    // Ask for token, owner, repo, branch, path
     let token = localStorage.getItem('github_token') || '';
     let repo = localStorage.getItem('github_repo') || 'dgazola/yugisite';
     let branch = localStorage.getItem('github_branch') || 'main';
-    let path = localStorage.getItem('github_path') || 'mainpagecards.json';
+    let path = localStorage.getItem('github_path') || 'Content/mainpagecards.json';
 
     token = prompt('GitHub Personal Access Token (will be saved locally):', token);
     if (!token) return;
@@ -567,7 +565,6 @@
     const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
 
     try {
-      // First try to get the file's SHA (in case it exists)
       let sha = null;
       try {
         const getResp = await fetch(apiUrl, {
@@ -579,17 +576,14 @@
         } else if (getResp.status !== 404) {
           throw new Error(`GitHub API error: ${getResp.status}`);
         }
-      } catch (e) {
-        // File might not exist – that's fine
-      }
+      } catch (e) { /* file might not exist */ }
 
-      // Prepare commit body
       const commitMessage = prompt('Commit message:', 'Update mainpagecards.json via editor');
       if (!commitMessage) return;
 
       const body = {
         message: commitMessage,
-        content: btoa(unescape(encodeURIComponent(jsonContent))), // base64
+        content: btoa(unescape(encodeURIComponent(jsonContent))),
         branch: branch
       };
       if (sha) body.sha = sha;
@@ -617,7 +611,7 @@
   // ── Auto‑load from server ─────────────────────────────
   async function autoLoad() {
     try {
-      const resp = await fetch('../mainpagecards.json');
+      const resp = await fetch('../Content/mainpagecards.json');
       if (!resp.ok) throw new Error('Not found');
       const json = await resp.json();
       processLoadedJson(json);
