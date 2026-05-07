@@ -123,17 +123,29 @@
 .card-image { display: block; }
 .card-video { display: none; }
 
-/* When current card: show video, hide image (if video exists) */
-.card.current .card-video,
-.blog-card.current .card-video,
-.devlog-card.current .card-video {
+/* When only video: show it always */
+.card:not(.has-both) .card-video {
   display: block;
 }
-.card.current .card-image,
-.blog-card.current .card-image,
-.devlog-card.current .card-image {
-  display: none;
-}
+
+/* When both image and video: default show image, hide video */
+.card.has-both .card-image { display: block; }
+.card.has-both .card-video { display: none; }
+
+/* When current card with both: hide image, show video */
+.card.has-both.current .card-image { display: none; }
+.card.has-both.current .card-video { display: block; }
+
+/* Same rules for blog and devlog cards */
+.blog-card.has-both .card-image { display: block; }
+.blog-card.has-both .card-video { display: none; }
+.blog-card.has-both.current .card-image { display: none; }
+.blog-card.has-both.current .card-video { display: block; }
+
+.devlog-card.has-both .card-image { display: block; }
+.devlog-card.has-both .card-video { display: none; }
+.devlog-card.has-both.current .card-image { display: none; }
+.devlog-card.has-both.current .card-video { display: block; }
 
 /* Placeholder (when no media) */
 .art-placeholder {
