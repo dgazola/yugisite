@@ -108,6 +108,26 @@ function onPointerUp(e) {
     const pos = getEventPos(e);
     const clickedIndex = findCardAtPoint(pos.x, pos.y);
     if (clickedIndex !== -1) {
+      const card = state.allCardEls[clickedIndex];
+      // Navigation based on card type
+      if (card.column === 'blog' || card.column === 'devlog') {
+        window.location.href = `article.html?type=${card.column}&id=${card.id}`;
+        return;
+      }
+      if (card.column === 'main') {
+        // Use the link from the localised card data
+        const cardData = card.el._cardData; // we need a way to get the data
+        // We'll store card data on the element in table.js
+        const link = cardData?.link;
+        if (link) {
+          window.open(link, '_blank');
+          return;
+        }
+        // Fallback: snap to card
+        snapToCard(clickedIndex, true);
+        return;
+      }
+      // Other types – snap
       snapToCard(clickedIndex, true);
       return;
     }

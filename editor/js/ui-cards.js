@@ -1,15 +1,11 @@
-// Card list rendering and manipulation
-
 function editorRefreshLandingSelect() {
   const landingSelect = document.getElementById('landingCardSelect');
   const currentValue = landingSelect.value;
   landingSelect.innerHTML = '<option value="">— None —</option>';
   window.editorData.cards.forEach(card => {
-    const trans = card.translations && card.translations[window.editorState.currentLang]
-                  ? card.translations[window.editorState.currentLang]
-                  : (card.translations && card.translations[window.editorData.settings.defaultLanguage]
-                    ? card.translations[window.editorData.settings.defaultLanguage] : {title:''});
-    const label = `${card.column}: ${trans.title || '(untitled)'}`;
+    // For the dropdown we show the English title (or first language)
+    const trans = card.translations['en'] || Object.values(card.translations)[0] || {};
+    const label = `${trans.title || '(untitled)'}`;
     landingSelect.innerHTML += `<option value="${card.id}">${label}</option>`;
   });
   if (window.editorData.cards.find(c => c.id === currentValue)) {
@@ -21,21 +17,26 @@ function editorRefreshLandingSelect() {
 
 function editorRenderCardList() {
   const cardList = document.getElementById('cardList');
-  const cards = window.editorData.cards.filter(c => c.column === window.editorState.currentColumn);
+  const cards = window.editorData.cards.filter(c => c.column === 'main');
+  const langs = editorGetLanguages();
   cardList.innerHTML = '';
   if (cards.length === 0) {
-    cardList.innerHTML = `<div style="text-align:center; padding:40px; color:#5c5430;">No cards in this column. Click "+ Add Card" to create one.</div>`;
+    cardList.innerHTML = `<div style="text-align:center; padding:40px; color:#5c5430;">No main cards. Click "+ Add Main Card" to create one.</div>`;
     return;
   }
   cards.forEach((card, idx) => {
-    card.translations = editorEnsureTranslations(card.translations, window.editorData.settings.languages);
-    const t = card.translations[window.editorState.currentLang] || card.translations[window.editorData.settings.defaultLanguage] || {};
+    // ensure translations exist for each language
+    langs.forEach(lang => {
+      if (!card.translations) card.translations = {};
+      if (!card.translations[lang]) card.translations[lang] = {};
+    });
+
     const el = document.createElement('div');
     el.className = 'card-editor';
     el.setAttribute('data-card-id', card.id);
     el.innerHTML = `
       <div class="card-editor-header">
-        <h4>Card #${idx+1} <span style="font-size:0.7rem;color:var(--editor-muted)">(${window.editorState.currentLang.toUpperCase()})</span></h4>
+        <h4>Main Card #${idx+1}</h4>
         <span class="card-id">${card.id}</span>
         <div style="display:flex; gap:4px;">
           <button class="btn-icon move-up" title="Move Up">▲</button>
@@ -58,54 +59,93 @@ function editorRenderCardList() {
         <label>WebM Video URL</label>
         <input type="text" class="field-videourl" value="${editorEscapeHtml(card.videoUrl || '')}" />
       </div>
+      <div class="form-group" style="margin-bottom:8px;">
+        <label>Link URL <span style="font-weight:normal;font-size:0.7rem;">(shared across languages)</span></label>
+        <input type="text" class="field-link" value="${editorEscapeHtml(card.link || '')}" />
+      </div>
       <div class="card-editor-grid">
-        <div class="form-group full-width"><label>Title</label><input type="text" class="field-title" value="${editorEscapeHtml(t.title||'')}"></div>
-        <div class="form-group full-width"><label>Description</label><textarea class="field-desc" rows="3">${editorEscapeHtml(t.description||'')}</textarea></div>
-        ${card.column === 'main' ? `
-          <div class="form-group"><label>Name</label><input type="text" class="field-name" value="${editorEscapeHtml(t.name||'')}"></div>
-          <div class="form-group"><label>Subtitle</label><input type="text" class="field-sub" value="${editorEscapeHtml(t.sub||'')}"></div>
-          <div class="form-group full-width"><label>Tag</label><input type="text" class="field-tag" value="${editorEscapeHtml(t.tag||'')}"></div>
-        ` : `
-          <div class="form-group"><label>Label</label><input type="text" class="field-label" value="${editorEscapeHtml(t.label||'')}"></div>
-          <div class="form-group"><label>Meta</label><input type="text" class="field-meta" value="${editorEscapeHtml(t.meta||'')}"></div>
-        `}
+        ${ generateMultiLangField('Title', 'title', card, langs).outerHTML }
+        ${ generateMultiLangField('Description', 'description', card, langs, true).outerHTML }
+        ${ generateMultiLangField('Name', 'name', card, langs).outerHTML }
+        ${ generateMultiLangField('Subtitle', 'sub', card, langs).outerHTML }
+        ${ generateMultiLangField('Tag', 'tag', card, langs).outerHTML }
       </div>`;
 
-    el.querySelector('.remove-card').addEventListener('click', () => editorRemoveCard(card.id));
-    el.querySelector('.move-up').addEventListener('click', () => editorMoveCard(card.id, -1));
-    el.querySelector('.move-down').addEventListener('click', () => editorMoveCard(card.id, 1));
+    // event listeners for shared fields
     el.querySelector('.field-uimode').addEventListener('change', (e) => { card.uiMode = e.target.value; });
     el.querySelector('.field-imageurl').addEventListener('input', (e) => { card.imageUrl = e.target.value; });
     el.querySelector('.field-videourl').addEventListener('input', (e) => { card.videoUrl = e.target.value; });
+    el.querySelector('.field-link').addEventListener('input', (e) => { card.link = e.target.value; });
 
-    const sync = (field, value) => { card.translations[window.editorState.currentLang][field] = value; editorRefreshLandingSelect(); };
-    el.querySelector('.field-title').addEventListener('input', e => sync('title', e.target.value));
-    el.querySelector('.field-desc').addEventListener('input', e => sync('description', e.target.value));
-    if (card.column === 'main') {
-      el.querySelector('.field-name').addEventListener('input', e => sync('name', e.target.value));
-      el.querySelector('.field-sub').addEventListener('input', e => sync('sub', e.target.value));
-      el.querySelector('.field-tag').addEventListener('input', e => sync('tag', e.target.value));
-    } else {
-      el.querySelector('.field-label').addEventListener('input', e => sync('label', e.target.value));
-      el.querySelector('.field-meta').addEventListener('input', e => sync('meta', e.target.value));
-    }
+    // multi‑lang field listeners attached via the generated elements
+    const multiLangGroups = el.querySelectorAll('.multi-lang-group');
+    multiLangGroups.forEach(group => {
+      const field = group.dataset.field;
+      const inputs = group.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+          const lang = input.dataset.lang;
+          if (!card.translations[lang]) card.translations[lang] = {};
+          card.translations[lang][field] = input.value;
+        });
+      });
+    });
+
+    // move / remove
+    el.querySelector('.remove-card').addEventListener('click', () => editorRemoveCard(card.id));
+    el.querySelector('.move-up').addEventListener('click', () => editorMoveCard(card.id, -1));
+    el.querySelector('.move-down').addEventListener('click', () => editorMoveCard(card.id, 1));
+
     cardList.appendChild(el);
   });
 }
 
+// Helper to create a field group with one input per language
+function generateMultiLangField(labelText, fieldKey, card, langs, isTextarea = false) {
+  const container = document.createElement('div');
+  container.className = 'form-group full-width multi-lang-group';
+  container.dataset.field = fieldKey;
+  container.innerHTML = `<label>${labelText}</label>`;
+  const inputsContainer = document.createElement('div');
+  inputsContainer.className = 'multi-lang-inputs';
+  langs.forEach(lang => {
+    const val = (card.translations[lang] && card.translations[lang][fieldKey]) || '';
+    if (isTextarea) {
+      inputsContainer.innerHTML += `
+        <div class="lang-input">
+          <span class="lang-badge">${lang.toUpperCase()}</span>
+          <textarea data-lang="${lang}" rows="2">${editorEscapeHtml(val)}</textarea>
+        </div>`;
+    } else {
+      inputsContainer.innerHTML += `
+        <div class="lang-input">
+          <span class="lang-badge">${lang.toUpperCase()}</span>
+          <input type="text" data-lang="${lang}" value="${editorEscapeHtml(val)}" />
+        </div>`;
+    }
+  });
+  container.appendChild(inputsContainer);
+  return container;
+}
+
 function editorAddCard() {
+  const langs = editorGetLanguages();
   const newCard = {
-    column: window.editorState.currentColumn,
-    order: window.editorData.cards.filter(c => c.column === window.editorState.currentColumn).length,
-    type: window.editorState.currentColumn,
+    column: 'main',
+    order: window.editorData.cards.filter(c => c.column === 'main').length,
+    type: 'main',
     id: editorGenerateId(),
     uiMode: 'opaque',
     imageUrl: null,
     videoUrl: null,
+    link: "",
     translations: {}
   };
-  window.editorData.settings.languages.forEach(lang => {
-    newCard.translations[lang] = { name:"", sub:"", label:"", title:"New Card", description:"", meta:"", tag:"" };
+  langs.forEach(lang => {
+    newCard.translations[lang] = {
+      name: "", sub: "", label: "", title: "New Main Card", description: "",
+      meta: "", tag: ""
+    };
   });
   window.editorData.cards.push(newCard);
   editorReorderAll();
@@ -126,13 +166,13 @@ function editorRemoveCard(id) {
 }
 
 function editorMoveCard(id, direction) {
-  const colCards = window.editorData.cards.filter(c => c.column === window.editorState.currentColumn);
-  const idx = colCards.findIndex(c => c.id === id);
+  const cards = window.editorData.cards.filter(c => c.column === 'main');
+  const idx = cards.findIndex(c => c.id === id);
   if (idx < 0) return;
   const swapIdx = idx + direction;
-  if (swapIdx < 0 || swapIdx >= colCards.length) return;
-  const globalA = window.editorData.cards.indexOf(colCards[idx]);
-  const globalB = window.editorData.cards.indexOf(colCards[swapIdx]);
+  if (swapIdx < 0 || swapIdx >= cards.length) return;
+  const globalA = window.editorData.cards.indexOf(cards[idx]);
+  const globalB = window.editorData.cards.indexOf(cards[swapIdx]);
   [window.editorData.cards[globalA], window.editorData.cards[globalB]] =
     [window.editorData.cards[globalB], window.editorData.cards[globalA]];
   editorReorderAll();

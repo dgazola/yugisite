@@ -1,28 +1,29 @@
 async function loadAllCards() {
   try {
-    const resp = await fetch('Content/mainpagecards.json');
-    if (!resp.ok) throw new Error('Failed to load mainpagecards.json');
-    const json = await resp.json();
+    // 1. Load main page data
+    const mainResp = await fetch('Content/mainpagecards.json');
+    if (!mainResp.ok) throw new Error('Failed to load mainpagecards.json');
+    const mainJson = await mainResp.json();
 
-    let cardsArray = [];
+    let mainCardsArray = [];
     let settings = {};
     let menuItems = [];
 
-    if (Array.isArray(json)) {
-      cardsArray = json.map(c => migrateCard(c));
+    if (Array.isArray(mainJson)) {
+      mainCardsArray = mainJson.map(c => migrateCard(c));
       settings = { defaultLanguage: "en", languages: ["en"] };
       menuItems = [];
-    } else if (json && Array.isArray(json.cards)) {
-      cardsArray = json.cards.map(c => {
+    } else if (mainJson && Array.isArray(mainJson.cards)) {
+      mainCardsArray = mainJson.cards.map(c => {
         if (!c.translations) return migrateCard(c);
         return c;
       });
-      settings = json.settings || {};
+      settings = mainJson.settings || {};
       if (!settings.defaultLanguage) settings.defaultLanguage = "en";
       if (!settings.languages) settings.languages = ["en"];
       if (!settings.siteTitle) settings.siteTitle = { en: "Life Snake Studio" };
 
-      menuItems = json.menu || [];
+      menuItems = mainJson.menu || [];
       menuItems.forEach(item => {
         if (!item.translations) item.translations = {};
         settings.languages.forEach(lang => {
@@ -30,15 +31,57 @@ async function loadAllCards() {
         });
       });
       if (menuItems.length === 0) {
-        menuItems = generateDefaultMenu(cardsArray, settings.languages);
+        menuItems = generateDefaultMenu(mainCardsArray, settings.languages);
       }
     } else {
-      throw new Error('Invalid JSON structure');
+      throw new Error('Invalid JSON structure for main page');
     }
 
     state.settings = settings;
-    state.rawCards = cardsArray;
     state.menuItems = menuItems;
+
+    // Store raw main cards
+    state.rawCards = mainCardsArray;
+
+    // 2. Load blog posts (highlighted)
+    let blogCards = [];
+    try {
+      const blogResp = await fetch('Content/blog-posts.json');
+      if (blogResp.ok) {
+        const blogJson = await blogResp.json();
+        blogCards = blogJson
+          .filter(c => c.isHighlighted)
+          .map(c => {
+            if (!c.translations) return migrateCard(c);
+            c.column = 'blog';
+            return c;
+          })
+          .sort((a, b) => a.order - b.order);
+      }
+    } catch (err) {
+      console.warn('Could not load blog-posts.json', err);
+    }
+
+    // 3. Load devlogs (highlighted)
+    let devlogCards = [];
+    try {
+      const devlogResp = await fetch('Content/devlogs-posts.json');
+      if (devlogResp.ok) {
+        const devlogJson = await devlogResp.json();
+        devlogCards = devlogJson
+          .filter(c => c.isHighlighted)
+          .map(c => {
+            if (!c.translations) return migrateCard(c);
+            c.column = 'devlog';
+            return c;
+          })
+          .sort((a, b) => a.order - b.order);
+      }
+    } catch (err) {
+      console.warn('Could not load devlogs-posts.json', err);
+    }
+
+    state.rawCards = mainCardsArray.concat(blogCards, devlogCards);
 
     const urlParams = new URLSearchParams(window.location.search);
     let lang = urlParams.get('lang') ||
@@ -86,7 +129,8 @@ function migrateCard(card) {
         title: card.title || "",
         description: card.description || "",
         meta: card.meta || "",
-        tag: card.tag || ""
+        tag: card.tag || "",
+        link: card.link || ""
       }
     }
   };
@@ -111,7 +155,8 @@ function applyLanguage(lang) {
       title: trans?.title || '',
       description: trans?.description || '',
       meta: trans?.meta || '',
-      tag: trans?.tag || ''
+      tag: trans?.tag || '',
+      link: trans?.link || ''
     };
   }
 

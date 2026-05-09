@@ -1,5 +1,3 @@
-// Shared editor state – attached to window so all modules can access it
-
 window.editorData = {
   settings: {
     landingCardId: "",
@@ -8,11 +6,15 @@ window.editorData = {
     siteTitle: { "en": "Life Snake Studio" }
   },
   menu: [],
-  cards: []
+  cards: []        // main cards only
 };
 
+// Articles data – separate from main data
+window.blogArticles = [];
+window.devlogArticles = [];
+
 window.editorState = {
-  currentColumn: "main",
-  currentLang: "en",
-  currentMainTab: "cards"   // "cards" | "menu" | "languages"
+  currentMainTab: "cards",        // "cards" | "articles" | "menu" | "languages"
+  currentArticleTab: "blog",      // "blog" | "devlog"
+  currentLang: "en"
 };

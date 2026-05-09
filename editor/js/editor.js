@@ -1,28 +1,19 @@
-// Editor initialisation & event wiring
-
 document.addEventListener('DOMContentLoaded', () => {
-  // Landing card select change
-  const landingSelect = document.getElementById('landingCardSelect');
-  landingSelect.addEventListener('change', () => {
-    window.editorData.settings.landingCardId = landingSelect.value;
+  // Landing card select
+  document.getElementById('landingCardSelect').addEventListener('change', function() {
+    window.editorData.settings.landingCardId = this.value;
   });
 
-  // Card add button
+  // Add buttons
   document.getElementById('addCardBtn').addEventListener('click', editorAddCard);
-
-  // Menu add button
+  document.getElementById('addArticleBtn').addEventListener('click', editorAddArticle);
   document.getElementById('addMenuItemBtn').addEventListener('click', editorAddMenuItem);
-
-  // Language add button
   document.getElementById('addLanguageBtn').addEventListener('click', editorAddLanguage);
 
-  // Load / Save / Upload buttons
-  document.getElementById('loadLocalBtn').addEventListener('click', editorLoadLocal);
-  document.getElementById('loadUrlBtn').addEventListener('click', editorLoadUrl);
-  document.getElementById('loadRepoBtn').addEventListener('click', editorLoadRepo);
+  // Save & Revert
   document.getElementById('saveBtn').addEventListener('click', editorSave);
-  document.getElementById('uploadRepoBtn').addEventListener('click', editorUploadToRepo);
+  document.getElementById('revertBtn').addEventListener('click', editorRevert);
 
-  // Auto load from server
+  // Kick off auto‑load
   editorAutoLoad();
 });

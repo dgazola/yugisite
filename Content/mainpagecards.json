@@ -2,175 +2,25 @@
   "settings": {
     "landingCardId": "home",
     "defaultLanguage": "en",
-    "languages": [
-      "en",
-      "pt"
-    ],
+    "languages": ["en", "pt"],
     "siteTitle": {
       "en": "Life Snake Studio",
       "pt": "Life Snake Studio"
     }
   },
   "menu": [
-    {
-      "id": "home",
-      "translations": {
-        "en": "Home",
-        "pt": "Início"
-      }
-    },
-    {
-      "id": "world",
-      "translations": {
-        "en": "World",
-        "pt": "Mundo"
-      }
-    },
-    {
-      "id": "tcg",
-      "translations": {
-        "en": "TCG",
-        "pt": "TCG"
-      }
-    },
-    {
-      "id": "engine",
-      "translations": {
-        "en": "Engine & Devkit",
-        "pt": "Motor & Devkit"
-      }
-    },
-    {
-      "id": "licensing",
-      "translations": {
-        "en": "Licensing",
-        "pt": "Licenciamento"
-      }
-    },
-    {
-      "id": "community",
-      "translations": {
-        "en": "Community",
-        "pt": "Comunidade"
-      }
-    },
-    {
-      "id": "contact",
-      "translations": {
-        "en": "Contact",
-        "pt": "Contato"
-      }
-    },
-    {
-      "id": "presskit",
-      "translations": {
-        "en": "Press Kit",
-        "pt": "Kit de Imprensa"
-      }
-    },
-    {
-      "id": "devlog-0",
-      "translations": {
-        "en": "Devlog",
-        "pt": "Devlog"
-      }
-    },
-    {
-      "id": "blog-0",
-      "translations": {
-        "en": "Blog",
-        "pt": "Blog"
-      }
-    }
+    { "id": "home", "translations": { "en": "Home", "pt": "Início" } },
+    { "id": "world", "translations": { "en": "World", "pt": "Mundo" } },
+    { "id": "tcg", "translations": { "en": "TCG", "pt": "TCG" } },
+    { "id": "engine", "translations": { "en": "Engine & Devkit", "pt": "Motor & Devkit" } },
+    { "id": "licensing", "translations": { "en": "Licensing", "pt": "Licenciamento" } },
+    { "id": "community", "translations": { "en": "Community", "pt": "Comunidade" } },
+    { "id": "contact", "translations": { "en": "Contact", "pt": "Contato" } },
+    { "id": "presskit", "translations": { "en": "Press Kit", "pt": "Kit de Imprensa" } },
+    { "id": "devlog",  "translations": { "en": "Devlog", "pt": "Devlog" } },
+    { "id": "blog",    "translations": { "en": "Blog",   "pt": "Blog" } }
   ],
   "cards": [
-    {
-      "column": "devlog",
-      "order": 0,
-      "type": "devlog",
-      "id": "devlog-0",
-      "uiMode": "opaque",
-      "imageUrl": "https://github.com/dgazola/yugisite/blob/main/Placeholder%20img.png?raw=true",
-      "videoUrl": null,
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Update",
-          "title": "Devlog One",
-          "description": "First devlog. Behind the scenes of building the engine and tools.",
-          "meta": "Latest",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Atualização",
-          "title": "Devlog Um",
-          "description": "Primeiro devlog. Bastidores da construção do motor e ferramentas.",
-          "meta": "Recente",
-          "tag": ""
-        }
-      }
-    },
-    {
-      "column": "devlog",
-      "order": 1,
-      "type": "devlog",
-      "id": "devlog-1",
-      "uiMode": "opaque",
-      "imageUrl": null,
-      "videoUrl": "https://lorem.video/test_1080p_vp9_30fps_30s_25crf_opus_128kbps.webm",
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Progress",
-          "title": "Devlog Two",
-          "description": "Second entry. Challenges with the card game engine and how I overcame them.",
-          "meta": "Ongoing",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Progresso",
-          "title": "Devlog Dois",
-          "description": "Segunda entrada. Desafios com o motor do jogo de cartas e como os superei.",
-          "meta": "Em andamento",
-          "tag": ""
-        }
-      }
-    },
-    {
-      "column": "devlog",
-      "order": 2,
-      "type": "devlog",
-      "id": "devlog-2",
-      "uiMode": "transparent",
-      "imageUrl": "https://github.com/dgazola/yugisite/blob/main/Placeholder%20img.png?raw=true",
-      "videoUrl": "https://lorem.video/test_1080p_vp9_30fps_30s_25crf_opus_128kbps.webm",
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Design",
-          "title": "Devlog Three",
-          "description": "Thoughts on world design, creature balancing, and community feedback.",
-          "meta": "Design notes",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Design",
-          "title": "Devlog Três",
-          "description": "Reflexões sobre design de mundo, balanceamento de criaturas e feedback da comunidade.",
-          "meta": "Notas de design",
-          "tag": ""
-        }
-      }
-    },
     {
       "column": "main",
       "order": 0,
@@ -187,7 +37,8 @@
           "title": "Yugimon Universe",
           "description": "Welcome to Life Snake Studio. Explore the world of Yugimon.",
           "meta": "",
-          "tag": "Start Here"
+          "tag": "Start Here",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Início",
@@ -196,7 +47,8 @@
           "title": "Universo Yugimon",
           "description": "Bem‑vindo ao Life Snake Studio. Explore o mundo de Yugimon.",
           "meta": "",
-          "tag": "Comece Aqui"
+          "tag": "Comece Aqui",
+          "link": "https://google.com"
         }
       }
     },
@@ -216,7 +68,8 @@
           "title": "Yugimon World",
           "description": "Dive into the lore, explore regions via an interactive map.",
           "meta": "",
-          "tag": "Lore & Regions"
+          "tag": "Lore & Regions",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Mundo",
@@ -225,7 +78,8 @@
           "title": "Mundo Yugimon",
           "description": "Mergulhe na história, explore regiões através de um mapa interativo.",
           "meta": "",
-          "tag": "História e Regiões"
+          "tag": "História e Regiões",
+          "link": "https://google.com"
         }
       }
     },
@@ -245,7 +99,8 @@
           "title": "Trading Card Game",
           "description": "Learn the rules, search the card database, build decks.",
           "meta": "",
-          "tag": "Card Game Hub"
+          "tag": "Card Game Hub",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "TCG",
@@ -254,7 +109,8 @@
           "title": "Jogo de Cartas Colecionáveis",
           "description": "Aprenda as regras, pesquise o banco de cartas, construa decks.",
           "meta": "",
-          "tag": "Central do Jogo"
+          "tag": "Central do Jogo",
+          "link": "https://google.com"
         }
       }
     },
@@ -274,7 +130,8 @@
           "title": "Engine & Devkit",
           "description": "The custom toolset I built to make games faster.",
           "meta": "",
-          "tag": "Custom Toolset"
+          "tag": "Custom Toolset",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Motor e Kit Dev",
@@ -283,7 +140,8 @@
           "title": "Motor e Kit de Desenvolvimento",
           "description": "O conjunto de ferramentas personalizado que criei para acelerar o desenvolvimento.",
           "meta": "",
-          "tag": "Ferramentas Personalizadas"
+          "tag": "Ferramentas Personalizadas",
+          "link": "https://google.com"
         }
       }
     },
@@ -303,7 +161,8 @@
           "title": "Licensing",
           "description": "License the Yugimon IP. Browse the asset catalog.",
           "meta": "",
-          "tag": "For Indies"
+          "tag": "For Indies",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Licenciamento",
@@ -312,7 +171,8 @@
           "title": "Licenciamento",
           "description": "Licencie a propriedade intelectual de Yugimon.",
           "meta": "",
-          "tag": "Para Indies"
+          "tag": "Para Indies",
+          "link": "https://google.com"
         }
       }
     },
@@ -332,7 +192,8 @@
           "title": "Community",
           "description": "Join the discussion on Discord and forums.",
           "meta": "",
-          "tag": "Join Us"
+          "tag": "Join Us",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Comunidade",
@@ -341,7 +202,8 @@
           "title": "Comunidade",
           "description": "Participe da discussão no Discord e nos fóruns.",
           "meta": "",
-          "tag": "Junte‑se a Nós"
+          "tag": "Junte‑se a Nós",
+          "link": "https://google.com"
         }
       }
     },
@@ -361,7 +223,8 @@
           "title": "Contact",
           "description": "General questions, press inquiries.",
           "meta": "",
-          "tag": "Get in Touch"
+          "tag": "Get in Touch",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Contato",
@@ -370,7 +233,8 @@
           "title": "Contato",
           "description": "Dúvidas gerais, consultas da imprensa.",
           "meta": "",
-          "tag": "Entre em Contato"
+          "tag": "Entre em Contato",
+          "link": "https://google.com"
         }
       }
     },
@@ -390,7 +254,8 @@
           "title": "Press Kit",
           "description": "Download official logos, key art, fact sheet.",
           "meta": "",
-          "tag": "Media Downloads"
+          "tag": "Media Downloads",
+          "link": "https://google.com"
         },
         "pt": {
           "name": "Kit de Imprensa",
@@ -399,123 +264,8 @@
           "title": "Kit de Imprensa",
           "description": "Baixe logos oficiais, artes principais, ficha técnica.",
           "meta": "",
-          "tag": "Downloads de Mídia"
-        }
-      }
-    },
-    {
-      "column": "blog",
-      "order": 0,
-      "type": "blog",
-      "id": "blog-0",
-      "uiMode": "opaque",
-      "imageUrl": null,
-      "videoUrl": null,
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Intro",
-          "title": "Blog Page 1",
-          "description": "First public blog page.",
-          "meta": "Pinned entry",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Introdução",
-          "title": "Página do Blog 1",
-          "description": "Primeira página pública do blog.",
-          "meta": "Entrada fixa",
-          "tag": ""
-        }
-      }
-    },
-    {
-      "column": "blog",
-      "order": 1,
-      "type": "blog",
-      "id": "blog-1",
-      "uiMode": "transparent",
-      "imageUrl": "https://github.com/dgazola/yugisite/blob/main/Placeholder%20img.png?raw=true",
-      "videoUrl": "https://lorem.video/test_1080p_vp9_30fps_30s_25crf_opus_128kbps.webm",
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Dev log",
-          "title": "Blog Page 2",
-          "description": "Progress, tools, design decisions.",
-          "meta": "Recent update",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Registro de dev",
-          "title": "Página do Blog 2",
-          "description": "Progresso, ferramentas, decisões de design.",
-          "meta": "Atualização recente",
-          "tag": ""
-        }
-      }
-    },
-    {
-      "column": "blog",
-      "order": 2,
-      "type": "blog",
-      "id": "blog-2",
-      "uiMode": "opaque",
-      "imageUrl": null,
-      "videoUrl": null,
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Notes",
-          "title": "Blog Page 3",
-          "description": "Another post card in the blog feed.",
-          "meta": "Independent blog section",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Notas",
-          "title": "Página do Blog 3",
-          "description": "Outro cartão de postagem no feed do blog.",
-          "meta": "Seção independente do blog",
-          "tag": ""
-        }
-      }
-    },
-    {
-      "column": "blog",
-      "order": 3,
-      "type": "blog",
-      "id": "blog-3",
-      "uiMode": "opaque",
-      "imageUrl": null,
-      "videoUrl": null,
-      "translations": {
-        "en": {
-          "name": "",
-          "sub": "",
-          "label": "Update",
-          "title": "Blog Page 4",
-          "description": "Extra post only visible on the full blog page.",
-          "meta": "Exclusive to blog page",
-          "tag": ""
-        },
-        "pt": {
-          "name": "",
-          "sub": "",
-          "label": "Atualização",
-          "title": "Página do Blog 4",
-          "description": "Post extra visível apenas na página completa do blog.",
-          "meta": "Exclusivo da página do blog",
-          "tag": ""
+          "tag": "Downloads de Mídia",
+          "link": "https://google.com"
         }
       }
     }

@@ -11,11 +11,8 @@
     <header class="editor-header">
       <h1>🃏 Card Editor</h1>
       <div class="editor-actions">
-        <button id="loadLocalBtn" class="btn btn-secondary">📂 Load File</button>
-        <button id="loadUrlBtn" class="btn btn-secondary">🌐 Load URL</button>
-        <button id="loadRepoBtn" class="btn btn-secondary">📦 Load Repo</button>
-        <button id="saveBtn" class="btn btn-secondary">💾 Download JSON</button>
-        <button id="uploadRepoBtn" class="btn btn-primary">🚀 Upload to Repo</button>
+        <button id="saveBtn" class="btn btn-primary">💾 Save</button>
+        <button id="revertBtn" class="btn btn-secondary">↩ Revert</button>
         <a href="index.html" class="btn btn-ghost">← Back to Site</a>
       </div>
     </header>
@@ -24,24 +21,30 @@
       <aside class="editor-sidebar">
         <div class="main-tabs" id="mainTabs">
           <button class="tab main-tab active" data-tab="cards">Cards</button>
+          <button class="tab main-tab" data-tab="articles">Articles</button>
           <button class="tab main-tab" data-tab="menu">Menu</button>
           <button class="tab main-tab" data-tab="languages">Languages</button>
         </div>
 
         <div class="panel" id="panelCards">
-          <div class="column-tabs" id="columnTabs">
-            <button class="tab col-tab active" data-column="main">Main</button>
-            <button class="tab col-tab" data-column="devlog">Devlog</button>
-            <button class="tab col-tab" data-column="blog">Blog</button>
-          </div>
           <div class="landing-card-section">
             <h3>Landing Card</h3>
             <select id="landingCardSelect">
               <option value="">— None —</option>
             </select>
-            <p class="help-text">First card shown when the site loads.</p>
           </div>
-          <button id="addCardBtn" class="btn btn-primary">+ Add Card</button>
+          <button id="addCardBtn" class="btn btn-primary">+ Add Main Card</button>
+        </div>
+
+        <div class="panel" id="panelArticles" style="display:none;">
+          <div class="sub-tabs" id="articleSubTabs">
+            <button class="tab sub-tab active" data-article="blog">Blog</button>
+            <button class="tab sub-tab" data-article="devlog">Devlog</button>
+          </div>
+          <div class="landing-card-section" style="margin-top:10px;">
+            <p class="help-text" style="margin-top:0;">Check "Highlighted" to show on main page.</p>
+          </div>
+          <button id="addArticleBtn" class="btn btn-primary">+ Add Article</button>
         </div>
 
         <div class="panel" id="panelMenu" style="display:none;">
@@ -63,18 +66,18 @@
       </aside>
 
       <main class="editor-main">
-        <div class="lang-tabs" id="langTabs"></div>
         <div id="cardList" class="card-list"></div>
+        <div id="articleList" class="card-list" style="display:none;"></div>
         <div id="menuEditArea" class="card-list" style="display:none;"></div>
       </main>
     </div>
   </div>
 
-  <!-- Load editor scripts in dependency order -->
   <script src="editor/js/state.js"></script>
   <script src="editor/js/helpers.js"></script>
   <script src="editor/js/ui-tabs.js"></script>
   <script src="editor/js/ui-cards.js"></script>
+  <script src="editor/js/ui-articles.js"></script>
   <script src="editor/js/ui-menu.js"></script>
   <script src="editor/js/ui-languages.js"></script>
   <script src="editor/js/load-save.js"></script>

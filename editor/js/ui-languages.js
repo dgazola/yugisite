@@ -1,5 +1,3 @@
-// Language list rendering and add/remove
-
 function editorRenderLanguageList() {
   const langList = document.getElementById('langList');
   langList.innerHTML = '';
@@ -26,14 +24,16 @@ function editorRemoveLanguage(lang) {
   window.editorData.menu.forEach(item => {
     if (item.translations) delete item.translations[lang];
   });
-  if (window.editorState.currentLang === lang) {
-    window.editorState.currentLang = window.editorData.settings.defaultLanguage || 'en';
-  }
+  // If currently viewing articles, remove translations there too
+  window.blogArticles.forEach(a => { if (a.translations) delete a.translations[lang]; });
+  window.devlogArticles.forEach(a => { if (a.translations) delete a.translations[lang]; });
+
+  // Re-render everything
   editorRenderLanguageList();
-  editorRenderLangTabs();
+  // Refresh whatever tab is active
   if (window.editorState.currentMainTab === 'cards') editorRenderCardList();
-  else if (window.editorState.currentMainTab === 'menu') editorRenderMenuEdit();
-  editorRenderMenuList();
+  else if (window.editorState.currentMainTab === 'articles') editorRenderArticleList();
+  else if (window.editorState.currentMainTab === 'menu') { editorRenderMenuList(); editorRenderMenuEdit(); }
   editorRefreshLandingSelect();
 }
 
@@ -41,20 +41,43 @@ function editorAddLanguage() {
   const code = document.getElementById('newLangCode').value.trim().toLowerCase();
   if (!code) return alert('Please enter a language code.');
   if (window.editorData.settings.languages.includes(code)) return alert('Language already exists.');
+
   window.editorData.settings.languages.push(code);
+
+  // Add empty translations to cards
   window.editorData.cards.forEach(card => {
     if (!card.translations) card.translations = {};
-    card.translations[code] = { name:"", sub:"", label:"", title:"", description:"", meta:"", tag:"" };
+    card.translations[code] = {
+      name: "", sub: "", label: "", title: "", description: "", meta: "", tag: "", link: ""
+    };
   });
+  // Articles
+  window.blogArticles.forEach(a => {
+    if (!a.translations) a.translations = {};
+    a.translations[code] = {
+      name: "", sub: "", label: "", title: "", description: "", meta: "", tag: "",
+      articleTitle: "", articleBody: ""
+    };
+  });
+  window.devlogArticles.forEach(a => {
+    if (!a.translations) a.translations = {};
+    a.translations[code] = {
+      name: "", sub: "", label: "", title: "", description: "", meta: "", tag: "",
+      articleTitle: "", articleBody: ""
+    };
+  });
+  // Menu
   window.editorData.menu.forEach(item => {
     if (!item.translations) item.translations = {};
-    item.translations[code] = item.translations[window.editorData.settings.defaultLanguage] || item.id;
+    item.translations[code] = item.id;
   });
+
   document.getElementById('newLangCode').value = '';
   editorRenderLanguageList();
-  editorRenderLangTabs();
+
+  // Refresh active tab
   if (window.editorState.currentMainTab === 'cards') editorRenderCardList();
-  else if (window.editorState.currentMainTab === 'menu') editorRenderMenuEdit();
-  editorRenderMenuList();
+  else if (window.editorState.currentMainTab === 'articles') editorRenderArticleList();
+  else if (window.editorState.currentMainTab === 'menu') { editorRenderMenuList(); editorRenderMenuEdit(); }
   editorRefreshLandingSelect();
 }

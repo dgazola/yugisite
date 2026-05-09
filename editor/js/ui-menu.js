@@ -1,10 +1,9 @@
-// Menu editing rendering and actions
-
 function editorRenderMenuEdit() {
   const menu = window.editorData.menu;
+  const langs = editorGetLanguages();
   if (!menu) window.editorData.menu = [];
   menu.forEach(item => {
-    item.translations = editorEnsureTranslations(item.translations, window.editorData.settings.languages);
+    item.translations = editorEnsureTranslations(item.translations, langs);
   });
 
   document.getElementById('menuEditArea').style.display = 'block';
@@ -13,9 +12,6 @@ function editorRenderMenuEdit() {
   container.innerHTML = '';
 
   menu.forEach((item, idx) => {
-    const label = item.translations[window.editorState.currentLang] ||
-                  item.translations[window.editorData.settings.defaultLanguage] ||
-                  item.id;
     const el = document.createElement('div');
     el.className = 'card-editor';
     el.innerHTML = `
@@ -28,10 +24,22 @@ function editorRenderMenuEdit() {
           <button class="btn-icon remove-menu" title="Remove">✕</button>
         </div>
       </div>
-      <div class="form-group">
-        <label>Label (${window.editorState.currentLang})</label>
-        <input type="text" class="menu-label" value="${editorEscapeHtml(label)}">
-      </div>`;
+      ${generateMultiLangField('Label', 'label', item, langs).outerHTML}
+    `;
+
+    // attach multiple listeners per language input
+    const multiLangGroups = el.querySelectorAll('.multi-lang-group');
+    multiLangGroups.forEach(group => {
+      const inputs = group.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+          const lang = input.dataset.lang;
+          item.translations[lang] = input.value;
+          editorRenderMenuList();
+        });
+      });
+    });
+
     el.querySelector('.remove-menu').addEventListener('click', () => {
       if (confirm('Remove this menu item?')) {
         menu.splice(idx, 1);
@@ -53,10 +61,6 @@ function editorRenderMenuEdit() {
         editorRenderMenuList();
       }
     });
-    el.querySelector('.menu-label').addEventListener('input', (e) => {
-      item.translations[window.editorState.currentLang] = e.target.value;
-      editorRenderMenuList();
-    });
     container.appendChild(el);
   });
 
@@ -69,9 +73,8 @@ function editorRenderMenuList() {
   const menuList = document.getElementById('menuList');
   menuList.innerHTML = '';
   (window.editorData.menu || []).forEach((item, idx) => {
-    const label = item.translations[window.editorState.currentLang] ||
-                  item.translations[window.editorData.settings.defaultLanguage] ||
-                  item.id;
+    // show English label for brevity
+    const label = item.translations['en'] || item.translations[Object.keys(item.translations)[0]] || item.id;
     const div = document.createElement('div');
     div.className = 'menu-editor-item';
     div.innerHTML = `<span>${idx+1}. ${label} (${item.id})</span>
@@ -89,6 +92,7 @@ function editorRenderMenuList() {
 }
 
 function editorAddMenuItem() {
+  const langs = editorGetLanguages();
   const id = prompt('Enter the card ID this menu item links to (e.g. home, world, tcg):');
   if (!id) return;
   if (window.editorData.menu.find(m => m.id === id)) {
@@ -96,8 +100,8 @@ function editorAddMenuItem() {
     return;
   }
   const newItem = { id: id, translations: {} };
-  window.editorData.settings.languages.forEach(lang => {
-    newItem.translations[lang] = id;
+  langs.forEach(lang => {
+    newItem.translations[lang] = id; // default to ID
   });
   window.editorData.menu.push(newItem);
   editorRenderMenuList();

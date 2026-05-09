@@ -47,6 +47,7 @@ async function buildAllCards() {
       el.classList.add('has-both');
     }
     el.innerHTML = createDevlogCardHTML(data);
+    el._cardData = data;
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'devlog');
     el.setAttribute('data-index', i);
@@ -67,6 +68,7 @@ async function buildAllCards() {
       el.classList.add('has-both');
     }
     el.innerHTML = createMainCardHTML(data);
+    el._cardData = data;
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'main');
     el.setAttribute('data-index', i);
@@ -87,6 +89,7 @@ async function buildAllCards() {
       el.classList.add('has-both');
     }
     el.innerHTML = createBlogCardHTML(data);
+    el._cardData = data;
     el.setAttribute('data-card-id', data.id);
     el.setAttribute('data-column', 'blog');
     el.setAttribute('data-index', i);
