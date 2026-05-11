@@ -6,15 +6,15 @@
   let currentLang = 'en';
   let languages = ['en'];
   let settings = { defaultLanguage: 'en', languages };
-  let mainCards = [];        // for menu link resolution
-  let menuItems = [];
   let articles = [];
+  let menuItems = [];
+  let mainCards = [];
 
   // ── Fetch article file ─────────────────────────────────
   async function loadArticles() {
     const file = type === 'blog' ? 'blog-posts.json' : 'devlogs-posts.json';
     try {
-      const resp = await fetch(`../Content/${file}`);
+      const resp = await fetch(`Content/${file}`);   // root‑relative
       if (!resp.ok) throw new Error('File not found');
       articles = (await resp.json()).map(c => {
         if (!c.translations) {
@@ -31,17 +31,17 @@
     }
   }
 
-  // ── Load site settings, main cards, and build menu ────
-  async function loadSiteData() {
+  // ── Load site settings + main cards for menu ──────────
+  async function loadSiteSettings() {
     try {
-      const mainResp = await fetch('../Content/mainpagecards.json');
+      const mainResp = await fetch('Content/mainpagecards.json');   // root‑relative
       if (!mainResp.ok) throw new Error('Failed to load main settings');
       const mainJson = await mainResp.json();
       settings = mainJson.settings || { defaultLanguage: "en", languages: ["en"] };
       languages = settings.languages || ["en"];
       mainCards = (mainJson.cards || []).filter(c => c.column === 'main').sort((a,b) => a.order - b.order);
 
-      // Build menu exactly like the main page does (from main cards + blog/devlog shortcuts)
+      // Build menu exactly like the main page
       const langs = languages;
       const menu = [];
       mainCards.forEach(card => {
@@ -99,13 +99,11 @@
           window.location.href = 'article.html?type=devlog';
           return;
         }
-        // For main cards: find the card and follow its link
         const card = mainCards.find(c => c.id === navId);
         if (card && card.link) {
           window.open(card.link, '_blank');
           return;
         }
-        // Fallback: navigate to the main page with snap parameter
         window.location.href = `index.html?snap=${navId}`;
       });
       container.appendChild(a);
@@ -188,10 +186,9 @@
   }
 
   // ── Init ─────────────────────────────────────────────
-  await loadSiteData();
+  await loadSiteSettings();
   await loadArticles();
 
-  // Apply site‑wide accent colour from constants
   document.documentElement.style.setProperty('--site-accent', SITE_ACCENT_COLOR);
 
   const urlLang = params.get('lang') || localStorage.getItem('preferredLanguage') || (navigator.language || '').substring(0,2);

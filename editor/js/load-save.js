@@ -61,7 +61,6 @@ function editorProcessArticleJson(json, articleType) {
   if (articleType === "blog") window.blogArticles = arr;
   else window.devlogArticles = arr;
 
-  // refresh articles view
   if (window.editorState.currentMainTab === "articles" && window.editorState.currentArticleTab === articleType) {
     editorRenderArticleList();
   }
@@ -82,7 +81,6 @@ function saveMainJson() {
   window.editorData.cards.forEach(c => { if (!c.id) c.id = editorGenerateId(); });
   if (window.editorData.settings.landingCardId && !window.editorData.cards.find(c => c.id === window.editorData.settings.landingCardId))
     window.editorData.settings.landingCardId = "";
-  // Clean up link from translations (it's stored at card level)
   window.editorData.cards.forEach(card => {
     if (card.link === undefined) {
       const anyTrans = Object.values(card.translations)[0];
@@ -94,7 +92,7 @@ function saveMainJson() {
   });
   const mainData = {
     settings: window.editorData.settings,
-    cards: window.editorData.cards     // no more menu
+    cards: window.editorData.cards
   };
   downloadJson(mainData, "mainpagecards.json");
 }
@@ -127,7 +125,7 @@ async function editorRevert() {
     const articleType = window.editorState.currentArticleTab;
     const filename = articleType === "blog" ? "blog-posts.json" : "devlogs-posts.json";
     try {
-      const resp = await fetch(`../Content/${filename}`);
+      const resp = await fetch(`Content/${filename}`);   // root‑relative
       if (!resp.ok) throw new Error(`Failed to load ${filename}`);
       const json = await resp.json();
       editorProcessArticleJson(json, articleType);
@@ -136,7 +134,7 @@ async function editorRevert() {
     }
   } else {
     try {
-      const resp = await fetch('../Content/mainpagecards.json');
+      const resp = await fetch('Content/mainpagecards.json');   // root‑relative
       if (!resp.ok) throw new Error('Failed to load mainpagecards.json');
       const json = await resp.json();
       editorProcessMainJson(json);
@@ -174,7 +172,7 @@ async function editorUploadToRepo() {
     });
     const mainData = {
       settings: window.editorData.settings,
-      cards: window.editorData.cards     // no menu
+      cards: window.editorData.cards
     };
     jsonContent = JSON.stringify(mainData, null, 2);
     repoPath = "Content/mainpagecards.json";

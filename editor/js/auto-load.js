@@ -1,16 +1,16 @@
 async function editorAutoLoad() {
-  // Load main page data
+  // Load main page data – root‑relative
   try {
-    const resp = await fetch('../Content/mainpagecards.json');
+    const resp = await fetch('Content/mainpagecards.json');
     if (resp.ok) {
       const json = await resp.json();
       editorProcessMainJson(json);
     }
   } catch { /* ignore */ }
 
-  // Load blog articles
+  // Load blog articles – root‑relative
   try {
-    const resp = await fetch('../Content/blog-posts.json');
+    const resp = await fetch('Content/blog-posts.json');
     if (resp.ok) {
       const json = await resp.json();
       window.blogArticles = json.map(c => {
@@ -20,9 +20,9 @@ async function editorAutoLoad() {
     }
   } catch { /* ignore */ }
 
-  // Load devlog articles
+  // Load devlog articles – root‑relative
   try {
-    const resp = await fetch('../Content/devlogs-posts.json');
+    const resp = await fetch('Content/devlogs-posts.json');
     if (resp.ok) {
       const json = await resp.json();
       window.devlogArticles = json.map(c => {
