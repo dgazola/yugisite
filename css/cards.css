@@ -1,0 +1,420 @@
+/* ── Card base – fixed aspect ratio ─────────────────── */
+.card,
+.blog-card,
+.devlog-card {
+  position: absolute;
+  width: var(--card-width);
+  aspect-ratio: 5 / 7.2;
+  background: #020202;
+  border: 4px solid var(--card-accent);
+  border-radius: 10px;
+  padding: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--card-inner-frame),
+    0 0 0 1px color-mix(in srgb, var(--card-accent) 18%, transparent),
+    0 14px 40px rgba(0,0,0,0.75);
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.35s ease, box-shadow 0.45s ease;
+  opacity: 0.28;
+  pointer-events: none;
+  will-change: opacity, box-shadow;
+  overflow: hidden;
+
+  --tag-bg: color-mix(in srgb, var(--card-accent) 22%, transparent);
+  --tag-border: color-mix(in srgb, var(--card-accent) 60%, transparent);
+  --tag-text: var(--card-accent);
+  --card-inner-frame: color-mix(in srgb, var(--card-accent) 50%, transparent);
+}
+
+.card.current,
+.blog-card.current,
+.devlog-card.current {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 2px var(--card-inner-frame),
+    0 0 0 1px color-mix(in srgb, var(--card-accent) 35%, transparent),
+    0 0 30px color-mix(in srgb, var(--card-accent) 30%, transparent),
+    0 0 80px color-mix(in srgb, var(--card-accent) 18%, transparent),
+    0 14px 40px rgba(0,0,0,0.75);
+  z-index: 5;
+}
+
+.table-surface.dragging .card,
+.table-surface.dragging .blog-card,
+.table-surface.dragging .devlog-card {
+  opacity: 0.9 !important;
+  transition: opacity 0.2s ease;
+}
+.table-surface.dragging .card.current,
+.table-surface.dragging .blog-card.current,
+.table-surface.dragging .devlog-card.current {
+  opacity: 1 !important;
+}
+
+/* Corner decorations */
+.card::before,
+.blog-card::before,
+.devlog-card::before {
+  content: '';
+  position: absolute;
+  top: 10px; left: 10px;
+  width: 12px; height: 12px;
+  border-left: 2px solid var(--card-accent);
+  border-top: 2px solid var(--card-accent);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 10;
+}
+.card::after,
+.blog-card::after,
+.devlog-card::after {
+  content: '';
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 12px; height: 12px;
+  border-right: 2px solid var(--card-accent);
+  border-top: 2px solid var(--card-accent);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Art background – fills the entire card ─────────── */
+.card-art,
+.blog-art,
+.devlog-art {
+  position: absolute;
+  inset: 7px;
+  background-color: var(--card-art-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--card-accent) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--card-accent) 3%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ── Image & Video ──────────────────────────────────── */
+.card-art img,
+.card-art video,
+.blog-art img,
+.blog-art video,
+.devlog-art img,
+.devlog-art video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.card-image { display: block; }
+.card-video { display: none; }
+
+.card:not(.has-both) .card-video { display: block; }
+.card.has-both .card-image { display: block; }
+.card.has-both .card-video { display: none; }
+.card.has-both.current .card-image { display: none; }
+.card.has-both.current .card-video { display: block; }
+
+.blog-card.has-both .card-image { display: block; }
+.blog-card.has-both .card-video { display: none; }
+.blog-card.has-both.current .card-image { display: none; }
+.blog-card.has-both.current .card-video { display: block; }
+
+.devlog-card.has-both .card-image { display: block; }
+.devlog-card.has-both .card-video { display: none; }
+.devlog-card.has-both.current .card-image { display: none; }
+.devlog-card.has-both.current .card-video { display: block; }
+
+/* Placeholder (when no media) */
+.art-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+.art-placeholder .play-circle {
+  width: 52px; height: 52px;
+  border: 2px solid var(--card-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.art-placeholder .play-circle::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 15px solid var(--card-accent);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  margin-left: 4px;
+}
+.art-placeholder .placeholder-text {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: rgba(196,184,150,0.55);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.blog-art .art-placeholder .play-circle,
+.devlog-art .art-placeholder .play-circle {
+  width: 44px; height: 44px;
+  border-color: var(--card-accent);
+}
+.blog-art .art-placeholder .play-circle::after,
+.devlog-art .art-placeholder .play-circle::after {
+  border-left: 12px solid var(--card-accent);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+/* ── Overlay container ──────────────────────────────── */
+.card-overlay {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 7px;
+  pointer-events: none;
+}
+
+/* ── Opaque mode ────────────────────────────────────── */
+.card.opaque .card-name,
+.blog-card.opaque .blog-name,
+.devlog-card.opaque .devlog-name {
+  background: linear-gradient(180deg, var(--card-accent) 0%, color-mix(in srgb, var(--card-accent) 70%, black) 100%);
+  color: var(--card-name-text);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.15);
+  border: 1px solid rgba(0,0,0,0.25);
+  border-bottom: 2px solid rgba(0,0,0,0.35);
+}
+
+.card.opaque .card-desc,
+.blog-card.opaque .blog-desc,
+.devlog-card.opaque .devlog-desc {
+  background-color: var(--card-desc-bg);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 12%, transparent);
+  border-top: 2px solid color-mix(in srgb, var(--card-accent) 30%, transparent);
+}
+
+/* ── Transparent mode ───────────────────────────────── */
+.card.transparent .card-name,
+.blog-card.transparent .blog-name,
+.devlog-card.transparent .devlog-name {
+  background: color-mix(in srgb, var(--card-accent) 20%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--card-accent);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  border: 1px solid var(--card-accent);
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+}
+
+.card.transparent .card-desc {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 20%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--card-accent) 30%, transparent);
+}
+
+.blog-card.transparent .blog-name,
+.devlog-card.transparent .devlog-name {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: var(--card-accent);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--card-accent) 25%, transparent);
+}
+
+.blog-card.transparent .blog-desc,
+.devlog-card.transparent .devlog-desc {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 20%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--card-accent) 30%, transparent);
+}
+
+/* ── Card name bar ──────────────────────────────────── */
+.card-name,
+.blog-name,
+.devlog-name {
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 750;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  border-radius: 3px 3px 0 0;
+  flex-shrink: 0;
+  z-index: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-direction: column;
+}
+
+.blog-name,
+.devlog-name {
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.card-name small {
+  font-weight: 400;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  opacity: 0.75;
+  display: block;
+  margin-top: 1px;
+}
+
+.blog-name h3,
+.devlog-name h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.blog-name span,
+.devlog-name span {
+  color: #2a1e04;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.1);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+/* ── Art title – framed inset with inner corners ───── */
+.art-title-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+.art-title-old {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);                 /* 40% opacity outer */
+  border-top: 1px solid var(--card-accent);
+  border-bottom: 1px solid var(--card-accent);
+}
+.art-title-new {
+  position: relative;
+  margin: 4px 12px;                           /* larger margin for smaller inner box */
+  background: rgba(0,0,0,0.15);               /* 15% opacity inner */
+  backdrop-filter: blur(4px);
+  text-align: center;
+  z-index: 1;
+  border-radius: 1px;
+  padding: 4px 8px;
+}
+
+/* Inner corner accents – adjust for new margin */
+.art-title-new::before,
+.art-title-new::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  border-color: var(--card-accent);
+  border-style: solid;
+  opacity: 0.65;
+}
+.art-title-new::before {
+  top: -1px; left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.art-title-new::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.art-title-new h2 {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  color: var(--card-accent);
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  position: relative;
+}
+.art-title-new h2::before,
+.art-title-new h2::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  border-color: var(--card-accent);
+  border-style: solid;
+  opacity: 0.65;
+}
+.art-title-new h2::before {
+  top: -5px; right: -9px;
+  border-width: 2px 2px 0 0;
+}
+.art-title-new h2::after {
+  bottom: -5px; left: -9px;
+  border-width: 0 0 2px 2px;
+}
+
+/* ── Description area ───────────────────────────────── */
+.card-desc,
+.blog-desc,
+.devlog-desc {
+  padding: 14px 14px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 0 0 3px 3px;
+  z-index: 1;
+  gap: 8px;
+}
+.card-desc p,
+.blog-desc p,
+.devlog-desc p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.82rem;
+  max-width: 90%;
+}
+.blog-desc .meta,
+.devlog-desc .meta {
+  margin-top: auto;
+  color: #9a8b65;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  color: var(--tag-text);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}

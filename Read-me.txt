@@ -1,0 +1,492 @@
+# Life Snake Studio – Project Documentation
+
+---
+
+## File Structure
+
+```
+/
+├── index.html                         # Main page – card table with snap navigation
+├── editor.html                        # In‑browser editor page (Cards, Articles, Menu, Languages)
+├── article.html                       # Article detail page (Blog & Devlog)
+├── css/
+│   ├── base.css                       # CSS custom properties (variables) & global resets
+│   ├── layout.css                     # Top bar, sidebar menu, viewport, table surface styles
+│   ├── cards.css                      # Card styles (main, blog, devlog), overlays, opaque/transparent modes
+│   └── responsive.css                 # Mobile breakpoints (max‑width 500px)
+├── js/
+│   ├── constants.js                   # Configuration constants (snap, drag, axis‑lock)
+│   ├── state.js                       # Global mutable state object shared across modules
+│   ├── data.js                        # Fetches & processes JSON files, language switching, menu generation
+│   ├── dom.js                         # HTML generators for main, blog, devlog cards
+│   ├── table.js                       # Builds the table surface & calculates card positions
+│   ├── snap.js                        # Snapping logic, card selection, video play/pause
+│   ├── input.js                       # Pointer, wheel, keyboard, menu event handlers
+│   ├── menu.js                        # Sidebar menu toggle and navigation events
+│   └── app.js                         # Initialisation, resize listener, public API
+├── editor/
+│   ├── editor.html                    # Editor page structure (main tabs, sidebars)
+│   ├── css/
+│   │   └── editor.css                 # Editor‑specific styles (tabs, form inputs, grid, multi‑lang layout)
+│   └── js/
+│       ├── state.js                   # Editor data & UI state (cards, articles, current tab)
+│       ├── helpers.js                 # Utility functions (ID generation, escaping, migration, etc.)
+│       ├── ui-tabs.js                 # Main tab switching & article sub‑tab logic
+│       ├── ui-cards.js                # Main card list rendering & editing (side‑by‑side languages)
+│       ├── ui-articles.js             # Article (blog/devlog) list rendering & editing (side‑by‑side)
+│       ├── ui-menu.js                 # Hamburger menu item editing (side‑by‑side labels)
+│       ├── ui-languages.js            # Language management (add/remove)
+│       ├── load-save.js               # Save (download) and Revert (reload from server) functions
+│       ├── auto-load.js               # Auto‑load all JSON files on editor startup
+│       └── editor.js                  # Event wiring & initialisation
+├── article/
+│   ├── css/
+│   │   └── article.css                # Article page styles
+│   └── js/
+│       └── article.js                 # Article loading, card list, language switching, detail view
+└── Content/
+    ├── mainpagecards.json             # Main page data (cards, settings, menu)
+    ├── blog-posts.json                # Blog articles (card + article text)
+    └── devlogs-posts.json             # Devlog articles (card + article text)
+```
+
+---
+
+## HTML Pages
+
+### `index.html`
+Main entry point. Loads CSS and JS modules in order. Contains:
+- **Top bar** – menu button (☰), site title (`#siteTitle`), language selector (`#langSelect`)
+- **Side menu** – container `#menuLinks` dynamically filled; version label `v0.2.0`
+- **Overlay** – dark backdrop for menu
+- **Viewport** – the main interaction area containing `#tableSurface` where cards are rendered
+
+All content is dynamically injected by JavaScript.
+
+### `editor.html`
+In‑browser editor page. Features:
+- **Header** – Save button, Revert button, "Back to Site" link
+- **Four main tabs** – Cards, Articles, Menu, Languages
+- **Cards panel** – landing card selector, "+ Add Main Card" button
+- **Articles panel** – Blog/Devlog sub‑tabs, help text, "+ Add Article" button
+- **Menu panel** – menu list, "+ Add Menu Item" button
+- **Languages panel** – language list, add‑language input
+- **Main area** – `#cardList`, `#articleList`, `#menuEditArea` (shown/hidden based on active tab)
+
+Loads 10 JavaScript modules in dependency order. No language tabs at the top – all languages are displayed side‑by‑side in the editor fields.
+
+### `article.html`
+Article detail page for blog and devlog entries. Contains:
+- **Top bar** – back button to `index.html`, site title, language selector
+- **Layout** – sidebar (`#articleSidebar`) with card previews, detail panel (`#articleDetail`) with `#detailTitle` and `#detailBody`
+
+Loads `js/constants.js` and `article/js/article.js`.
+
+---
+
+## CSS Files
+
+### `css/base.css`
+Defines all CSS custom properties and global resets:
+- Colour palette variables (`--bg`, `--line`, `--text`, `--muted`, `--bronze`, `--bronze-light`)
+- Card dimension variables (`--card-width`, `--card-height`, `--column-gap`, `--row-gap`, `--table-padding-x`, `--table-padding-y`)
+- Tag/name/desc colour variables
+- Global `box‑sizing: border-box` on all elements
+- Body styling: hidden overflow, system font, touch‑action disabled, user‑select disabled
+
+### `css/layout.css`
+Styles for the main page layout:
+- `.topbar` – fixed top bar (60px height, blurred backdrop, flex layout)
+- `.menu-btn` – hamburger icon with hover colour
+- `.title` – site title text
+- `.lang-switcher` – language dropdown aligned to the right
+- `.side-menu` – off‑canvas menu (280px wide, slides in from left with transition)
+- `.side-menu a` – menu item links with hover effect
+- `.menu-version` – version label pinned to bottom of menu
+- `.overlay` – dark full‑screen backdrop (hidden by default, shown with `.active`)
+- `.viewport` – grab cursor, full‑screen, contains the table surface
+- `.table-surface` – absolutely positioned, textured background with radial gradients and grid lines
+
+### `css/cards.css`
+Styles for the three card types (`.card`, `.blog-card`, `.devlog-card`):
+- Fixed aspect ratio `5 / 7.2`, absolutely positioned
+- `.current` modifier – full opacity, enhanced glow/shadow, higher z‑index
+- `.dragging` modifier – increased opacity during drag
+- Corner decorations (`::before` / `::after` pseudo‑elements)
+- `.card-art` / `.blog-art` / `.devlog-art` – fills the card as background, inset by 7px, with inner border
+- Image & Video – positioned absolutely, cover the art area, with `has‑both` logic for swapping
+- `.has‑both` – shows image by default, switches to video when `.current` is also present
+- `.card-overlay` – positioned above art, holds name, description, etc.
+- `.opaque` mode – solid background for text areas
+- `.transparent` mode – semi‑transparent blur‑glass effect for text areas
+- Card name bar, description area, tags, art title, play‑circle placeholder
+
+### `css/responsive.css`
+Mobile adjustments for screens ≤ 500px:
+- Reduces `--card-width` to 310px, column gap to 40px, padding values
+- Smaller font sizes for card names, descriptions, titles
+- Smaller play‑circle icons
+
+---
+
+## JavaScript Modules (Main Page)
+
+### `js/constants.js`
+Global configuration constants:
+| Constant | Value | Purpose |
+|----------|-------|---------|
+| `SNAP_SPEED_FACTOR` | 0.028 | Speed of snap animations |
+| `SNAP_MIN_DURATION` | 0.18 | Minimum snap duration (seconds) |
+| `SNAP_MAX_DURATION` | 0.72 | Maximum snap duration (seconds) |
+| `SNAP_EASING` | `cubic‑bezier(0.22, 0.1, 0.22, 1.0)` | CSS easing for transitions |
+| `DRAG_THRESHOLD` | 4 | Minimum pixel movement to count as a drag |
+| `DEADZONE_X_FACTOR` | 0.15 | Horizontal dead‑zone fraction |
+| `DEADZONE_Y_FACTOR` | 0.15 | Vertical dead‑zone fraction |
+| `CURRENT_CARD_WEIGHT` | 1.5 | Bias towards staying on current card during snapping |
+| `AXIS_LOCK_MIN` | 6 | Minimum pixel dominance to lock an axis |
+| `AXIS_SWITCH_THRESHOLD` | 35 | Perpendicular distance to force axis switch |
+
+### `js/state.js`
+Single global `state` object with these properties:
+- `allCardEls` – array of card reference objects `{ el, centerX, centerY, column, index, id }`
+- `currentCardIndex` – index of the currently selected card
+- `tableTx`, `tableTy` – current table translation (pixels)
+- `isDragging`, `isSnapping` – interaction state flags
+- `pointerStartX`, `pointerStartY` – pointer position at drag start
+- `tableStartTx`, `tableStartTy` – table position at drag start
+- `pointerMoved` – whether the pointer has moved beyond the threshold
+- `currentSnapOnEnd` – reference to the current `transitionend` callback
+- `wheelSnapTimeout` – timeout ID for delayed snap after wheel scrolling
+- `mainCards`, `devlogCards`, `blogCards` – localised card arrays for each column
+- `landingCardId` – ID of the card to show on first load
+- `currentLanguage` – active language code
+- `rawCards` – original cards before localisation (used as source of truth)
+- `settings` – loaded settings object (languages, defaultLanguage, siteTitle)
+- `menuItems` – hamburger menu items with translations
+- `dominantAxis` – current axis lock (`'x'`, `'y'`, or `null`)
+
+### `js/data.js`
+Core data management module. **Functions:**
+
+- **`loadAllCards()`** – Main data pipeline.
+  1. Fetches `Content/mainpagecards.json`. Parses it (handles old flat array and new `{ settings, menu, cards }` format).
+  2. Fetches `Content/blog-posts.json` – filters to only `isHighlighted: true`, maps them to `blog` column.
+  3. Fetches `Content/devlogs-posts.json` – filters highlighted, maps to `devlog` column.
+  4. Concatenates main + highlighted blog + highlighted devlog into `state.rawCards`.
+  5. Determines language from URL parameter (`?lang=`), `localStorage`, or browser preference.
+  6. Calls `applyLanguage()` then UI builders (`buildMenuHTML`, `populateLanguageSelector`, `updateSiteTitle`).
+  - On failure: falls back to empty arrays and default settings.
+
+- **`migrateCard(card)`** – Converts old flat card format to new translation‑centric format. Preserves `column`, `order`, `id`, `uiMode`, `imageUrl`, `videoUrl`. Packs text fields into `translations.en`.
+
+- **`applyLanguage(lang)`** – Rebuilds `state.mainCards`, `state.devlogCards`, `state.blogCards` by extracting the relevant language from `rawCards`. Falls back to the default language if the requested language doesn't exist. Passes through `uiMode`, `imageUrl`, `videoUrl`, `link`. Calls `buildMenuHTML()` and `updateSiteTitle()`.
+
+- **`generateDefaultMenu(cards, languages)`** – Creates a menu from predefined card IDs: `home`, `world`, `tcg`, `engine`, `licensing`, `community`, `contact`, `presskit`, `devlog-0`, `blog-0`. Uses the card's `name` or `title` for each language.
+
+- **`buildMenuHTML()`** – Dynamically creates `<a>` elements inside `#menuLinks` using the current language's labels. Calls `attachMenuEvents()`.
+
+- **`updateSiteTitle()`** – Sets `#siteTitle` text from `settings.siteTitle` for the current language.
+
+- **`populateLanguageSelector()`** – Fills `<select id="langSelect">` with option elements for each available language.
+
+### `js/dom.js`
+HTML template generators. **Functions:**
+
+- **`createMainCardHTML(data)`** – Returns HTML string for a main card. Handles image, video, or placeholder in `.card-art`. Includes `.card-overlay` with name, subtitle, description, and tag.
+
+- **`createBlogCardHTML(data)`** – Returns HTML string for a blog card. Same structure but uses `.blog-art`, `.blog-name`, `.blog-desc`, and includes `meta` field.
+
+- **`createDevlogCardHTML(data)`** – Returns HTML string for a devlog card. Identical structure to blog card but uses `devlog-` class prefixes.
+
+### `js/table.js`
+Card layout and positioning. **Functions:**
+
+- **`getCardWidth()`** – Reads `--card-width` CSS variable.
+- **`getCardHeight()`** – Calculates height from width using `5 / 7.2` aspect ratio.
+- **`getColumnGap()`** – Reads `--column-gap` CSS variable.
+- **`getRowGap()`** – Reads `--row-gap` CSS variable.
+- **`getTablePaddingX()`** – Reads `--table-padding-x` CSS variable.
+- **`getTablePaddingY()`** – Reads `--table-padding-y` CSS variable.
+- **`buildAllCards()`** – Clears `#tableSurface`, iterates over `state.devlogCards`, `state.mainCards`, `state.blogCards`, creates DOM elements for each. Calculates three column centres (devlog left, main centre, blog right). Adds `has‑both` class when both image and video URLs exist. Stores the localised data object as `el._cardData`. Appends to `state.allCardEls` with position metadata. Sets table width and height.
+- **`onResize()`** – Recalculates all card positions and table dimensions on window resize. Snaps to the current card without animation.
+
+### `js/snap.js`
+Card snapping and selection. **Functions:**
+
+- **`findClosestCardIndex(dragDx, dragDy)`** – Determines which card is closest to the viewport centre. Respects a dead‑zone around the current card. During drag, prevents snapping to cards beyond the table bounds. Uses a weighted distance formula favouring the current card.
+- **`pauseAllVideos()`** – Pauses all `<video>` elements across all cards.
+- **`playVideoOfCard(index)`** – Plays the video on the card at `index`.
+- **`updateCurrentCard(index)`** – Pauses all videos, removes `.current` from all cards, adds `.current` to the new one, plays its video, updates opacities.
+- **`updateCardOpacities()`** – Sets opacity to `1` for the current card and `0.28` for all others.
+- **`setTableTransform(tx, ty)`** – Updates `state.tableTx/Ty` and applies `transform: translate()` to `#tableSurface`.
+- **`clearSnapTransition()`** – Removes `.snapping` class, clears CSS transition, removes any pending `transitionend` listener.
+- **`snapToCard(index, animate)`** – Calculates the translation to centre the given card in the viewport. If `animate` is true, applies a variable‑speed CSS transition (speed based on distance) and sets a cleanup timeout. Updates current card and video playback.
+
+### `js/input.js`
+Pointer, wheel, and keyboard event handling. **Functions:**
+
+- **`getEventPos(e)`** – Returns `{ x: e.clientX, y: e.clientY }`.
+- **`findCardAtPoint(clientX, clientY)`** – Returns the index of the card under the given coordinates, or `-1`.
+- **`onPointerDown(e)`** – Initiates dragging. Captures pointer, records start positions, resets axis lock. Adds `.grabbing` and `.dragging` classes. Clears any pending wheel snap.
+- **`onPointerMove(e)`** – Dynamic axis‑locked movement. Before lock: free movement. After reaching threshold: locks to dominant axis (`x` or `y`). Perpendicular movement exceeding `AXIS_SWITCH_THRESHOLD` causes axis switch, replaying accumulated offset from the original drag start.
+- **`onPointerUp(e)`** – Ends dragging. If not moved, checks if a card was clicked:
+  - Blog/devlog cards → navigate to `article.html?type=...&id=...`
+  - Main cards with a `link` → open in new tab
+  - Otherwise → snap to closest card
+- **`onPointerCancel(e)`** – Cleans up dragging on pointer loss.
+- **`onWheel(e)`** – Scrolls vertically (`tableTy -= deltaY * 0.9`), with a 150ms delayed snap.
+- **`onKeyDown(e)`** – Arrow key navigation. Finds the best‑aligned adjacent card (up/down/left/right) and snaps to it.
+- **`(DOMContentLoaded listener)`** – Attaches all pointer, touch, wheel, and keyboard events to `#viewport` and `document`.
+
+### `js/menu.js`
+Sidebar menu control. **Functions:**
+
+- **`attachMenuEvents()`** – Adds click handlers to all sidebar `<a data-nav="...">` elements. Closes the menu and snaps to the corresponding card.
+- **`toggleMenu()`** – Toggles `.active` on `#menu`, `#overlay`, and `#viewport` (for `menu‑open`).
+- **`(DOMContentLoaded listener)`** – Wires the menu button and overlay to `toggleMenu()`.
+
+### `js/app.js`
+Application initialisation and public API. **Functions:**
+
+- **`debounce(fn, delay)`** – Standard debounce helper for the resize handler.
+- **`init()`** – Calls `loadAllCards()` then `buildAllCards()`. Determines starting card from `landingCardId` (fallback to `"home"` or first card). Snaps without animation.
+- **`switchLanguage(lang)`** – Applies new language, rebuilds table, re‑snaps to the same card (or landing card fallback). Updates `localStorage` and the language selector.
+- **`(DOMContentLoaded listener)`** – Sets up resize and language‑selector events, then calls `init()`.
+- **`window.lifeSnakeStudio`** – Public API object:
+  - `navigateTo(cardId)` – snap to a card by ID
+  - `navigateToBlog(blogIndex)` – snap to a blog card by column index
+  - `navigateToDevlog(devlogIndex)` – snap to a devlog card by column index
+  - `getCurrentCard()` – returns the current card object
+  - `getAllCards()` – returns the `allCardEls` array
+
+---
+
+## Editor JavaScript Modules
+
+### `editor/js/state.js`
+Two global objects attached to `window`:
+
+**`window.editorData`**
+- `settings` – landing card ID, default language, languages array, site title translations
+- `menu` – array of menu items (each with `id` and `translations`)
+- `cards` – array of main card objects (main column only)
+
+**`window.blogArticles`** / **`window.devlogArticles`** – separate arrays holding article data.
+
+**`window.editorState`**
+- `currentMainTab` – `"cards"`, `"articles"`, `"menu"`, or `"languages"`
+- `currentArticleTab` – `"blog"` or `"devlog"`
+
+### `editor/js/helpers.js`
+Utility functions used across editor modules:
+
+- **`editorGenerateId()`** – Creates a unique ID string (`"card‑" + timestamp + random`).
+- **`editorEnsureTranslations(obj, langs)`** – Ensures `obj` has a key for every language; fills missing with English value or empty string.
+- **`editorEscapeHtml(str)`** – Escapes HTML special characters for safe DOM insertion.
+- **`editorReorderAll()`** – Reassigns sequential `order` values to all main cards (by column `'main'`).
+- **`editorMigrateOldCard(c)`** – Converts old‑format card to new structure with default English translations. Preserves `column`, `order`, `id`, `uiMode`, `imageUrl`, `videoUrl`, and `link`.
+- **`editorGetLanguages()`** – Returns the current language list from `window.editorData.settings.languages` (falls back to `['en']`).
+
+### `editor/js/ui-tabs.js`
+Tab switching logic. No language‑tab rendering (all languages shown side‑by‑side). **Functions:**
+
+- **Main tab switching** (`DOMContentLoaded` listener on `#mainTabs`) – Handles clicks on `[data‑tab]` elements. Shows/hides panels (`#panelCards`, `#panelArticles`, `#panelMenu`, `#panelLanguages`) and content areas (`#cardList`, `#articleList`, `#menuEditArea`). Calls the appropriate render function.
+- **Article sub‑tab switching** (`#articleSubTabs` listener) – Switches between Blog and Devlog article types. Updates active state and calls `editorRenderArticleList()`.
+
+### `editor/js/ui-cards.js`
+Main card editing with side‑by‑side language fields. **Functions:**
+
+- **`editorRefreshLandingSelect()`** – Rebuilds the landing card dropdown (`#landingCardSelect`) using English titles.
+- **`editorRenderCardList()`** – Renders all main cards (`column === 'main'`). For each card, creates a form with:
+  - Shared fields: UI Mode (dropdown), Image URL, WebM Video URL, Link URL
+  - Multi‑language fields (via `generateMultiLangField`): Title, Description (textarea), Name, Subtitle, Tag
+  - Move up/down buttons, remove button
+  - Attaches event listeners for all inputs including per‑language input handlers on `.multi‑lang‑group` elements.
+- **`generateMultiLangField(labelText, fieldKey, card, langs, isTextarea)`** – Creates a DOM element containing one labelled input/textarea per language. Each input has a `data‑lang` attribute and a language badge (`EN`, `PT`, etc.). Used by both cards and articles.
+- **`editorAddCard()`** – Creates a new main card with empty translations for all languages. Reorders and refreshes.
+- **`editorRemoveCard(id)`** – Removes a card after confirmation. Clears landing card if it was the removed card.
+- **`editorMoveCard(id, direction)`** – Swaps a card with its neighbour, re‑orders, and re‑renders.
+
+### `editor/js/ui-articles.js`
+Article editing (blog and devlog) with side‑by‑side language fields. **Functions:**
+
+- **`getCurrentArticleArray()`** – Returns the active article array (`window.blogArticles` or `window.devlogArticles`).
+- **`editorRenderArticleList()`** – Renders all articles in the current article tab. For each article, creates a form with:
+  - Shared fields: Highlighted checkbox, UI Mode dropdown, Image URL, WebM Video URL
+  - Multi‑language fields: Card Title, Card Description (textarea), Label, Meta, Tag, Article Title, Article Body (textarea)
+  - Move/remove buttons
+  - Attaches event listeners
+- **`editorAddArticle()`** – Creates a new article with default translations for all languages.
+- **`editorRemoveArticle(id)`** – Removes an article after confirmation.
+- **`editorMoveArticle(id, direction)`** – Swaps two articles within the current array.
+- **`editorReorderArticles()`** – Reassigns sequential `order` values to the current article array.
+
+### `editor/js/ui-menu.js`
+Hamburger menu editing with side‑by‑side labels. **Functions:**
+
+- **`editorRenderMenuEdit()`** – Renders menu items in the editor area. Each item shows its ID, per‑language label inputs (via `generateMultiLangField`), and move/remove buttons. Attaches input listeners that update `item.translations[lang]` and refresh the sidebar list.
+- **`editorRenderMenuList()`** – Renders the sidebar menu list showing English labels for quick reference, with remove buttons.
+- **`editorAddMenuItem()`** – Prompts for a card ID, creates a new menu entry with translations defaulting to the ID.
+
+### `editor/js/ui-languages.js`
+Language management. **Functions:**
+
+- **`editorRenderLanguageList()`** – Lists all languages with remove buttons (disabled for English). English cannot be removed (it's the fallback).
+- **`editorRemoveLanguage(lang)`** – Removes the language from `settings.languages`, deletes its translations from cards, menu, blog articles, and devlog articles. Refreshes the active tab's view.
+- **`editorAddLanguage()`** – Adds a new language code. Initialises empty translations across all cards, articles, and menu items. Refreshes the active tab's view.
+
+### `editor/js/load-save.js`
+Save and revert functionality. **Functions:**
+
+- **`editorProcessMainJson(json)`** – Processes loaded main JSON (used internally by auto‑load and revert). Handles old flat arrays and new `{ settings, menu, cards }` format. Ensures translations exist for all languages and `link` is copied to card level. Refreshes the current tab's view.
+- **`editorProcessArticleJson(json, articleType)`** – Processes loaded article JSON. Ensures `articleTitle` and `articleBody` fields exist in translations. Updates the appropriate article array. Refreshes the articles view if it's the active tab.
+- **`editorSave()`** – Determines whether to save main or article file based on active tab. Calls `saveMainJson()` or `saveArticleJson()`.
+- **`saveMainJson()`** – Reorders cards, ensures IDs exist, validates landing card, removes `link` from translations (stored at card level), packages everything as `{ settings, menu, cards }`, and triggers download as `mainpagecards.json`.
+- **`saveArticleJson()`** – Reorders articles, ensures IDs exist, triggers download as `{type}‑posts.json`.
+- **`downloadJson(dataObj, filename)`** – Creates a Blob, generates a temporary download link, and triggers the click.
+- **`editorRevert()`** – Confirms with the user, then re‑fetches the current file from the server (`../Content/...`). Calls `editorProcessMainJson()` or `editorProcessArticleJson()` to reload the data.
+
+### `editor/js/auto-load.js`
+- **`editorAutoLoad()`** – Fetches three files on startup:
+  1. `../Content/mainpagecards.json` → calls `editorProcessMainJson()`
+  2. `../Content/blog‑posts.json` → stores in `window.blogArticles`
+  3. `../Content/devlogs‑posts.json` → stores in `window.devlogArticles`
+  All fetch errors are silently ignored (graceful fallback).
+
+### `editor/js/editor.js`
+Initialisation and event wiring. **(DOMContentLoaded listener)**:
+- Landing card select change → updates `settings.landingCardId`
+- `#addCardBtn` click → `editorAddCard()`
+- `#addArticleBtn` click → `editorAddArticle()`
+- `#addMenuItemBtn` click → `editorAddMenuItem()`
+- `#addLanguageBtn` click → `editorAddLanguage()`
+- `#saveBtn` click → `editorSave()`
+- `#revertBtn` click → `editorRevert()`
+- Calls `editorAutoLoad()` to kick off data loading.
+
+---
+
+## Article Page JavaScript
+
+### `article/js/article.js`
+Self‑executing async IIFE. **Functions and flow:**
+- Extracts `type` (blog/devlog) and `id` from URL parameters.
+- **`loadArticles()`** – Fetches `../Content/{type}-posts.json`. Also fetches `../Content/mainpagecards.json` to read language settings.
+- **`renderCardList()`** – Creates a vertical list of `.article-card` elements in the sidebar. Each card shows the image/video and title. Clicking calls `selectArticle()`. Adds `.selected` class to the initial card.
+- **`selectArticle(id)`** – Highlights the selected card, fills `#detailTitle` with `articleTitle` (or `title` fallback), and `#detailBody` with `articleBody`.
+- **`buildLanguageSelector()`** – Populates the language dropdown and handles language switching, re‑rendering cards and detail.
+- Auto‑selects the initial article from the URL `id` parameter, or falls back to the first article in the list.
+
+---
+
+## `Content/` Data Files
+
+### `Content/mainpagecards.json`
+Main page configuration file:
+```json
+{
+  "settings": {
+    "landingCardId": "...",
+    "defaultLanguage": "en",
+    "languages": ["en", "pt"],
+    "siteTitle": { "en": "...", "pt": "..." }
+  },
+  "menu": [
+    { "id": "...", "translations": { "en": "...", "pt": "..." } }
+  ],
+  "cards": [
+    {
+      "column": "main",
+      "order": 0,
+      "type": "main",
+      "id": "...",
+      "uiMode": "opaque|transparent",
+      "imageUrl": "...",
+      "videoUrl": "...",
+      "link": "https://...",
+      "translations": {
+        "en": {
+          "name": "...", "sub": "...", "title": "...",
+          "description": "...", "meta": "...", "tag": "...", "link": "..."
+        },
+        "pt": { ... }
+      }
+    }
+  ]
+}
+```
+
+### `Content/blog-posts.json` and `Content/devlogs-posts.json`
+Article files (plain arrays):
+```json
+[
+  {
+    "column": "blog|devlog",
+    "order": 0,
+    "type": "blog|devlog",
+    "id": "...",
+    "isHighlighted": true|false,
+    "uiMode": "opaque|transparent",
+    "imageUrl": "...",
+    "videoUrl": "...",
+    "translations": {
+      "en": {
+        "name": "...", "sub": "...", "label": "...", "title": "...",
+        "description": "...", "meta": "...", "tag": "...",
+        "articleTitle": "...", "articleBody": "..."
+      },
+      "pt": { ... }
+    }
+  }
+]
+```
+- `isHighlighted: true` – the article card appears on the main page in the blog/devlog column.
+- `articleTitle` and `articleBody` – shown only on the article detail page, not on the card.
+
+---
+
+## Data Flow
+
+### Main Page Load
+1. `app.js` `init()` → `data.js` `loadAllCards()`
+2. Fetches `mainpagecards.json`, `blog‑posts.json`, `devlogs‑posts.json`
+3. Filters highlighted blog/devlog entries
+4. Concatenates into `state.rawCards`
+5. `applyLanguage()` filters by column and maps translations
+6. `buildAllCards()` creates DOM elements
+7. `snapToCard()` centres the landing card
+
+### Language Switch
+1. User changes `#langSelect`
+2. `switchLanguage()` stores current card ID
+3. `applyLanguage()` rebuilds card arrays with new translations
+4. `buildAllCards()` recreates the DOM
+5. Re‑snaps to the same card (or landing card fallback)
+
+### Card Click
+1. `onPointerUp()` detects no drag movement
+2. `findCardAtPoint()` identifies the clicked card
+3. Blog/devlog → navigates to `article.html?type=...&id=...`
+4. Main with link → `window.open(link, '_blank')`
+5. Otherwise → `snapToCard()`
+
+### Editor Workflow
+1. `editorAutoLoad()` fetches all three JSON files from the server
+2. User edits cards/articles/menu/languages with side‑by‑side language inputs
+3. **Save** – downloads the current file as JSON
+4. **Revert** – reloads the current file from the server, discarding changes
+
+---
+
+## How to Add/Modify Features
+
+- **Adding a new language** – use the editor's Languages tab (add language code; translations are auto‑initialised)
+- **Changing card appearance** – edit `css/cards.css` and the HTML generators in `js/dom.js`
+- **Adding a new card type** – extend `data.js` to load another JSON file, add a new column in `table.js`, create matching HTML/CSS
+- **Custom navigation** – modify `js/input.js` `onPointerUp()` to handle other card actions
+- **Editor extensions** – add a new tab in `editor.html` sidebar, add a case in `ui‑tabs.js`, and create a new `ui‑*.js` module
+- **Adding more shared fields** – add the field to the data structure, editor forms, and `migrateCard()`/`editorMigrateOldCard()` functions
+
+---
+
+*Documentation  from the codebase May 2026.*
