@@ -1,6 +1,4 @@
-// No more language tabs – all languages are displayed side‑by‑side in fields.
-// This file now only handles main tab switching (Cards/Articles/Menu/Languages)
-// and the article sub‑tab (Blog/Devlog).
+// Main tab switching and article sub‑tab switching.
 
 document.addEventListener('DOMContentLoaded', function() {
   const mainTabs = document.getElementById('mainTabs');
@@ -15,17 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('panelCards').style.display = tabName === 'cards' ? 'block' : 'none';
     document.getElementById('panelArticles').style.display = tabName === 'articles' ? 'block' : 'none';
-    document.getElementById('panelMenu').style.display = tabName === 'menu' ? 'block' : 'none';
     document.getElementById('panelLanguages').style.display = tabName === 'languages' ? 'block' : 'none';
 
-    document.getElementById('cardList').style.display = tabName === 'cards' ? 'block' : 'none';
-    document.getElementById('articleList').style.display = tabName === 'articles' ? 'block' : 'none';
-    document.getElementById('menuEditArea').style.display = tabName === 'menu' ? 'block' : 'none';
+    document.getElementById('cardListPanel').style.display = tabName === 'cards' ? 'flex' : 'none';
+    document.getElementById('articleListPanel').style.display = tabName === 'articles' ? 'flex' : 'none';
+    document.getElementById('langListPanel').style.display = tabName === 'languages' ? 'flex' : 'none';
 
-    if (tabName === 'cards') editorRenderCardList();
-    else if (tabName === 'articles') editorRenderArticleList();
-    else if (tabName === 'menu') { editorRenderMenuList(); editorRenderMenuEdit(); }
-    else if (tabName === 'languages') { editorRenderLanguageList(); }
+    if (tabName === 'cards') {
+      editorRenderCardList();
+    } else if (tabName === 'articles') {
+      editorRenderArticleList();
+    } else if (tabName === 'languages') {
+      editorRenderLanguageList();
+    }
   });
 
   // Article sub‑tab switching

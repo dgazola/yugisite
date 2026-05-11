@@ -6,8 +6,9 @@
   let currentLang = 'en';
   let languages = ['en'];
   let settings = { defaultLanguage: 'en', languages };
-  let articles = [];
+  let mainCards = [];        // for menu link resolution
   let menuItems = [];
+  let articles = [];
 
   // ── Fetch article file ─────────────────────────────────
   async function loadArticles() {
@@ -30,17 +31,41 @@
     }
   }
 
-  // ── Load site settings + menu from main page data ─────
-  async function loadSiteSettings() {
+  // ── Load site settings, main cards, and build menu ────
+  async function loadSiteData() {
     try {
       const mainResp = await fetch('../Content/mainpagecards.json');
       if (!mainResp.ok) throw new Error('Failed to load main settings');
       const mainJson = await mainResp.json();
       settings = mainJson.settings || { defaultLanguage: "en", languages: ["en"] };
       languages = settings.languages || ["en"];
-      menuItems = mainJson.menu || [];
+      mainCards = (mainJson.cards || []).filter(c => c.column === 'main').sort((a,b) => a.order - b.order);
+
+      // Build menu exactly like the main page does (from main cards + blog/devlog shortcuts)
+      const langs = languages;
+      const menu = [];
+      mainCards.forEach(card => {
+        const item = { id: card.id, translations: {} };
+        langs.forEach(lang => {
+          const trans = card.translations && card.translations[lang] ? card.translations[lang] : (card.translations && card.translations.en ? card.translations.en : {});
+          item.translations[lang] = trans.name || trans.title || card.id;
+        });
+        menu.push(item);
+      });
+
+      // Blog shortcut
+      const blogItem = { id: 'blog-menu', translations: {} };
+      langs.forEach(lang => blogItem.translations[lang] = lang === 'en' ? 'Blog' : (lang === 'pt' ? 'Blog' : 'Blog'));
+      menu.push(blogItem);
+
+      // Devlog shortcut
+      const devlogItem = { id: 'devlog-menu', translations: {} };
+      langs.forEach(lang => devlogItem.translations[lang] = lang === 'en' ? 'Devlog' : (lang === 'pt' ? 'Devlog' : 'Devlog'));
+      menu.push(devlogItem);
+
+      menuItems = menu;
     } catch (err) {
-      console.warn('Site settings / menu not loaded', err);
+      console.warn('Site data not loaded', err);
     }
   }
 
@@ -53,7 +78,7 @@
   document.getElementById('menuTrigger').addEventListener('click', toggleMenu);
   document.getElementById('overlay').addEventListener('click', toggleMenu);
 
-  // ── Build menu links (navigate to main page + snap) ────
+  // ── Build menu links (exactly like main page behavior) ──
   function buildMenu() {
     const container = document.getElementById('menuLinks');
     if (!container) return;
@@ -61,11 +86,27 @@
     menuItems.forEach(item => {
       const label = item.translations[currentLang] || item.translations[settings.defaultLanguage] || item.id;
       const a = document.createElement('a');
-      a.href = `index.html?snap=${item.id}`;
+      a.setAttribute('data-nav', item.id);
       a.textContent = label;
       a.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = a.href;
+        const navId = item.id;
+        if (navId === 'blog-menu') {
+          window.location.href = 'article.html?type=blog';
+          return;
+        }
+        if (navId === 'devlog-menu') {
+          window.location.href = 'article.html?type=devlog';
+          return;
+        }
+        // For main cards: find the card and follow its link
+        const card = mainCards.find(c => c.id === navId);
+        if (card && card.link) {
+          window.open(card.link, '_blank');
+          return;
+        }
+        // Fallback: navigate to the main page with snap parameter
+        window.location.href = `index.html?snap=${navId}`;
       });
       container.appendChild(a);
     });
@@ -98,7 +139,6 @@
     articles.forEach((article, idx) => {
       const t = article.translations[currentLang] || article.translations[settings.defaultLanguage] || {};
 
-      // Build a data object suitable for the existing card HTML generators
       const cardData = {
         column: article.column || type,
         id: article.id,
@@ -118,15 +158,9 @@
       const cardEl = document.createElement('article');
       cardEl.className = (type === 'blog' ? 'blog-card' : 'devlog-card') + ' article-card';
       cardEl.classList.add(cardData.uiMode);
-      if (cardData.imageUrl && cardData.videoUrl) {
-        cardEl.classList.add('has-both');
-      }
-      if (cardData.color) {
-        cardEl.style.setProperty('--card-accent', cardData.color);
-      }
-      // Use the existing generator; note: blog‑card and devlog‑card HTML have slightly different structures,
-      // but since we styled them both with the same rules they will look identical.
-      cardEl.innerHTML = (type === 'blog' ? createBlogCardHTML : createDevlogCardHTML)(cardData);  
+      if (cardData.imageUrl && cardData.videoUrl) cardEl.classList.add('has-both');
+      if (cardData.color) cardEl.style.setProperty('--card-accent', cardData.color);
+      cardEl.innerHTML = (type === 'blog' ? createBlogCardHTML : createDevlogCardHTML)(cardData);
 
       if (article.id === initialId) cardEl.classList.add('selected');
       cardEl.dataset.id = article.id;
@@ -154,7 +188,7 @@
   }
 
   // ── Init ─────────────────────────────────────────────
-  await loadSiteSettings();
+  await loadSiteData();
   await loadArticles();
 
   // Apply site‑wide accent colour from constants

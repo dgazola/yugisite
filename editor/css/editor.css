@@ -382,3 +382,190 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* ── Split panel layout (shared by Cards / Articles / Languages) ── */
+.split-panel {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 200px);   /* fill available space */
+}
+
+.list-panel {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--editor-border);
+  padding-right: 16px;
+  overflow-y: auto;
+}
+
+.edit-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding-left: 16px;
+}
+
+/* List items (used in all list panels) */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 4px;
+  border: 1px solid var(--editor-border);
+  border-radius: var(--editor-radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  background: var(--editor-surface);
+  gap: 8px;
+}
+.list-item:hover {
+  border-color: var(--editor-accent);
+}
+.list-item.selected {
+  border-color: var(--editor-accent);
+  background: #1a1a0f;
+}
+
+.list-item-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid var(--editor-muted);
+}
+
+.list-item-title {
+  flex: 1;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-item-actions {
+  display: flex;
+  gap: 2px;
+}
+.list-item-actions button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--editor-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.list-item-actions button:hover {
+  color: var(--editor-text);
+  border-color: var(--editor-border);
+}
+
+/* Add language input inside the list panel */
+.add-language {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.add-language input {
+  flex: 1;
+  padding: 6px;
+  background: #0a0a06;
+  border: 1px solid var(--editor-border);
+  color: var(--editor-text);
+  border-radius: var(--editor-radius);
+}
+
+/* ── Card list panel (list view) ───────────────────── */
+.card-list-panel {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--editor-border);
+  padding-right: 16px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.card-list-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 4px;
+  border: 1px solid var(--editor-border);
+  border-radius: var(--editor-radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  background: var(--editor-surface);
+  gap: 8px;
+}
+.card-list-item:hover {
+  border-color: var(--editor-accent);
+}
+.card-list-item.selected {
+  border-color: var(--editor-accent);
+  background: #1a1a0f;
+}
+
+.card-list-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid var(--editor-muted);
+}
+
+.card-list-title {
+  flex: 1;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-list-actions {
+  display: flex;
+  gap: 2px;
+}
+.card-list-actions button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--editor-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.card-list-actions button:hover {
+  color: var(--editor-text);
+  border-color: var(--editor-border);
+}
+
+/* ── Card edit panel (right side) ───────────────────── */
+.card-edit-panel {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding-left: 16px;
+}
+.card-edit-panel .card-editor {
+  /* override any margin from card-list */
+  margin: 0;
+}
+/* Second-language selector in header */
+.editor-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.second-lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--editor-muted);
+}
+.second-lang-selector select {
+  padding: 4px 8px;
+  background: var(--editor-surface);
+  border: 1px solid var(--editor-border);
+  color: var(--editor-text);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}

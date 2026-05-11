@@ -25,6 +25,8 @@ async function loadAllCards() {
     }
 
     state.settings = settings;
+    // IMPORTANT: keep the landing card ID in sync with the global state
+    state.landingCardId = settings.landingCardId || "home";
 
     // Store raw main cards
     state.rawCards = mainCardsArray;
@@ -100,6 +102,7 @@ async function loadAllCards() {
   const langSelect = document.getElementById('langSelect');
   if (langSelect) langSelect.value = state.currentLanguage;
 }
+
 
 function migrateCard(card) {
   return {

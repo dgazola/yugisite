@@ -1,14 +1,16 @@
 {
   "settings": {
-    "landingCardId": "home",
+    "landingCardId": "world",
     "defaultLanguage": "en",
     "languages": [
       "en",
-      "pt"
+      "pt",
+      "es"
     ],
     "siteTitle": {
       "en": "Life Snake Studio",
-      "pt": "Life Snake Studio"
+      "pt": "Life Snake Studio",
+      "es": "Life Snake Studio"
     }
   },
   "cards": [
@@ -34,10 +36,19 @@
           "name": "Início",
           "sub": "Ponto de entrada do universo",
           "label": "",
-          "title": "Universo Yugimon",
+          "title": "Universo ds",
           "description": "Bem‑vindo ao Life Snake Studio. Explore o mundo de Yugimon.",
           "meta": "",
           "tag": "Comece Aqui"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com",
@@ -69,6 +80,15 @@
           "description": "Mergulhe na história, explore regiões através de um mapa interativo.",
           "meta": "",
           "tag": "História e Regiões"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com",
@@ -100,6 +120,15 @@
           "description": "Aprenda as regras, pesquise o banco de cartas, construa decks.",
           "meta": "",
           "tag": "Central do Jogo"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com",
@@ -131,6 +160,15 @@
           "description": "O conjunto de ferramentas personalizado que criei para acelerar o desenvolvimento.",
           "meta": "",
           "tag": "Ferramentas Personalizadas"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com"
@@ -161,6 +199,15 @@
           "description": "Licencie a propriedade intelectual de Yugimon.",
           "meta": "",
           "tag": "Para Indies"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com"
@@ -191,6 +238,15 @@
           "description": "Participe da discussão no Discord e nos fóruns.",
           "meta": "",
           "tag": "Junte‑se a Nós"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com"
@@ -221,6 +277,15 @@
           "description": "Dúvidas gerais, consultas da imprensa.",
           "meta": "",
           "tag": "Entre em Contato"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com"
@@ -251,6 +316,15 @@
           "description": "Baixe logos oficiais, artes principais, ficha técnica.",
           "meta": "",
           "tag": "Downloads de Mídia"
+        },
+        "es": {
+          "name": "",
+          "sub": "",
+          "label": "",
+          "title": "",
+          "description": "",
+          "meta": "",
+          "tag": ""
         }
       },
       "link": "https://google.com"

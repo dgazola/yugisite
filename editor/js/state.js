@@ -5,16 +5,14 @@ window.editorData = {
     languages: ["en"],
     siteTitle: { "en": "Life Snake Studio" }
   },
-  menu: [],
   cards: []        // main cards only
 };
 
-// Articles data – separate from main data
 window.blogArticles = [];
 window.devlogArticles = [];
 
 window.editorState = {
-  currentMainTab: "cards",        // "cards" | "articles" | "menu" | "languages"
-  currentArticleTab: "blog",      // "blog" | "devlog"
-  currentLang: "en"
+  currentMainTab: "cards",
+  currentArticleTab: "blog",
+  secondLang: "en"          // will be updated when data arrives
 };

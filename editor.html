@@ -10,6 +10,12 @@
   <div class="editor-container">
     <header class="editor-header">
       <h1>🃏 Card Editor</h1>
+      <div class="editor-header-controls">
+        <div class="second-lang-selector">
+          <label for="secondLangSelect">2nd language:</label>
+          <select id="secondLangSelect"></select>
+        </div>
+      </div>
       <div class="editor-actions">
         <button id="saveBtn" class="btn btn-primary">💾 Save</button>
         <button id="revertBtn" class="btn btn-secondary">↩ Revert</button>
@@ -40,26 +46,32 @@
             <button class="tab sub-tab active" data-article="blog">Blog</button>
             <button class="tab sub-tab" data-article="devlog">Devlog</button>
           </div>
-          <div class="landing-card-section" style="margin-top:10px;">
-            <p class="help-text" style="margin-top:0;">Check "Highlighted" to show on main page.</p>
-          </div>
           <button id="addArticleBtn" class="btn btn-primary">+ Add Article</button>
         </div>
 
+        <!-- Languages panel – no add button here; it's inside the list panel -->
         <div class="panel" id="panelLanguages" style="display:none;">
-          <h3>Languages</h3>
-          <div id="langList"></div>
-          <hr>
-          <div class="add-language">
-            <input type="text" id="newLangCode" placeholder="e.g. es, fr" maxlength="5" />
-            <button id="addLanguageBtn" class="btn btn-primary">Add Language</button>
-          </div>
         </div>
       </aside>
 
       <main class="editor-main">
-        <div id="cardList" class="card-list"></div>
-        <div id="articleList" class="card-list" style="display:none;"></div>
+        <!-- Cards tab: list + editor -->
+        <div id="cardListPanel" class="split-panel">
+          <div class="list-panel" id="cardListContainer"></div>
+          <div class="edit-panel" id="cardEditContainer"></div>
+        </div>
+
+        <!-- Articles tab: list + editor -->
+        <div id="articleListPanel" class="split-panel" style="display:none;">
+          <div class="list-panel" id="articleListContainer"></div>
+          <div class="edit-panel" id="articleEditContainer"></div>
+        </div>
+
+        <!-- Languages tab: list + editor -->
+        <div id="langListPanel" class="split-panel" style="display:none;">
+          <div class="list-panel" id="langListContainer"></div>
+          <div class="edit-panel" id="langEditContainer"></div>
+        </div>
       </main>
     </div>
   </div>

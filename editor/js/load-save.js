@@ -8,14 +8,12 @@ function editorProcessMainJson(json) {
       languages: ["en"],
       siteTitle: { "en": "Life Snake Studio" }
     };
-    window.editorData.menu = [];
   } else {
     window.editorData.cards = (json.cards || []).map(c => {
       if (!c.translations) return editorMigrateOldCard(c);
       return c;
     });
     window.editorData.settings = json.settings || {};
-    window.editorData.menu = json.menu || [];
     if (!window.editorData.settings.defaultLanguage) window.editorData.settings.defaultLanguage = "en";
     if (!window.editorData.settings.languages) window.editorData.settings.languages = ["en"];
     if (!window.editorData.settings.siteTitle) window.editorData.settings.siteTitle = { "en": "Life Snake Studio" };
@@ -32,18 +30,12 @@ function editorProcessMainJson(json) {
         card.link = (firstTrans && firstTrans.link) || "";
       }
     });
-    window.editorData.menu.forEach(item => {
-      item.translations = editorEnsureTranslations(item.translations, window.editorData.settings.languages);
-    });
   }
-  // re‑render current tab (usually cards, but we might be called from revert while on another tab)
+  // re‑render current tab
   if (window.editorState.currentMainTab === "cards") {
     editorReorderAll();
     editorRefreshLandingSelect();
     editorRenderCardList();
-  } else if (window.editorState.currentMainTab === "menu") {
-    editorRenderMenuList();
-    editorRenderMenuEdit();
   }
 }
 
@@ -102,8 +94,7 @@ function saveMainJson() {
   });
   const mainData = {
     settings: window.editorData.settings,
-    menu: window.editorData.menu,
-    cards: window.editorData.cards
+    cards: window.editorData.cards     // no more menu
   };
   downloadJson(mainData, "mainpagecards.json");
 }
@@ -183,8 +174,7 @@ async function editorUploadToRepo() {
     });
     const mainData = {
       settings: window.editorData.settings,
-      menu: window.editorData.menu,
-      cards: window.editorData.cards
+      cards: window.editorData.cards     // no menu
     };
     jsonContent = JSON.stringify(mainData, null, 2);
     repoPath = "Content/mainpagecards.json";

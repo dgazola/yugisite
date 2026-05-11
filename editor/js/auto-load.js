@@ -32,5 +32,8 @@ async function editorAutoLoad() {
     }
   } catch { /* ignore */ }
 
-  // Start on the cards tab (already set by processMainJson)
+  // Now that data is loaded, populate the second-language selector and refresh UI
+  if (window.editorAfterAutoLoad) {
+    window.editorAfterAutoLoad();
+  }
 }

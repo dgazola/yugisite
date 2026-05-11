@@ -43,7 +43,13 @@ function editorMigrateOldCard(c) {
   };
 }
 
-// Returns the current list of language codes
+// Returns all languages except English
+function editorGetOtherLanguages() {
+  const langs = window.editorData.settings.languages || ['en'];
+  return langs.filter(l => l !== 'en');
+}
+
+// Returns the complete list of language codes
 function editorGetLanguages() {
   return window.editorData.settings.languages || ['en'];
 }
